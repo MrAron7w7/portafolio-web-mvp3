@@ -51,7 +51,10 @@ const getStoredAppearance = () => {
 const handleSystemThemeChange = () => {
     const currentAppearance = getStoredAppearance();
 
-    updateTheme(currentAppearance || 'system');
+    // Solo aplicar cambios del sistema si el modo actual es 'system'
+    if (currentAppearance === 'system') {
+        updateTheme('system');
+    }
 };
 
 export function initializeTheme() {
@@ -59,15 +62,16 @@ export function initializeTheme() {
         return;
     }
 
-    // Initialize theme from saved preference or default to system...
+    // Cambiado: Por defecto usa 'light' en lugar de 'system'
     const savedAppearance = getStoredAppearance();
-    updateTheme(savedAppearance || 'system');
+    updateTheme(savedAppearance || 'light');
 
     // Set up system theme change listener...
     mediaQuery()?.addEventListener('change', handleSystemThemeChange);
 }
 
-const appearance = ref<Appearance>('system');
+// Cambiado: Valor por defecto ahora es 'light'
+const appearance = ref<Appearance>('light');
 
 export function useAppearance() {
     onMounted(() => {
@@ -77,6 +81,11 @@ export function useAppearance() {
 
         if (savedAppearance) {
             appearance.value = savedAppearance;
+        } else {
+            // Si no hay valor guardado, establecer 'light' como predeterminado
+            appearance.value = 'light';
+            localStorage.setItem('appearance', 'light');
+            setCookie('appearance', 'light');
         }
     });
 
