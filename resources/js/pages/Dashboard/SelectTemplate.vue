@@ -1,78 +1,32 @@
 <script setup lang="ts">
-import dashboard from '@/routes/dashboard';
-import { Link } from '@inertiajs/vue3';
-import { ArrowRight, Check, Eye, Sparkles, Star } from 'lucide-vue-next';
+import { router } from '@inertiajs/vue3';
+import { ArrowRight, Check, Eye, Sparkles, Star, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 
-// Plantillas disponibles
-const templates = ref([
-    {
-        id: 1,
-        name: 'Moderna',
-        description:
-            'Diseño contemporáneo con secciones dinámicas y animaciones sutiles',
-        category: 'Profesional',
-        image: 'M',
-        color: 'from-blue-500 to-cyan-500',
-        popular: true,
-        features: ['Responsive', 'Animaciones', 'Secciones modulares'],
-    },
-    {
-        id: 2,
-        name: 'Minimalista',
-        description: 'Enfoque limpio y elegante con máximo impacto visual',
-        category: 'Diseño',
-        image: 'M',
-        color: 'from-gray-600 to-gray-800',
-        popular: false,
-        features: ['Limpio', 'Enfoque en contenido', 'Tipografía elegante'],
-    },
-    {
-        id: 3,
-        name: 'Ejecutiva',
-        description:
-            'Profesional y corporativo, ideal para negocios y consultoría',
-        category: 'Corporativo',
-        image: 'E',
-        color: 'from-green-500 to-emerald-600',
-        popular: true,
-        features: ['Corporativo', 'Estructurado', 'Profesional'],
-    },
-    {
-        id: 4,
-        name: 'Creativa',
-        description: 'Perfecta para diseñadores, artistas y perfiles creativos',
-        category: 'Portafolio',
-        image: 'C',
-        color: 'from-purple-500 to-pink-500',
-        popular: false,
-        features: ['Visual', 'Interactivo', 'Portfolio focus'],
-    },
-    {
-        id: 5,
-        name: 'Tecnológica',
-        description:
-            'Diseño tech-forward para desarrolladores y profesionales IT',
-        category: 'Tech',
-        image: 'T',
-        color: 'from-orange-500 to-red-500',
-        popular: true,
-        features: ['Code-friendly', 'Tecnológico', 'Moderno'],
-    },
-    {
-        id: 6,
-        name: 'Académica',
-        description: 'Ideal para investigadores, académicos y estudiantes',
-        category: 'Educación',
-        image: 'A',
-        color: 'from-indigo-500 to-blue-600',
-        popular: false,
-        features: ['Estructurado', 'Académico', 'Publicaciones'],
-    },
-]);
+// Componentes de preview
+import CreativaPreview from '@/Components/Templates/Creativa.vue';
+import EjecutivaPreview from '@/Components/Templates/Ejecutiva.vue';
+import MinimalistaPreview from '@/Components/Templates/Minimalista.vue';
+import ModernaPreview from '@/Components/Templates/Moderna.vue';
+import TecnologicaPreview from '@/Components/Templates/Tecnologica.vue';
+import portfolio from '@/routes/dashboard/portfolio';
+
+const props = defineProps<{
+    templates: Array<{
+        id: string;
+        name: string;
+        description: string;
+        category: string;
+        color: string;
+        popular: boolean;
+        features: string[];
+        preview_component: string;
+    }>;
+}>();
 
 // Plantilla seleccionada
-const selectedTemplate = ref<number | null>(null);
+const selectedTemplate = ref<string | null>(null);
+const isCreating = ref(false);
 
 // Modal de vista previa
 const previewModal = ref({
@@ -80,8 +34,88 @@ const previewModal = ref({
     template: null as any,
 });
 
+// Map de componentes de preview
+const previewComponents: Record<string, any> = {
+    Moderna: ModernaPreview,
+    Minimalista: MinimalistaPreview,
+    Ejecutiva: EjecutivaPreview,
+    Creativa: CreativaPreview,
+    Tecnologica: TecnologicaPreview,
+};
+
+// Datos de ejemplo para preview
+const previewData = {
+    personal: {
+        name: 'Juan Pérez',
+        title: 'Desarrollador Full Stack',
+        email: 'juan@ejemplo.com',
+        phone: '+51 999 888 777',
+        location: 'Lima, Perú',
+        linkedin: 'https://linkedin.com/in/juanperez',
+        github: 'https://github.com/juanperez',
+        summary:
+            'Desarrollador apasionado con 5+ años de experiencia en crear soluciones web innovadoras y escalables.',
+    },
+    experience: [
+        {
+            company: 'Tech Solutions SAC',
+            position: 'Senior Developer',
+            startDate: '2020-01',
+            endDate: '',
+            current: true,
+            description:
+                'Liderando equipo de desarrollo de aplicaciones empresariales con Laravel y Vue.js.',
+        },
+        {
+            company: 'Startup Innovadora',
+            position: 'Full Stack Developer',
+            startDate: '2018-06',
+            endDate: '2019-12',
+            current: false,
+            description: 'Desarrollo de MVP y features para plataforma SaaS.',
+        },
+    ],
+    education: [
+        {
+            institution: 'Universidad Nacional',
+            degree: 'Ingeniería de Sistemas',
+            field: 'Ciencias de la Computación',
+            startDate: '2014-03',
+            endDate: '2018-12',
+        },
+    ],
+    skills: {
+        technical: [
+            'Laravel',
+            'Vue.js',
+            'PHP',
+            'JavaScript',
+            'MySQL',
+            'Tailwind CSS',
+        ],
+        soft: [
+            'Liderazgo',
+            'Trabajo en equipo',
+            'Comunicación',
+            'Resolución de problemas',
+        ],
+    },
+    projects: [
+        {
+            name: 'Sistema de Gestión',
+            description: 'Plataforma completa para gestión empresarial',
+            technologies: ['Laravel', 'Vue.js', 'MySQL'],
+        },
+    ],
+    certifications: [],
+    languages: [
+        { name: 'Español', level: 'Nativo' },
+        { name: 'Inglés', level: 'Avanzado' },
+    ],
+};
+
 // Función para seleccionar plantilla
-const selectTemplate = (templateId: number) => {
+const selectTemplate = (templateId: string) => {
     selectedTemplate.value = templateId;
 };
 
@@ -93,21 +127,32 @@ const openPreview = (template: any) => {
     };
 };
 
-// Función para usar plantilla seleccionada
-const useSelectedTemplate = () => {
-    if (selectedTemplate.value) {
-        // Navegar al editor de portafolio
-        console.log(
-            'Navegando al editor con plantilla:',
-            selectedTemplate.value,
-        );
-        // Aquí iría la navegación real
-    }
-};
-
 // Función para cerrar modal
 const closePreview = () => {
     previewModal.value.open = false;
+};
+
+// Función para crear portfolio con plantilla seleccionada
+const createPortfolio = () => {
+    if (!selectedTemplate.value) return;
+
+    isCreating.value = true;
+
+    router.post(
+        portfolio.create().url,
+        {
+            template_type: selectedTemplate.value,
+        },
+        {
+            onSuccess: () => {
+                // La redirección al editor se maneja en el backend
+            },
+            onError: () => {
+                isCreating.value = false;
+                console.log('Error');
+            },
+        },
+    );
 };
 </script>
 
@@ -137,7 +182,7 @@ const closePreview = () => {
                     >
                         <div class="h-2 w-2 rounded-full bg-[#005aeb]"></div>
                         <span class="font-medium text-[#005aeb]"
-                            >Paso 1 de 3</span
+                            >Paso 1 de 2</span
                         >
                         <span>Seleccionar plantilla</span>
                     </div>
@@ -270,7 +315,7 @@ const closePreview = () => {
                                         <span
                                             class="text-6xl font-bold text-white opacity-20"
                                         >
-                                            {{ template.image }}
+                                            {{ template.name[0] }}
                                         </span>
                                     </div>
                                 </div>
@@ -336,22 +381,24 @@ const closePreview = () => {
             <div
                 class="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 transform"
             >
-                <Link :href="dashboard.informcion.url()">
-                    <button
-                        @click="useSelectedTemplate"
-                        :disabled="!selectedTemplate"
-                        :class="[
-                            'flex items-center space-x-3 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-300',
-                            selectedTemplate
-                                ? 'bg-[#005aeb] text-white hover:scale-105 hover:bg-[#0048c4] hover:shadow-xl'
-                                : 'cursor-not-allowed bg-gray-300 text-gray-500',
-                        ]"
-                    >
-                        <Sparkles class="h-5 w-5" />
-                        <span>Continuar con la plantilla seleccionada</span>
-                        <ArrowRight class="h-5 w-5" />
-                    </button>
-                </Link>
+                <button
+                    @click="createPortfolio"
+                    :disabled="!selectedTemplate || isCreating"
+                    :class="[
+                        'flex items-center space-x-3 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-300',
+                        selectedTemplate && !isCreating
+                            ? 'bg-[#005aeb] text-white hover:scale-105 hover:bg-[#0048c4] hover:shadow-xl'
+                            : 'cursor-not-allowed bg-gray-300 text-gray-500',
+                    ]"
+                >
+                    <Sparkles class="h-5 w-5" />
+                    <span>{{
+                        isCreating
+                            ? 'Creando...'
+                            : 'Continuar con la plantilla seleccionada'
+                    }}</span>
+                    <ArrowRight v-if="!isCreating" class="h-5 w-5" />
+                </button>
             </div>
         </main>
 
@@ -362,12 +409,12 @@ const closePreview = () => {
             @click="closePreview"
         >
             <div
-                class="max-h-[90vh] w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white transition-all duration-300"
+                class="max-h-[90vh] w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white transition-all duration-300"
                 @click.stop
             >
                 <!-- Header del modal -->
                 <div
-                    class="flex items-center justify-between border-b border-gray-200 p-6"
+                    class="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-6"
                 >
                     <div>
                         <h3 class="text-xl font-semibold text-gray-900">
@@ -379,100 +426,34 @@ const closePreview = () => {
                     </div>
                     <button
                         @click="closePreview"
-                        class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100"
+                        class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-200"
                     >
                         <X class="h-5 w-5" />
                     </button>
                 </div>
 
-                <!-- Contenido del modal -->
-                <div class="overflow-auto p-6">
-                    <div
-                        class="relative min-h-[400px] rounded-2xl bg-gradient-to-br p-8"
-                        :class="previewModal.template?.color"
-                    >
-                        <!-- Mockup más detallado -->
-                        <div
-                            class="rounded-xl border border-white/20 bg-white/10 p-6 backdrop-blur-sm"
-                        >
-                            <div class="mx-auto max-w-2xl">
-                                <!-- Header del portafolio -->
-                                <div class="mb-8 text-center">
-                                    <div
-                                        class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/20"
-                                    >
-                                        <span
-                                            class="text-2xl font-bold text-white"
-                                            >{{
-                                                previewModal.template?.image
-                                            }}</span
-                                        >
-                                    </div>
-                                    <h4
-                                        class="mb-2 text-xl font-semibold text-white"
-                                    >
-                                        Tu Nombre
-                                    </h4>
-                                    <p class="text-white/80">
-                                        Tu profesión o título
-                                    </p>
-                                </div>
-
-                                <!-- Secciones -->
-                                <div class="grid gap-4">
-                                    <div
-                                        class="rounded-lg border border-white/10 bg-white/10 p-4"
-                                    >
-                                        <div
-                                            class="mb-2 h-3 w-1/3 rounded bg-white/30"
-                                        ></div>
-                                        <div
-                                            class="mb-1 h-2 w-full rounded bg-white/20"
-                                        ></div>
-                                        <div
-                                            class="h-2 w-2/3 rounded bg-white/20"
-                                        ></div>
-                                    </div>
-                                    <div
-                                        class="rounded-lg border border-white/10 bg-white/10 p-4"
-                                    >
-                                        <div
-                                            class="mb-2 h-3 w-1/2 rounded bg-white/30"
-                                        ></div>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <div
-                                                class="h-16 rounded bg-white/20"
-                                            ></div>
-                                            <div
-                                                class="h-16 rounded bg-white/20"
-                                            ></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Características -->
-                    <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                        <div
-                            v-for="feature in previewModal.template?.features"
-                            :key="feature"
-                            class="flex items-center space-x-3 rounded-lg bg-gray-50 p-3"
-                        >
-                            <Check class="h-4 w-4 text-green-500" />
-                            <span class="text-gray-700">{{ feature }}</span>
-                        </div>
+                <!-- Contenido del modal - Preview real del template -->
+                <div class="max-h-[70vh] overflow-auto bg-gray-100 p-6">
+                    <div class="mx-auto max-w-5xl">
+                        <component
+                            v-if="previewModal.template"
+                            :is="
+                                previewComponents[
+                                    previewModal.template.preview_component
+                                ]
+                            "
+                            :data="previewData"
+                        />
                     </div>
                 </div>
 
                 <!-- Footer del modal -->
                 <div
-                    class="flex items-center justify-between border-t border-gray-200 p-6"
+                    class="flex items-center justify-between border-t border-gray-200 bg-gray-50 p-6"
                 >
                     <button
                         @click="closePreview"
-                        class="rounded-lg border border-gray-300 px-6 py-2.5 text-gray-700 transition-colors duration-200 hover:bg-gray-50"
+                        class="rounded-lg border border-gray-300 px-6 py-2.5 text-gray-700 transition-colors duration-200 hover:bg-gray-100"
                     >
                         Cerrar vista previa
                     </button>
@@ -495,29 +476,5 @@ const closePreview = () => {
 <style scoped>
 .container {
     max-width: 1200px;
-}
-
-/* Scroll suave */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Mejoras de animación */
-.group:hover .group-hover\:scale-105 {
-    transform: scale(1.05);
-}
-
-/* Transiciones mejoradas */
-.transition-all {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 300ms;
-}
-
-/* Efectos de profundidad */
-.shadow-lg {
-    box-shadow:
-        0 10px 25px -5px rgb(0 0 0 / 0.1),
-        0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 </style>

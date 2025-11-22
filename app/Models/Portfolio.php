@@ -17,6 +17,7 @@ class Portfolio extends Model
         'title',
         'slug',
         'description',
+        'template_type',
         'template_data',
         'is_public',
         'is_active',

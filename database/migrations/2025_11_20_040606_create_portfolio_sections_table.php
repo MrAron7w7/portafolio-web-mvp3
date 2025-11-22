@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('portfolio_id')->constrained()->onDelete('cascade');
             $table->string('component_type'); // Hero, About, Projects, Skills, Contact, etc.
             $table->string('section_name');
-            $table->json('content'); // Estructura dinámica de componentes Vue
+            $table->json('content')->nullable();
             $table->integer('order')->default(0);
             $table->boolean('is_visible')->default(true);
             $table->json('layout_config')->nullable(); // cols, gap, alignment, etc.

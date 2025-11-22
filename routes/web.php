@@ -28,6 +28,7 @@ Route::middleware(['auth', 'verified'])
 
         // Incluir otras rutas del dashboard
         require __DIR__.'/template.php';
+        require __DIR__.'/editor.php';
     });
 
 require __DIR__.'/settings.php';
