@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\PortfolioPdfController;
 
 Route::get('/', function () {
 
@@ -29,6 +30,8 @@ Route::middleware(['auth', 'verified'])
         // Incluir otras rutas del dashboard
         require __DIR__.'/template.php';
     });
+
+Route::get('/test-pdf/{id}', [PortfolioPdfController::class, 'download']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/google_auth.php';

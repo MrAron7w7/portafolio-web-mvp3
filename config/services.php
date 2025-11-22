@@ -41,4 +41,9 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'browsershot' => [
+        'node_path' => env('BROWSERSHOT_NODE_PATH', 'node'),
+        'npm_path'  => env('BROWSERSHOT_NPM_PATH', 'npm'),
+    ],
+
 ];
