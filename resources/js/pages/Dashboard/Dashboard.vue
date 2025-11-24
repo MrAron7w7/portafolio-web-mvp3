@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import dashboard from '@/routes/dashboard';
+// // // // import dashboard from '@/routes/dashboard';
 import { Link } from '@inertiajs/vue3';
 import {
     Bell,
@@ -191,15 +191,15 @@ onMounted(() => {
                         </p>
                     </div>
 
-                    <!-- Botón crear portafolio -->
-                    <Link :href="dashboard.template.url()">
+                    <!-- Botón crear portafolios -->
+                    <!-- <Link :href="dashboard.template.url()">
                         <button
                             class="mt-4 flex items-center space-x-2 rounded-lg bg-[#005aeb] px-6 py-3 font-semibold whitespace-nowrap text-white shadow-sm transition-all duration-200 hover:bg-[#0048c4] hover:shadow-md lg:mt-0"
                         >
                             <Plus class="h-5 w-5" />
                             <span>Crear portafolio con IA</span>
                         </button>
-                    </Link>
+                    </Link> -->
                 </div>
 
                 <!-- Métricas rápidas -->

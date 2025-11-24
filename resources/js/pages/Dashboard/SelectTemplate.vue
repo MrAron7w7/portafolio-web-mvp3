@@ -3,13 +3,14 @@ import { router } from '@inertiajs/vue3';
 import { ArrowRight, Check, Eye, Sparkles, Star, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 
-// Componentes de preview
-import CreativaPreview from '@/Components/Templates/Creativa.vue';
-import EjecutivaPreview from '@/Components/Templates/Ejecutiva.vue';
-import MinimalistaPreview from '@/Components/Templates/Minimalista.vue';
-import ModernaPreview from '@/Components/Templates/Moderna.vue';
-import TecnologicaPreview from '@/Components/Templates/Tecnologica.vue';
-import portfolio from '@/routes/dashboard/portfolio';
+// 1. IMPORTACIONES CORREGIDAS (Usando 'components' en minúscula)
+import CreativaPreview from '@/components/Templates/Creativa.vue';
+import EjecutivaPreview from '@/components/Templates/Ejecutiva.vue';
+import MinimalistaPreview from '@/components/Templates/Minimalista.vue';
+import ModernaPreview from '@/components/Templates/Moderna.vue';
+import TecnologicaPreview from '@/components/Templates/Tecnologica.vue';
+
+// NOTA: He eliminado la importación de 'portfolio' porque dijiste que no tienes ese archivo.
 
 const props = defineProps<{
     templates: Array<{
@@ -43,7 +44,7 @@ const previewComponents: Record<string, any> = {
     Tecnologica: TecnologicaPreview,
 };
 
-// Datos de ejemplo para preview
+// Datos de ejemplo para preview (Mismo código que tenías)
 const previewData = {
     personal: {
         name: 'Juan Pérez',
@@ -138,8 +139,13 @@ const createPortfolio = () => {
 
     isCreating.value = true;
 
+    // 2. CORRECCIÓN IMPORTANTE:
+    // He reemplazado 'portfolio.create().url' por una URL directa o route().
+    // Asegúrate de que esta URL ('/dashboard/portfolio') coincida con tu archivo routes/web.php en Laravel.
+    // Si usas route names, sería: route('portfolio.store')
+    
     router.post(
-        portfolio.create().url,
+        '/dashboard/portfolio', // <--- CAMBIA ESTO si tu ruta en Laravel es diferente
         {
             template_type: selectedTemplate.value,
         },
@@ -149,7 +155,7 @@ const createPortfolio = () => {
             },
             onError: () => {
                 isCreating.value = false;
-                console.log('Error');
+                console.log('Error al crear el portafolio');
             },
         },
     );
