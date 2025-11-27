@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Academica from '@/Components/Templates/Academica.vue';
-import Creativa from '@/Components/Templates/Creativa.vue';
-import Ejecutiva from '@/Components/Templates/Ejecutiva.vue';
-import Minimalista from '@/Components/Templates/Minimalista.vue';
-import Moderna from '@/Components/Templates/Moderna.vue';
-import Tecnologica from '@/Components/Templates/Tecnologica.vue';
+import Academica from '@/components/Templates/Academica.vue';
+import Creativa from '@/components/Templates/Creativa.vue';
+import Ejecutiva from '@/components/Templates/Ejecutiva.vue';
+import Minimalista from '@/components/Templates/Minimalista.vue';
+import Moderna from '@/components/Templates/Moderna.vue';
+import Tecnologica from '@/components/Templates/Tecnologica.vue';
 import { router } from '@inertiajs/vue3';
 import {
     ArrowLeft,
@@ -56,7 +56,7 @@ const templateComponents = {
 
 // Componente actual basado en la plantilla seleccionada
 const currentTemplate = computed(() => {
-    return templateComponents[props.portfolio.template_type] || Moderna;
+    return templateComponents[props.portfolio.template_type as keyof typeof templateComponents] || Moderna;
 });
 
 // Usar los datos del portfolio en lugar de datos estáticos
@@ -235,7 +235,7 @@ const saveChanges = () => {
             github: formData.personal.github,
             summary: formData.personal.summary,
         },
-        experience: formData.experience.map((exp) => ({
+        experience: formData.experience.map((exp: any) => ({
             company: exp.company,
             position: exp.position,
             startDate: exp.startDate,
@@ -244,8 +244,8 @@ const saveChanges = () => {
             description: exp.description,
         })),
         skills: {
-            technical: formData.skills.technical.map((skill) => skill.name),
-            soft: formData.skills.soft.map((skill) => skill.name),
+            technical: formData.skills.technical.map((skill: any) => skill.name),
+            soft: formData.skills.soft.map((skill: any) => skill.name),
         },
         projects: formData.projects,
         education: formData.education,
@@ -936,7 +936,7 @@ const closeFullPreview = () => {
                                             summary: formData.personal.summary,
                                         },
                                         experience: formData.experience.map(
-                                            (exp) => ({
+                                            (exp: any) => ({
                                                 company: exp.company,
                                                 position: exp.position,
                                                 startDate: exp.startDate,
@@ -948,14 +948,16 @@ const closeFullPreview = () => {
                                         skills: {
                                             technical:
                                                 formData.skills.technical.map(
-                                                    (skill) => skill.name,
+                                                    (skill: any) => skill.name,
                                                 ),
                                             soft: formData.skills.soft.map(
-                                                (skill) => skill.name,
+                                                (skill: any) => skill.name,
                                             ),
                                         },
                                         projects: formData.projects,
                                         education: formData.education,
+                                        certifications: [],
+                                        languages: [],
                                     }"
                                 />
                             </div>
@@ -1059,7 +1061,7 @@ const closeFullPreview = () => {
                             github: formData.personal.github,
                             summary: formData.personal.summary,
                         },
-                        experience: formData.experience.map((exp) => ({
+                        experience: formData.experience.map((exp: any) => ({
                             company: exp.company,
                             position: exp.position,
                             startDate: exp.startDate,
@@ -1069,14 +1071,16 @@ const closeFullPreview = () => {
                         })),
                         skills: {
                             technical: formData.skills.technical.map(
-                                (skill) => skill.name,
+                                (skill: any) => skill.name,
                             ),
                             soft: formData.skills.soft.map(
-                                (skill) => skill.name,
+                                (skill: any) => skill.name,
                             ),
                         },
                         projects: formData.projects,
                         education: formData.education,
+                        certifications: [],
+                        languages: [],
                     }"
                 />
             </div>
@@ -1094,7 +1098,7 @@ const closeFullPreview = () => {
 input:focus,
 select:focus {
     outline: none;
-    ring: 2px;
+    /* ring: 2px; */
 }
 
 /* Transiciones suaves */

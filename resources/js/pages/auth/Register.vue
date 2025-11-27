@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 import google from '@/routes/google';
-import { store } from '@/routes/register';
+import register from '@/routes/register';
 import { Form, Head } from '@inertiajs/vue3';
 </script>
 
@@ -64,7 +64,7 @@ import { Form, Head } from '@inertiajs/vue3';
                 <!-- Formulario -->
                 <div class="mt-10">
                     <Form
-                        v-bind="store.form()"
+                        v-bind="register.store.form()"
                         :reset-on-success="[
                             'password',
                             'password_confirmation',

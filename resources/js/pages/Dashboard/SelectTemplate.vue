@@ -10,7 +10,8 @@ import MinimalistaPreview from '@/components/Templates/Minimalista.vue';
 import ModernaPreview from '@/components/Templates/Moderna.vue';
 import TecnologicaPreview from '@/components/Templates/Tecnologica.vue';
 
-// NOTA: He eliminado la importación de 'portfolio' porque dijiste que no tienes ese archivo.
+// Portfolio routes
+import portfolio from '@/routes/dashboard/portfolio';
 
 const props = defineProps<{
     templates: Array<{
@@ -139,13 +140,8 @@ const createPortfolio = () => {
 
     isCreating.value = true;
 
-    // 2. CORRECCIÓN IMPORTANTE:
-    // He reemplazado 'portfolio.create().url' por una URL directa o route().
-    // Asegúrate de que esta URL ('/dashboard/portfolio') coincida con tu archivo routes/web.php en Laravel.
-    // Si usas route names, sería: route('portfolio.store')
-    
     router.post(
-        '/dashboard/portfolio', // <--- CAMBIA ESTO si tu ruta en Laravel es diferente
+        portfolio.create().url,
         {
             template_type: selectedTemplate.value,
         },
