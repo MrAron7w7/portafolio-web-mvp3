@@ -12,11 +12,9 @@ export default defineConfig({
             refresh: true,
         }),
         tailwindcss(),
-        // Wayfinder plugin temporarily disabled due to generation issues
-        // Run manually: php artisan wayfinder:generate --with-form
-        // wayfinder({
-        //     formVariants: true,
-        // }),
+        wayfinder({
+            formVariants: true,
+        }),
         vue({
             template: {
                 transformAssetUrls: {
