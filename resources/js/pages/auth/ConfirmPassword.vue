@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { store } from '@/routes/password/confirm';
+import confirm from '@/routes/password/confirm';
 import { Form, Head } from '@inertiajs/vue3';
 </script>
 
@@ -17,7 +17,7 @@ import { Form, Head } from '@inertiajs/vue3';
         <Head title="Confirm password" />
 
         <Form
-            v-bind="store.form()"
+            v-bind="confirm.store.form()"
             reset-on-success
             v-slot="{ errors, processing }"
         >

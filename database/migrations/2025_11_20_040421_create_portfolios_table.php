@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
+            $table->integer('template_type')->default(1);
             $table->json('template_data')->nullable();
             $table->boolean('is_public')->default(false);
             $table->boolean('is_active')->default(true);

@@ -1,27 +1,37 @@
 <script setup lang="ts">
+import Academica from '@/components/Templates/Academica.vue';
+import Creativa from '@/components/Templates/Creativa.vue';
+import Ejecutiva from '@/components/Templates/Ejecutiva.vue';
+import Minimalista from '@/components/Templates/Minimalista.vue';
+import Moderna from '@/components/Templates/Moderna.vue';
+import Tecnologica from '@/components/Templates/Tecnologica.vue';
+import { router } from '@inertiajs/vue3';
 import {
     ArrowLeft,
     ArrowRight,
     Briefcase,
     Check,
-    ChevronRight,
     Eye,
     FileText,
-    Github,
-    Instagram,
     Link,
-    Linkedin,
-    Mail,
-    MapPin,
     Palette,
-    Phone,
+    Plus,
+    Save,
     Settings,
     Star,
+    Trash2,
     Upload,
     User,
     Zap,
 } from 'lucide-vue-next';
 import { computed, reactive, ref } from 'vue';
+
+// Props del portfolio
+const props = defineProps<{
+    portfolio: any;
+    templateData: any;
+    sections: any[];
+}>();
 
 // Estado del wizard
 const currentStep = ref(1);
@@ -35,47 +45,89 @@ const steps = ref([
     { id: 7, title: 'Configuración', completed: false, icon: Settings },
 ]);
 
-// Datos del formulario
+const templateComponents = {
+    academica: Academica,
+    creativa: Creativa,
+    ejecutiva: Ejecutiva,
+    minimalista: Minimalista,
+    moderna: Moderna,
+    tecnologica: Tecnologica,
+};
+
+// Componente actual basado en la plantilla seleccionada
+const currentTemplate = computed(() => {
+    return templateComponents[props.portfolio.template_type as keyof typeof templateComponents] || Moderna;
+});
+
+// Usar los datos del portfolio en lugar de datos estáticos
 const formData = reactive({
     personal: {
-        firstName: 'María',
-        lastName: 'González',
-        title: 'Diseñadora UX/UI & Desarrolladora Frontend',
-        city: 'Madrid',
-        country: 'España',
-        phone: '+34 612 345 678',
-        email: 'maria.gonzalez@email.com',
+        firstName: props.templateData.personal.name.split(' ')[0] || '',
+        lastName:
+            props.templateData.personal.name.split(' ').slice(1).join(' ') ||
+            '',
+        title: props.templateData.personal.title || '',
+        city: props.templateData.personal.location
+            ? props.templateData.personal.location.split(',')[0]
+            : '',
+        country: props.templateData.personal.location
+            ? props.templateData.personal.location.split(',')[1]
+            : '',
+        phone: props.templateData.personal.phone || '',
+        email: props.templateData.personal.email || '',
         photo: null as string | null,
+        summary: props.templateData.personal.summary || '',
+        website: props.templateData.personal.website || '',
+        linkedin: props.templateData.personal.linkedin || '',
+        github: props.templateData.personal.github || '',
     },
     about: {
-        summary:
-            'Creo experiencias digitales excepcionales que combinan diseño hermoso con funcionalidad impecable. Especializada en diseño de interfaces y desarrollo frontend moderno.',
+        summary: props.templateData.personal.summary || '',
         description: '',
     },
-    experience: [
-        {
-            id: 1,
-            company: 'TechCorp',
-            position: 'Senior UX Designer',
-            period: '2022 - Presente',
-            description:
-                'Lideré el rediseño de la plataforma principal que resultó en un aumento del 40% en la retención de usuarios.',
-        },
-    ],
-    skills: [
-        { id: 1, name: 'Figma', level: 90, category: 'Design' },
-        { id: 2, name: 'Vue.js', level: 85, category: 'Development' },
-        { id: 3, name: 'UI/UX Design', level: 95, category: 'Design' },
-    ],
-    social: {
-        linkedin: 'maria-gonzalez',
-        github: 'mariagonzalez',
-        instagram: 'maria.design',
+    experience:
+        props.templateData.experience?.map((exp: any, index: number) => ({
+            id: index + 1,
+            company: exp.company || '',
+            position: exp.position || '',
+            period: `${exp.startDate} - ${exp.current ? 'Presente' : exp.endDate}`,
+            description: exp.description || '',
+            startDate: exp.startDate || '',
+            endDate: exp.endDate || '',
+            current: exp.current || false,
+        })) || [],
+    skills: {
+        technical:
+            props.templateData.skills?.technical?.map(
+                (skill: string, index: number) => ({
+                    id: index + 1,
+                    name: skill,
+                    level: 80,
+                    category: 'Technical',
+                }),
+            ) || [],
+        soft:
+            props.templateData.skills?.soft?.map(
+                (skill: string, index: number) => ({
+                    id: index + 1000,
+                    name: skill,
+                    level: 85,
+                    category: 'Soft',
+                }),
+            ) || [],
     },
+    social: {
+        linkedin: props.templateData.personal.linkedin || '',
+        github: props.templateData.personal.github || '',
+        website: props.templateData.personal.website || '',
+    },
+    projects: props.templateData.projects || [],
+    education: props.templateData.education || [],
 });
 
 // Estado avanzado
 const advancedOptions = ref(false);
+const isSaving = ref(false);
 
 // Progreso calculado
 const progress = computed(() => {
@@ -98,7 +150,6 @@ const prevStep = () => {
 };
 
 const goToStep = (stepId: number) => {
-    // Solo permitir navegación a pasos completados o el actual
     const targetStep = steps.value.find((step) => step.id === stepId);
     if (targetStep && (targetStep.completed || stepId === currentStep.value)) {
         currentStep.value = stepId;
@@ -109,13 +160,123 @@ const goToStep = (stepId: number) => {
 const handlePhotoUpload = (event: Event) => {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
-        // Simular upload de imagen
         const reader = new FileReader();
         reader.onload = (e) => {
             formData.personal.photo = e.target?.result as string;
         };
         reader.readAsDataURL(input.files[0]);
     }
+};
+
+// Funciones para manejar arrays
+const addExperience = () => {
+    formData.experience.push({
+        id: Date.now(),
+        company: '',
+        position: '',
+        period: '',
+        description: '',
+        startDate: '',
+        endDate: '',
+        current: false,
+    });
+};
+
+const removeExperience = (index: number) => {
+    formData.experience.splice(index, 1);
+};
+
+const addSkill = (type: 'technical' | 'soft') => {
+    const newId =
+        type === 'technical'
+            ? formData.skills.technical.length + 1
+            : formData.skills.soft.length + 1000;
+    if (type === 'technical') {
+        formData.skills.technical.push({
+            id: newId,
+            name: '',
+            level: 80,
+            category: 'Technical',
+        });
+    } else {
+        formData.skills.soft.push({
+            id: newId,
+            name: '',
+            level: 85,
+            category: 'Soft',
+        });
+    }
+};
+
+const removeSkill = (type: 'technical' | 'soft', index: number) => {
+    if (type === 'technical') {
+        formData.skills.technical.splice(index, 1);
+    } else {
+        formData.skills.soft.splice(index, 1);
+    }
+};
+
+// Guardar cambios
+const saveChanges = () => {
+    isSaving.value = true;
+
+    // Preparar datos para enviar al backend
+    const templateData = {
+        personal: {
+            name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
+            title: formData.personal.title,
+            email: formData.personal.email,
+            phone: formData.personal.phone,
+            location: `${formData.personal.city}, ${formData.personal.country}`
+                .trim()
+                .replace(/^,\s*|\s*,$/g, ''),
+            website: formData.personal.website,
+            linkedin: formData.personal.linkedin,
+            github: formData.personal.github,
+            summary: formData.personal.summary,
+        },
+        experience: formData.experience.map((exp: any) => ({
+            company: exp.company,
+            position: exp.position,
+            startDate: exp.startDate,
+            endDate: exp.endDate,
+            current: exp.current,
+            description: exp.description,
+        })),
+        skills: {
+            technical: formData.skills.technical.map((skill: any) => skill.name),
+            soft: formData.skills.soft.map((skill: any) => skill.name),
+        },
+        projects: formData.projects,
+        education: formData.education,
+    };
+
+    router.put(
+        `/portfolio/${props.portfolio.id}`,
+        {
+            template_data: templateData,
+        },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                isSaving.value = false;
+            },
+            onError: () => {
+                isSaving.value = false;
+            },
+        },
+    );
+};
+
+// Vista previa completa
+const showFullPreview = ref(false);
+
+const openFullPreview = () => {
+    showFullPreview.value = true;
+};
+
+const closeFullPreview = () => {
+    showFullPreview.value = false;
 };
 </script>
 
@@ -156,16 +317,21 @@ const handlePhotoUpload = (event: Event) => {
                     <!-- Acciones -->
                     <div class="flex items-center space-x-3">
                         <button
+                            @click="openFullPreview"
                             class="hidden items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:flex"
                         >
                             <Eye class="h-4 w-4" />
-                            <span>Vista previa</span>
+                            <span>Vista previa completa</span>
                         </button>
                         <button
-                            class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-4 py-2 text-white transition-colors duration-200 hover:bg-[#0048c4]"
+                            @click="saveChanges"
+                            :disabled="isSaving"
+                            class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-4 py-2 text-white transition-colors duration-200 hover:bg-[#0048c4] disabled:opacity-50"
                         >
-                            <span>Guardar y continuar</span>
-                            <ChevronRight class="h-4 w-4" />
+                            <Save class="h-4 w-4" />
+                            <span>{{
+                                isSaving ? 'Guardando...' : 'Guardar'
+                            }}</span>
                         </button>
                     </div>
                 </div>
@@ -269,6 +435,16 @@ const handlePhotoUpload = (event: Event) => {
                                         :style="{ width: progress + '%' }"
                                     ></div>
                                 </div>
+                            </div>
+
+                            <!-- Información del portfolio -->
+                            <div class="rounded-lg bg-gray-50 p-4">
+                                <p class="text-sm font-medium text-gray-900">
+                                    Plantilla: {{ portfolio.template_type }}
+                                </p>
+                                <p class="mt-1 text-xs text-gray-600">
+                                    ID: {{ portfolio.id }}
+                                </p>
                             </div>
 
                             <!-- Enlaces legales -->
@@ -470,73 +646,193 @@ const handlePhotoUpload = (event: Event) => {
                                         placeholder="tu@email.com"
                                     />
                                 </div>
+
+                                <div>
+                                    <label
+                                        class="mb-2 block text-sm font-medium text-gray-700"
+                                    >
+                                        LinkedIn
+                                    </label>
+                                    <input
+                                        v-model="formData.personal.linkedin"
+                                        type="url"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
+                                        placeholder="https://linkedin.com/in/tu-usuario"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="mb-2 block text-sm font-medium text-gray-700"
+                                    >
+                                        GitHub
+                                    </label>
+                                    <input
+                                        v-model="formData.personal.github"
+                                        type="url"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
+                                        placeholder="https://github.com/tu-usuario"
+                                    />
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label
+                                        class="mb-2 block text-sm font-medium text-gray-700"
+                                    >
+                                        Sitio Web
+                                    </label>
+                                    <input
+                                        v-model="formData.personal.website"
+                                        type="url"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
+                                        placeholder="https://tu-sitio-web.com"
+                                    />
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label
+                                        class="mb-2 block text-sm font-medium text-gray-700"
+                                    >
+                                        Resumen profesional *
+                                    </label>
+                                    <textarea
+                                        v-model="formData.personal.summary"
+                                        rows="4"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
+                                        placeholder="Breve descripción sobre tu experiencia y habilidades..."
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paso 3: Experiencia -->
+                        <div v-if="currentStep === 3">
+                            <div class="mb-8">
+                                <h1
+                                    class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl"
+                                >
+                                    Experiencia Laboral
+                                </h1>
+                                <p class="text-lg text-gray-600">
+                                    Agrega tu historial profesional y
+                                    experiencias relevantes.
+                                </p>
                             </div>
 
-                            <!-- Opciones avanzadas -->
-                            <div class="mt-8 border-t border-gray-200 pt-6">
+                            <div class="space-y-6">
                                 <div
-                                    class="mb-4 flex items-center justify-between"
+                                    v-for="(exp, index) in formData.experience"
+                                    :key="exp.id"
+                                    class="rounded-lg border border-gray-200 p-6"
                                 >
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900">
-                                            Opciones avanzadas
-                                        </h4>
-                                        <p class="text-sm text-gray-600">
-                                            Configuraciones adicionales para tu
-                                            portafolio
-                                        </p>
-                                    </div>
-                                    <button
-                                        @click="
-                                            advancedOptions = !advancedOptions
-                                        "
-                                        :class="[
-                                            'relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200',
-                                            advancedOptions
-                                                ? 'bg-[#005aeb]'
-                                                : 'bg-gray-200',
-                                        ]"
+                                    <div
+                                        class="mb-4 flex items-center justify-between"
                                     >
-                                        <span
-                                            :class="[
-                                                'inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200',
-                                                advancedOptions
-                                                    ? 'translate-x-6'
-                                                    : 'translate-x-1',
-                                            ]"
-                                        />
-                                    </button>
+                                        <h3
+                                            class="text-lg font-semibold text-gray-900"
+                                        >
+                                            Experiencia {{ index + 1 }}
+                                        </h3>
+                                        <button
+                                            @click="removeExperience(index)"
+                                            class="text-red-600 hover:text-red-800"
+                                        >
+                                            <Trash2 class="h-4 w-4" />
+                                        </button>
+                                    </div>
+
+                                    <div
+                                        class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    >
+                                        <div>
+                                            <label
+                                                class="mb-2 block text-sm font-medium text-gray-700"
+                                            >
+                                                Empresa *
+                                            </label>
+                                            <input
+                                                v-model="exp.company"
+                                                type="text"
+                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
+                                                placeholder="Nombre de la empresa"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="mb-2 block text-sm font-medium text-gray-700"
+                                            >
+                                                Cargo *
+                                            </label>
+                                            <input
+                                                v-model="exp.position"
+                                                type="text"
+                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
+                                                placeholder="Tu posición"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="mb-2 block text-sm font-medium text-gray-700"
+                                            >
+                                                Fecha de inicio
+                                            </label>
+                                            <input
+                                                v-model="exp.startDate"
+                                                type="month"
+                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="mb-2 block text-sm font-medium text-gray-700"
+                                            >
+                                                Fecha de fin
+                                            </label>
+                                            <input
+                                                v-model="exp.endDate"
+                                                type="month"
+                                                :disabled="exp.current"
+                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb] disabled:opacity-50"
+                                            />
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label
+                                                class="flex items-center space-x-2"
+                                            >
+                                                <input
+                                                    v-model="exp.current"
+                                                    type="checkbox"
+                                                    class="rounded border-gray-300"
+                                                />
+                                                <span
+                                                    class="text-sm text-gray-700"
+                                                    >Trabajo actual</span
+                                                >
+                                            </label>
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label
+                                                class="mb-2 block text-sm font-medium text-gray-700"
+                                            >
+                                                Descripción
+                                            </label>
+                                            <textarea
+                                                v-model="exp.description"
+                                                rows="3"
+                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
+                                                placeholder="Describe tus responsabilidades y logros..."
+                                            ></textarea>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div
-                                    v-if="advancedOptions"
-                                    class="grid grid-cols-1 gap-4 rounded-lg bg-gray-50 p-4 md:grid-cols-2"
+                                <button
+                                    @click="addExperience"
+                                    class="flex w-full items-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-6 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]"
                                 >
-                                    <div>
-                                        <label
-                                            class="mb-2 block text-sm font-medium text-gray-700"
-                                            >Idioma principal</label
-                                        >
-                                        <select
-                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-[#005aeb]"
-                                        >
-                                            <option>Español</option>
-                                            <option>English</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label
-                                            class="mb-2 block text-sm font-medium text-gray-700"
-                                            >Zona horaria</label
-                                        >
-                                        <select
-                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-[#005aeb]"
-                                        >
-                                            <option>Europe/Madrid</option>
-                                            <option>UTC</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                    <Plus class="h-5 w-5" />
+                                    <span>Agregar nueva experiencia</span>
+                                </button>
                             </div>
                         </div>
 
@@ -590,6 +886,7 @@ const handlePhotoUpload = (event: Event) => {
                         </div>
 
                         <!-- Contenedor del preview -->
+                        <!-- Contenedor del preview -->
                         <div
                             class="overflow-hidden rounded-xl border-2 border-gray-200 bg-white"
                         >
@@ -611,135 +908,58 @@ const handlePhotoUpload = (event: Event) => {
                                 <div
                                     class="flex-1 truncate rounded bg-white px-3 py-1 text-xs text-gray-500"
                                 >
-                                    maria-gonzalez.portafolioai.com
+                                    {{ portfolio.slug }}.portafolioai.com
                                 </div>
                             </div>
 
-                            <!-- Contenido del preview -->
-                            <div class="p-6">
-                                <!-- Hero Section -->
-                                <div class="text-center">
-                                    <div
-                                        class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] text-lg font-semibold text-white"
-                                    >
-                                        <span v-if="!formData.personal.photo">
-                                            {{
-                                                formData.personal.firstName.charAt(
-                                                    0,
-                                                )
-                                            }}{{
-                                                formData.personal.lastName.charAt(
-                                                    0,
-                                                )
-                                            }}
-                                        </span>
-                                        <img
-                                            v-else
-                                            :src="formData.personal.photo"
-                                            class="h-16 w-16 rounded-full object-cover"
-                                        />
-                                    </div>
-                                    <h2
-                                        class="mb-2 text-xl font-bold text-gray-900"
-                                    >
-                                        {{ formData.personal.firstName }}
-                                        {{ formData.personal.lastName }}
-                                    </h2>
-                                    <p
-                                        class="mb-4 text-sm font-medium text-[#005aeb]"
-                                    >
-                                        {{ formData.personal.title }}
-                                    </p>
-
-                                    <!-- Información de contacto -->
-                                    <div
-                                        class="mb-6 grid grid-cols-1 gap-2 text-xs text-gray-600"
-                                    >
-                                        <div
-                                            class="flex items-center justify-center space-x-2"
-                                        >
-                                            <MapPin class="h-3 w-3" />
-                                            <span
-                                                >{{ formData.personal.city }},
-                                                {{
-                                                    formData.personal.country
-                                                }}</span
-                                            >
-                                        </div>
-                                        <div
-                                            class="flex items-center justify-center space-x-2"
-                                        >
-                                            <Phone class="h-3 w-3" />
-                                            <span>{{
-                                                formData.personal.phone
-                                            }}</span>
-                                        </div>
-                                        <div
-                                            class="flex items-center justify-center space-x-2"
-                                        >
-                                            <Mail class="h-3 w-3" />
-                                            <span>{{
-                                                formData.personal.email
-                                            }}</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Redes sociales -->
-                                    <div class="flex justify-center space-x-3">
-                                        <div
-                                            class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100"
-                                        >
-                                            <Linkedin
-                                                class="h-3 w-3 text-gray-600"
-                                            />
-                                        </div>
-                                        <div
-                                            class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100"
-                                        >
-                                            <Github
-                                                class="h-3 w-3 text-gray-600"
-                                            />
-                                        </div>
-                                        <div
-                                            class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100"
-                                        >
-                                            <Instagram
-                                                class="h-3 w-3 text-gray-600"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Sección de experiencia (mini preview) -->
-                                <div class="mt-6 border-t border-gray-100 pt-6">
-                                    <h3
-                                        class="mb-3 text-sm font-semibold text-gray-900"
-                                    >
-                                        Experiencia
-                                    </h3>
-                                    <div class="space-y-3">
-                                        <div
-                                            v-for="exp in formData.experience.slice(
-                                                0,
-                                                2,
-                                            )"
-                                            :key="exp.id"
-                                            class="text-xs"
-                                        >
-                                            <p
-                                                class="font-medium text-gray-900"
-                                            >
-                                                {{ exp.position }}
-                                            </p>
-                                            <p class="text-[#005aeb]">
-                                                {{ exp.company }}
-                                            </p>
-                                            <p class="text-gray-500">
-                                                {{ exp.period }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Vista previa de la plantilla seleccionada -->
+                            <div class="max-h-[600px] overflow-auto">
+                                <component
+                                    :is="currentTemplate"
+                                    :data="{
+                                        personal: {
+                                            name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
+                                            title: formData.personal.title,
+                                            email: formData.personal.email,
+                                            phone: formData.personal.phone,
+                                            location:
+                                                `${formData.personal.city}, ${formData.personal.country}`
+                                                    .trim()
+                                                    .replace(
+                                                        /^,\s*|\s*,$/g,
+                                                        '',
+                                                    ),
+                                            website: formData.personal.website,
+                                            linkedin:
+                                                formData.personal.linkedin,
+                                            github: formData.personal.github,
+                                            summary: formData.personal.summary,
+                                        },
+                                        experience: formData.experience.map(
+                                            (exp: any) => ({
+                                                company: exp.company,
+                                                position: exp.position,
+                                                startDate: exp.startDate,
+                                                endDate: exp.endDate,
+                                                current: exp.current,
+                                                description: exp.description,
+                                            }),
+                                        ),
+                                        skills: {
+                                            technical:
+                                                formData.skills.technical.map(
+                                                    (skill: any) => skill.name,
+                                                ),
+                                            soft: formData.skills.soft.map(
+                                                (skill: any) => skill.name,
+                                            ),
+                                        },
+                                        projects: formData.projects,
+                                        education: formData.education,
+                                        certifications: [],
+                                        languages: [],
+                                    }"
+                                />
                             </div>
                         </div>
 
@@ -751,29 +971,118 @@ const handlePhotoUpload = (event: Event) => {
                                 <div
                                     class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#005aeb]"
                                 >
-                                    <span class="text-xs font-bold text-white"
-                                        >M</span
+                                    <span
+                                        class="text-xs font-bold text-white"
+                                        >{{
+                                            portfolio.template_type
+                                                .charAt(0)
+                                                .toUpperCase()
+                                        }}</span
                                     >
                                 </div>
                                 <div class="flex-1">
                                     <p
                                         class="text-sm font-medium text-gray-900"
                                     >
-                                        Plantilla "Moderna"
+                                        Plantilla "{{
+                                            portfolio.template_type
+                                        }}"
                                     </p>
                                     <p class="text-xs text-gray-600">
                                         Totalmente responsive y personalizable
                                     </p>
                                 </div>
-                                <button
-                                    class="text-xs font-medium text-[#005aeb] hover:text-[#0048c4]"
-                                >
-                                    Cambiar
-                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de vista previa completa -->
+    <div
+        v-if="showFullPreview"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+        @click="closeFullPreview"
+    >
+        <div
+            class="max-h-[90vh] w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white transition-all duration-300"
+            @click.stop
+        >
+            <!-- Header del modal -->
+            <div
+                class="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-6"
+            >
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900">
+                        Vista Previa: {{ portfolio.template_type }}
+                    </h3>
+                    <p class="mt-1 text-gray-600">
+                        Vista previa completa de tu portafolio
+                    </p>
+                </div>
+                <button
+                    @click="closeFullPreview"
+                    class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-200"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                        ></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Contenido del modal -->
+            <div class="max-h-[80vh] overflow-auto">
+                <component
+                    :is="currentTemplate"
+                    :data="{
+                        personal: {
+                            name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
+                            title: formData.personal.title,
+                            email: formData.personal.email,
+                            phone: formData.personal.phone,
+                            location:
+                                `${formData.personal.city}, ${formData.personal.country}`
+                                    .trim()
+                                    .replace(/^,\s*|\s*,$/g, ''),
+                            website: formData.personal.website,
+                            linkedin: formData.personal.linkedin,
+                            github: formData.personal.github,
+                            summary: formData.personal.summary,
+                        },
+                        experience: formData.experience.map((exp: any) => ({
+                            company: exp.company,
+                            position: exp.position,
+                            startDate: exp.startDate,
+                            endDate: exp.endDate,
+                            current: exp.current,
+                            description: exp.description,
+                        })),
+                        skills: {
+                            technical: formData.skills.technical.map(
+                                (skill: any) => skill.name,
+                            ),
+                            soft: formData.skills.soft.map(
+                                (skill: any) => skill.name,
+                            ),
+                        },
+                        projects: formData.projects,
+                        education: formData.education,
+                        certifications: [],
+                        languages: [],
+                    }"
+                />
             </div>
         </div>
     </div>
@@ -789,7 +1098,7 @@ const handlePhotoUpload = (event: Event) => {
 input:focus,
 select:focus {
     outline: none;
-    ring: 2px;
+    /* ring: 2px; */
 }
 
 /* Transiciones suaves */
@@ -802,15 +1111,5 @@ select:focus {
 /* Shadow muy sutiles */
 .shadow-xs {
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-}
-
-/* Mejora en el toggle switch */
-.toggle-checkbox:checked {
-    right: 0;
-    border-color: #005aeb;
-}
-
-.toggle-checkbox:checked + .toggle-label {
-    background-color: #005aeb;
 }
 </style>

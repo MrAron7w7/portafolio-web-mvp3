@@ -1,0 +1,461 @@
+<script setup lang="ts">
+import { Award, Briefcase, Target, TrendingUp, Users } from 'lucide-vue-next';
+
+const props = defineProps<{
+    data: {
+        personal: {
+            name: string;
+            title: string;
+            email: string;
+            phone: string;
+            location: string;
+            website?: string;
+            linkedin?: string;
+            github?: string;
+            photo?: string;
+            summary: string;
+        };
+        experience: Array<{
+            company: string;
+            position: string;
+            startDate: string;
+            endDate?: string;
+            current?: boolean;
+            description: string;
+            achievements?: string[];
+        }>;
+        education: Array<any>;
+        skills: {
+            technical: string[];
+            soft: string[];
+        };
+        projects: Array<any>;
+        certifications: Array<any>;
+        languages: Array<any>;
+    };
+    theme?: any;
+}>();
+
+const formatDate = (date: string) => {
+    if (!date) return '';
+    const [year, month] = date.split('-');
+    const months = [
+        'Ene',
+        'Feb',
+        'Mar',
+        'Abr',
+        'May',
+        'Jun',
+        'Jul',
+        'Ago',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dic',
+    ];
+    return `${months[parseInt(month) - 1]} ${year}`;
+};
+
+const calculateDuration = (
+    start: string,
+    end: string | undefined,
+    current: boolean | undefined,
+) => {
+    if (!start) return '';
+
+    const startDate = new Date(start);
+    const endDate = current ? new Date() : end ? new Date(end) : new Date();
+
+    const months =
+        (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+        (endDate.getMonth() - startDate.getMonth());
+
+    const years = Math.floor(months / 12);
+    const remainingMonths = months % 12;
+
+    if (years > 0 && remainingMonths > 0) {
+        return `${years}a ${remainingMonths}m`;
+    } else if (years > 0) {
+        return `${years}a`;
+    } else {
+        return `${remainingMonths}m`;
+    }
+};
+</script>
+
+<template>
+    <div class="min-h-screen bg-gray-50">
+        <!-- Header Ejecutivo -->
+        <header class="bg-gray-900 text-white">
+            <div class="mx-auto max-w-6xl px-8 py-12">
+                <div class="flex items-start justify-between">
+                    <!-- Información Principal -->
+                    <div class="flex-1">
+                        <h1 class="mb-2 text-4xl font-bold">
+                            {{ data.personal.name || 'Tu Nombre' }}
+                        </h1>
+                        <p class="mb-6 text-xl text-gray-300">
+                            {{ data.personal.title || 'Director Ejecutivo' }}
+                        </p>
+
+                        <!-- Resumen Ejecutivo -->
+                        <p
+                            v-if="data.personal.summary"
+                            class="max-w-2xl leading-relaxed text-gray-400"
+                        >
+                            {{ data.personal.summary }}
+                        </p>
+                    </div>
+
+                    <!-- Contacto Ejecutivo -->
+                    <div class="text-right">
+                        <div class="space-y-2 text-sm">
+                            <div
+                                v-if="data.personal.email"
+                                class="flex items-center justify-end"
+                            >
+                                <span class="text-gray-300">{{
+                                    data.personal.email
+                                }}</span>
+                            </div>
+                            <div
+                                v-if="data.personal.phone"
+                                class="flex items-center justify-end"
+                            >
+                                <span class="text-gray-300">{{
+                                    data.personal.phone
+                                }}</span>
+                            </div>
+                            <div
+                                v-if="data.personal.location"
+                                class="flex items-center justify-end"
+                            >
+                                <span class="text-gray-300">{{
+                                    data.personal.location
+                                }}</span>
+                            </div>
+                            <div
+                                v-if="data.personal.linkedin"
+                                class="flex items-center justify-end"
+                            >
+                                <span class="text-gray-300">{{
+                                    data.personal.linkedin
+                                }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenido Principal -->
+        <main class="mx-auto max-w-6xl px-8 py-12">
+            <div class="grid gap-8 lg:grid-cols-3">
+                <!-- Columna Principal -->
+                <div class="lg:col-span-2">
+                    <!-- Experiencia Ejecutiva -->
+                    <section v-if="data.experience?.length" class="mb-8">
+                        <div class="mb-6 flex items-center">
+                            <Briefcase class="mr-3 h-6 w-6 text-gray-700" />
+                            <h2 class="text-2xl font-bold text-gray-900">
+                                Experiencia Ejecutiva
+                            </h2>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div
+                                v-for="(exp, index) in data.experience"
+                                :key="index"
+                                class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+                            >
+                                <div
+                                    class="mb-3 flex items-start justify-between"
+                                >
+                                    <div>
+                                        <h3
+                                            class="text-xl font-bold text-gray-900"
+                                        >
+                                            {{ exp.position }}
+                                        </h3>
+                                        <p
+                                            class="text-lg font-semibold text-blue-600"
+                                        >
+                                            {{ exp.company }}
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span
+                                            class="block text-sm font-medium text-gray-700"
+                                        >
+                                            {{ formatDate(exp.startDate) }} –
+                                            {{
+                                                exp.current
+                                                    ? 'Presente'
+                                                    : formatDate(
+                                                          exp.endDate || '',
+                                                      )
+                                            }}
+                                        </span>
+                                        <span class="text-xs text-gray-500">
+                                            {{
+                                                calculateDuration(
+                                                    exp.startDate,
+                                                    exp.endDate,
+                                                    exp.current,
+                                                )
+                                            }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <p class="mb-4 leading-relaxed text-gray-700">
+                                    {{ exp.description }}
+                                </p>
+
+                                <!-- Logros -->
+                                <div
+                                    v-if="exp.achievements?.length"
+                                    class="rounded-lg bg-gray-50 p-4"
+                                >
+                                    <h4
+                                        class="mb-2 flex items-center font-semibold text-gray-900"
+                                    >
+                                        <Target
+                                            class="mr-2 h-4 w-4 text-green-600"
+                                        />
+                                        Logros Clave
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        <li
+                                            v-for="(
+                                                achievement, achIndex
+                                            ) in exp.achievements"
+                                            :key="achIndex"
+                                            class="flex items-start text-sm text-gray-700"
+                                        >
+                                            <span class="mr-2 text-green-500"
+                                                >•</span
+                                            >
+                                            {{ achievement }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Proyectos Estratégicos -->
+                    <section v-if="data.projects?.length" class="mb-8">
+                        <div class="mb-6 flex items-center">
+                            <TrendingUp class="mr-3 h-6 w-6 text-gray-700" />
+                            <h2 class="text-2xl font-bold text-gray-900">
+                                Proyectos Estratégicos
+                            </h2>
+                        </div>
+
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div
+                                v-for="(project, index) in data.projects"
+                                :key="index"
+                                class="rounded-lg border border-gray-200 bg-white p-6 transition hover:shadow-md"
+                            >
+                                <h3 class="mb-2 font-bold text-gray-900">
+                                    {{ project.name }}
+                                </h3>
+                                <p class="mb-3 text-sm text-gray-700">
+                                    {{ project.description }}
+                                </p>
+                                <div
+                                    v-if="project.technologies?.length"
+                                    class="flex flex-wrap gap-1"
+                                >
+                                    <span
+                                        v-for="tech in project.technologies"
+                                        :key="tech"
+                                        class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-700"
+                                    >
+                                        {{ tech }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Sidebar -->
+                <div>
+                    <!-- Competencias Ejecutivas -->
+                    <section
+                        v-if="
+                            data.skills?.technical?.length ||
+                            data.skills?.soft?.length
+                        "
+                        class="mb-8"
+                    >
+                        <div
+                            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+                        >
+                            <div class="mb-4 flex items-center">
+                                <Users class="mr-2 h-5 w-5 text-gray-700" />
+                                <h2 class="text-xl font-bold text-gray-900">
+                                    Competencias
+                                </h2>
+                            </div>
+
+                            <div
+                                v-if="data.skills.technical?.length"
+                                class="mb-4"
+                            >
+                                <h3 class="mb-2 font-semibold text-gray-700">
+                                    Liderazgo Técnico
+                                </h3>
+                                <div class="space-y-2">
+                                    <div
+                                        v-for="skill in data.skills.technical"
+                                        :key="skill"
+                                        class="flex items-center"
+                                    >
+                                        <div
+                                            class="mr-3 h-2 w-2 rounded-full bg-blue-600"
+                                        ></div>
+                                        <span class="text-sm text-gray-700">{{
+                                            skill
+                                        }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-if="data.skills.soft?.length">
+                                <h3 class="mb-2 font-semibold text-gray-700">
+                                    Habilidades Directivas
+                                </h3>
+                                <div class="space-y-2">
+                                    <div
+                                        v-for="skill in data.skills.soft"
+                                        :key="skill"
+                                        class="flex items-center"
+                                    >
+                                        <div
+                                            class="mr-3 h-2 w-2 rounded-full bg-green-600"
+                                        ></div>
+                                        <span class="text-sm text-gray-700">{{
+                                            skill
+                                        }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Educación Ejecutiva -->
+                    <section v-if="data.education?.length" class="mb-8">
+                        <div
+                            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+                        >
+                            <div class="mb-4 flex items-center">
+                                <Award class="mr-2 h-5 w-5 text-gray-700" />
+                                <h2 class="text-xl font-bold text-gray-900">
+                                    Formación Académica
+                                </h2>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div
+                                    v-for="(edu, index) in data.education"
+                                    :key="index"
+                                    class="border-l-2 border-blue-600 pl-4"
+                                >
+                                    <h3 class="font-semibold text-gray-900">
+                                        {{ edu.degree }}
+                                    </h3>
+                                    <p class="text-sm text-blue-600">
+                                        {{ edu.institution }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ formatDate(edu.startDate) }} -
+                                        {{ formatDate(edu.endDate) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Certificaciones -->
+                    <section v-if="data.certifications?.length" class="mb-8">
+                        <div
+                            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+                        >
+                            <h2 class="mb-4 text-xl font-bold text-gray-900">
+                                Certificaciones
+                            </h2>
+                            <div class="space-y-3">
+                                <div
+                                    v-for="(cert, index) in data.certifications"
+                                    :key="index"
+                                    class="flex items-start"
+                                >
+                                    <div class="mr-3 rounded bg-blue-100 p-1">
+                                        <Award class="h-4 w-4 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <h3
+                                            class="text-sm font-semibold text-gray-900"
+                                        >
+                                            {{ cert.name }}
+                                        </h3>
+                                        <p class="text-xs text-gray-500">
+                                            {{ cert.issuer }} • {{ cert.date }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Idiomas -->
+                    <section v-if="data.languages?.length">
+                        <div
+                            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+                        >
+                            <h2 class="mb-4 text-xl font-bold text-gray-900">
+                                Idiomas
+                            </h2>
+                            <div class="space-y-2">
+                                <div
+                                    v-for="(lang, index) in data.languages"
+                                    :key="index"
+                                    class="flex items-center justify-between"
+                                >
+                                    <span class="text-sm text-gray-700">{{
+                                        lang.name
+                                    }}</span>
+                                    <span
+                                        class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600"
+                                    >
+                                        {{ lang.level }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer Ejecutivo -->
+        <footer class="border-t border-gray-200 bg-white py-6">
+            <div class="mx-auto max-w-6xl px-8 text-center">
+                <p class="text-sm text-gray-600">
+                    {{ data.personal.name }} • Ejecutivo Profesional •
+                    {{ new Date().getFullYear() }}
+                </p>
+            </div>
+        </footer>
+    </div>
+</template>
+
+<style scoped>
+.transition {
+    transition: all 0.3s ease;
+}
+</style>
