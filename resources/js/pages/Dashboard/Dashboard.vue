@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import dashboard from '@/routes/dashboard';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import {
     Bell,
     Calendar,
@@ -9,22 +9,35 @@ import {
     Edit,
     Eye,
     Folder,
+    LogOut,
     Menu,
     Plus,
     Search,
     Trash2,
 } from 'lucide-vue-next';
-import { onMounted, ref } from 'vue';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { logout } from '@/routes';
+import { computed, onMounted, ref } from 'vue';
 
 // Estado del sidebar en móvil
 const sidebarOpen = ref(false);
 
 // Datos del usuario
-const user = ref({
-    name: 'Arón',
-    email: 'aron@ejemplo.com',
-    avatar: 'A',
-});
+const page = usePage();
+const authUser = page.props.auth.user;
+
+const user = computed(() => ({
+    name: authUser.name,
+    email: authUser.email,
+    avatar: authUser.name.charAt(0).toUpperCase(),
+}));
 
 // Métricas del dashboard
 const metrics = ref([
@@ -153,20 +166,39 @@ onMounted(() => {
 
                         <!-- Perfil -->
                         <div class="relative">
-                            <button
-                                class="flex items-center space-x-3 rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100"
-                            >
-                                <div
-                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] text-sm font-semibold text-white"
-                                >
-                                    {{ user.avatar }}
-                                </div>
-                                <span
-                                    class="hidden text-sm font-medium text-gray-700 sm:block"
-                                    >{{ user.name }}</span
-                                >
-                                <ChevronDown class="h-4 w-4 text-gray-400" />
-                            </button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger as-child>
+                                    <button
+                                        class="flex items-center space-x-3 rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100"
+                                    >
+                                        <div
+                                            class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] text-sm font-semibold text-white"
+                                        >
+                                            {{ user.avatar }}
+                                        </div>
+                                        <span
+                                            class="hidden text-sm font-medium text-gray-700 sm:block"
+                                            >{{ user.name }}</span
+                                        >
+                                        <ChevronDown class="h-4 w-4 text-gray-400" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" class="w-56">
+                                    <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem as-child>
+                                        <Link
+                                            :href="logout()"
+                                            method="post"
+                                            as="button"
+                                            class="flex w-full items-center cursor-pointer"
+                                        >
+                                            <LogOut class="mr-2 h-4 w-4" />
+                                            <span>Cerrar sesión</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
                 </div>
