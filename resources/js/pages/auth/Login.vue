@@ -8,8 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { register } from '@/routes';
 import google from '@/routes/google';
-import { store } from '@/routes/login';
-import { request } from '@/routes/password';
+import login from '@/routes/login';
+import password from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
 
 defineProps<{
@@ -80,7 +80,7 @@ defineProps<{
                 <!-- Formulario -->
                 <div class="mt-10">
                     <Form
-                        v-bind="store.form()"
+                        v-bind="login.store.form()"
                         :reset-on-success="['password']"
                         v-slot="{ errors, processing }"
                         class="space-y-6"
@@ -118,7 +118,7 @@ defineProps<{
                                 </Label>
                                 <TextLink
                                     v-if="canResetPassword"
-                                    :href="request()"
+                                    :href="password.request()"
                                     class="text-sm text-primary transition-colors duration-200 hover:text-accent"
                                     :tabindex="5"
                                 >
