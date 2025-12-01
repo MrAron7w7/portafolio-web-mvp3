@@ -10,8 +10,21 @@ import {
     Settings,
     HelpCircle,
     Bell,
-    LogOut
+    LogOut,
+    CreditCard,
+    Globe,
+    Puzzle,
+    Settings2,
+    ChevronRight
 } from 'lucide-vue-next';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { logout } from '@/routes';
 
 defineProps<{
@@ -50,17 +63,39 @@ const menuItems = computed(() => [
     }
 ]);
 
+const settingsItems = computed(() => [
+    {
+        name: 'General',
+        icon: Settings2,
+        href: '/settings/general',
+        active: page.url === '/settings/general'
+    },
+    {
+        name: 'Suscripción',
+        icon: CreditCard,
+        href: '/settings/subscription',
+        active: page.url === '/settings/subscription'
+    },
+    {
+        name: 'Dominio',
+        icon: Globe,
+        href: '/settings/domain',
+        active: page.url === '/settings/domain'
+    },
+    {
+        name: 'Integraciones',
+        icon: Puzzle,
+        href: '/settings/integrations',
+        active: page.url === '/settings/integrations'
+    }
+]);
+
 const secondaryItems = [
     {
         name: 'Notificaciones',
         icon: Bell,
         href: '#',
         badge: 3
-    },
-    {
-        name: 'Configuración',
-        icon: Settings,
-        href: '#'
     },
     {
         name: 'Ayuda',
@@ -116,20 +151,52 @@ const secondaryItems = [
             <div class="space-y-4">
                 <div class="pt-4 border-t border-gray-100">
                     <div class="space-y-1">
-                        <Link v-for="item in secondaryItems" :key="item.name" :href="item.href"
+                        <!-- Notificaciones -->
+                        <Link href="#"
                             class="group flex items-center space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition-all duration-300 hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1">
-                        <component :is="item.icon"
-                            class="h-5 w-5 text-gray-400 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12" />
-                        <span>{{ item.name }}</span>
-                        <span v-if="item.badge"
-                            class="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs font-medium text-red-600 animate-pulse">
-                            {{ item.badge }}
+                        <component :is="Bell" class="h-5 w-5 text-gray-400 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12" />
+                        <span>Notificaciones</span>
+                        <span class="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs font-medium text-red-600 animate-pulse">
+                            3
                         </span>
+                        </Link>
+
+                        <!-- Configuración (Floating Dropdown) -->
+                        <DropdownMenu>
+                            <DropdownMenuTrigger as-child>
+                                <button
+                                    class="w-full group flex items-center justify-between space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition-all duration-300 hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1 outline-none">
+                                    <div class="flex items-center space-x-3">
+                                        <Settings2 class="h-5 w-5 text-gray-400 transition-transform duration-300 group-hover:rotate-90" />
+                                        <span>Configuración</span>
+                                    </div>
+                                    <ChevronRight class="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent side="right" align="start" :side-offset="20" class="w-56 p-2">
+                                <DropdownMenuLabel class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Configuración</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem v-for="item in settingsItems" :key="item.name" as-child>
+                                    <Link :href="item.href" :class="[
+                                        'flex w-full items-center space-x-2 rounded-lg px-2 py-2 text-sm cursor-pointer',
+                                        item.active ? 'bg-blue-50 text-[#005aeb]' : 'text-gray-600 hover:bg-gray-50'
+                                    ]">
+                                    <component :is="item.icon" class="h-4 w-4" />
+                                    <span>{{ item.name }}</span>
+                                    </Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <!-- Ayuda -->
+                        <Link href="#"
+                            class="group flex items-center space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition-all duration-300 hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1">
+                        <component :is="HelpCircle" class="h-5 w-5 text-gray-400 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12" />
+                        <span>Ayuda</span>
                         </Link>
                     </div>
                 </div>
 
-                <!-- User Profile Summary (Optional, nice for sidebar) -->
                 <!-- User Profile Footer -->
                 <div class="border-t border-gray-100 pt-4 mt-auto">
                     <div
