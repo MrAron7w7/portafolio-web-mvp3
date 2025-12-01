@@ -10,7 +10,6 @@ import {
     Settings,
     HelpCircle,
     Bell,
-    ChevronDown,
     LogOut
 } from 'lucide-vue-next';
 import { logout } from '@/routes';
@@ -78,12 +77,13 @@ const secondaryItems = [
     ]">
         <!-- Logo Area -->
         <div class="flex h-16 items-center justify-between px-6 border-b border-gray-100">
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 group cursor-pointer">
                 <div
-                    class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#005aeb] to-[#7B2FF7]">
+                    class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] transition-transform duration-500 group-hover:rotate-[360deg] shadow-lg shadow-blue-500/30">
                     <span class="text-lg font-bold text-white">P</span>
                 </div>
-                <span class="text-lg font-bold text-gray-900">Portafolio</span>
+                <span
+                    class="text-lg font-bold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 transition-all duration-300 group-hover:tracking-wider">Portafolio</span>
             </div>
             <button @click="emit('close')" class="lg:hidden rounded-lg p-1 text-gray-500 hover:bg-gray-100">
                 <X class="h-5 w-5" />
@@ -95,16 +95,19 @@ const secondaryItems = [
             <nav class="space-y-1">
                 <div v-for="item in menuItems" :key="item.name">
                     <Link :href="item.href" :class="[
-                        'flex items-center space-x-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
+                        'group flex items-center space-x-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 hover:bg-white border border-transparent hover:border-blue-100 relative overflow-hidden',
                         item.active
-                            ? 'bg-blue-50 text-[#005aeb] shadow-sm ring-1 ring-blue-100'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            ? 'bg-blue-50 text-[#005aeb] shadow-md shadow-blue-500/20 ring-1 ring-blue-100 scale-105'
+                            : 'text-gray-600 hover:text-[#005aeb]'
                     ]">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-r from-blue-50/0 via-blue-50/50 to-blue-50/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000">
+                    </div>
                     <component :is="item.icon" :class="[
-                        'h-5 w-5 transition-colors',
-                        item.active ? 'text-[#005aeb]' : 'text-gray-400 group-hover:text-gray-600'
+                        'h-5 w-5 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110',
+                        item.active ? 'text-[#005aeb] rotate-0' : 'text-gray-400 group-hover:text-[#005aeb]'
                     ]" />
-                    <span>{{ item.name }}</span>
+                    <span class="relative z-10">{{ item.name }}</span>
                     </Link>
                 </div>
             </nav>
@@ -114,11 +117,12 @@ const secondaryItems = [
                 <div class="pt-4 border-t border-gray-100">
                     <div class="space-y-1">
                         <Link v-for="item in secondaryItems" :key="item.name" :href="item.href"
-                            class="flex items-center space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition-all duration-200 hover:bg-gray-50 hover:text-gray-900">
-                        <component :is="item.icon" class="h-5 w-5 text-gray-400" />
+                            class="group flex items-center space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition-all duration-300 hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1">
+                        <component :is="item.icon"
+                            class="h-5 w-5 text-gray-400 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12" />
                         <span>{{ item.name }}</span>
                         <span v-if="item.badge"
-                            class="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs font-medium text-red-600">
+                            class="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs font-medium text-red-600 animate-pulse">
                             {{ item.badge }}
                         </span>
                         </Link>
@@ -128,19 +132,21 @@ const secondaryItems = [
                 <!-- User Profile Summary (Optional, nice for sidebar) -->
                 <!-- User Profile Footer -->
                 <div class="border-t border-gray-100 pt-4 mt-auto">
-                    <div class="flex items-center justify-between p-2 rounded-xl bg-gray-50 border border-gray-100">
+                    <div
+                        class="flex items-center justify-between p-2 rounded-xl bg-gray-50 border border-gray-100 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:border-purple-100 hover:-translate-y-1 group">
                         <div class="flex items-center space-x-3 min-w-0">
                             <div
-                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] text-sm font-semibold text-white shadow-sm">
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] text-sm font-semibold text-white shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12">
                                 {{ user.avatar }}
                             </div>
-                            <div class="min-w-0 flex-1">
+                            <div class="min-w-0 flex-1 transition-all duration-300 group-hover:translate-x-1">
                                 <p class="text-sm font-medium text-gray-900 truncate">{{ user.name }}</p>
                                 <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
                             </div>
                         </div>
                         <Link :href="logout()" method="post" as="button"
-                            class="ml-2 rounded-lg p-2 text-red-600 transition-all duration-200" title="Cerrar sesión">
+                            class="ml-2 rounded-lg p-2 text-black hover:text-red-600 transition-colors duration-200"
+                            title="Cerrar sesión">
                         <LogOut class="h-5 w-5" />
                         </Link>
                     </div>
