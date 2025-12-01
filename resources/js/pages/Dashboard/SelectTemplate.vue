@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { ArrowRight, Check, Eye, Sparkles, Star, X } from 'lucide-vue-next';
+import { ArrowRight, Check, Eye, Sparkles, Star, X, Menu } from 'lucide-vue-next';
 import { ref } from 'vue';
+import DashboardLayout from '@/layouts/DashboardLayout.vue';
 
 // 1. IMPORTACIONES CORREGIDAS (Usando 'components' en minúscula)
 import CreativaPreview from '@/components/Templates/Creativa.vue';
@@ -159,6 +160,7 @@ const createPortfolio = () => {
 </script>
 
 <template>
+    <DashboardLayout v-slot="{ toggleSidebar }">
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/30">
         <!-- Header -->
         <header
@@ -168,6 +170,12 @@ const createPortfolio = () => {
                 <div class="flex items-center justify-between py-4">
                     <!-- Logo -->
                     <div class="flex items-center space-x-3">
+                        <button
+                            @click="toggleSidebar"
+                            class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100 lg:hidden mr-2"
+                        >
+                            <Menu class="h-5 w-5" />
+                        </button>
                         <div
                             class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005aeb]"
                         >
@@ -473,6 +481,7 @@ const createPortfolio = () => {
             </div>
         </div>
     </div>
+    </DashboardLayout>
 </template>
 
 <style scoped>
