@@ -24,6 +24,7 @@ import {
 import { computed, reactive, ref } from 'vue';
 import AboutSection from './Components/AboutSection.vue';
 import ConfigSection from './Components/ConfigSection.vue';
+import EducationSection from './Components/EducationSection.vue';
 import ExperienceSection from './Components/ExperienceSection.vue';
 import PersonalSection from './Components/PersonalSection.vue';
 import PreviewContainer from './Components/PreviewContainer.vue';
@@ -43,11 +44,12 @@ const currentStep = ref(1);
 const steps = ref([
     { id: 1, title: 'Información personal', completed: true, icon: User },
     { id: 2, title: 'Sobre mí', completed: false, icon: FileText },
-    { id: 3, title: 'Experiencia', completed: false, icon: Briefcase },
-    { id: 4, title: 'Habilidades', completed: false, icon: Star },
-    { id: 5, title: 'Proyectos', completed: false, icon: Zap },
-    { id: 6, title: 'Redes sociales', completed: false, icon: Link },
-    { id: 7, title: 'Configuración', completed: false, icon: Settings },
+    { id: 3, title: 'Formación Académica', completed: false, icon: Palette },
+    { id: 4, title: 'Experiencia', completed: false, icon: Briefcase },
+    { id: 5, title: 'Habilidades', completed: false, icon: Star },
+    { id: 6, title: 'Proyectos', completed: false, icon: Zap },
+    { id: 7, title: 'Redes sociales', completed: false, icon: Link },
+    { id: 8, title: 'Configuración', completed: false, icon: Settings },
 ]);
 
 const templateComponents = {
@@ -240,50 +242,37 @@ const closeFullPreview = () => {
                 <div class="flex items-center justify-between">
                     <!-- Logo -->
                     <div class="flex items-center space-x-3">
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005aeb]"
-                        >
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005aeb]">
                             <span class="text-sm font-bold text-white">P</span>
                         </div>
-                        <span class="text-xl font-bold text-gray-900"
-                            >PortafolioAI</span
-                        >
+                        <span class="text-xl font-bold text-gray-900">PortafolioAI</span>
                     </div>
 
                     <!-- Progreso general -->
                     <div class="hidden items-center space-x-4 md:flex">
                         <div class="text-sm text-gray-600">
-                            <span class="font-medium text-[#005aeb]"
-                                >{{ progress }}%</span
-                            >
+                            <span class="font-medium text-[#005aeb]">{{ progress }}%</span>
                             completado
                         </div>
                         <div class="h-2 w-32 rounded-full bg-gray-200">
-                            <div
-                                class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
-                                :style="{ width: progress + '%' }"
-                            ></div>
+                            <div class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
+                                :style="{ width: progress + '%' }"></div>
                         </div>
                     </div>
 
                     <!-- Acciones -->
                     <div class="flex items-center space-x-3">
-                        <button
-                            @click="openFullPreview"
-                            class="hidden items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:flex"
-                        >
+                        <button @click="openFullPreview"
+                            class="hidden items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:flex">
                             <Eye class="h-4 w-4" />
                             <span>Vista previa completa</span>
                         </button>
-                        <button
-                            @click="saveChanges"
-                            :disabled="isSaving"
-                            class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-4 py-2 text-white transition-colors duration-200 hover:bg-[#0048c4] disabled:opacity-50"
-                        >
+                        <button @click="saveChanges" :disabled="isSaving"
+                            class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-4 py-2 text-white transition-colors duration-200 hover:bg-[#0048c4] disabled:opacity-50">
                             <Save class="h-4 w-4" />
                             <span>{{
                                 isSaving ? 'Guardando...' : 'Guardar'
-                            }}</span>
+                                }}</span>
                         </button>
                     </div>
                 </div>
@@ -295,70 +284,48 @@ const closeFullPreview = () => {
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
                 <!-- Columna Izquierda - Stepper -->
                 <div class="lg:col-span-3">
-                    <div
-                        class="sticky top-8 rounded-2xl border border-gray-200/60 bg-white p-6 shadow-xs"
-                    >
+                    <div class="sticky top-8 rounded-2xl border border-gray-200/60 bg-white p-6 shadow-xs">
                         <!-- Lista de pasos -->
                         <nav class="space-y-2">
-                            <div
-                                v-for="(step, index) in steps"
-                                :key="step.id"
-                                class="group flex cursor-pointer items-start space-x-4"
-                                @click="goToStep(step.id)"
-                            >
+                            <div v-for="(step, index) in steps" :key="step.id"
+                                class="group flex cursor-pointer items-start space-x-4" @click="goToStep(step.id)">
                                 <!-- Línea vertical -->
                                 <div class="flex flex-col items-center">
-                                    <div
-                                        :class="[
-                                            'flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-200',
-                                            step.completed
-                                                ? 'border-[#005aeb] bg-[#005aeb] text-white'
-                                                : currentStep === step.id
-                                                  ? 'border-[#005aeb] bg-white text-[#005aeb]'
-                                                  : 'border-gray-300 bg-white text-gray-400',
-                                        ]"
-                                    >
-                                        <Check
-                                            v-if="step.completed"
-                                            class="h-4 w-4"
-                                        />
-                                        <component
-                                            :is="step.icon"
-                                            v-else-if="currentStep === step.id"
-                                            class="h-4 w-4"
-                                        />
+                                    <div :class="[
+                                        'flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-200',
+                                        step.completed
+                                            ? 'border-[#005aeb] bg-[#005aeb] text-white'
+                                            : currentStep === step.id
+                                                ? 'border-[#005aeb] bg-white text-[#005aeb]'
+                                                : 'border-gray-300 bg-white text-gray-400',
+                                    ]">
+                                        <Check v-if="step.completed" class="h-4 w-4" />
+                                        <component :is="step.icon" v-else-if="currentStep === step.id"
+                                            class="h-4 w-4" />
                                         <span v-else>{{ step.id }}</span>
                                     </div>
                                     <!-- Línea conectora -->
-                                    <div
-                                        v-if="index < steps.length - 1"
-                                        :class="[
-                                            'mt-2 h-8 w-0.5 transition-colors duration-200',
-                                            steps[index + 1].completed
-                                                ? 'bg-[#005aeb]'
-                                                : 'bg-gray-200',
-                                        ]"
-                                    ></div>
+                                    <div v-if="index < steps.length - 1" :class="[
+                                        'mt-2 h-8 w-0.5 transition-colors duration-200',
+                                        steps[index + 1].completed
+                                            ? 'bg-[#005aeb]'
+                                            : 'bg-gray-200',
+                                    ]"></div>
                                 </div>
 
                                 <!-- Texto del paso -->
                                 <div class="min-w-0 flex-1 pb-6">
-                                    <p
-                                        :class="[
-                                            'font-medium transition-colors duration-200',
-                                            currentStep === step.id
-                                                ? 'text-[#005aeb]'
-                                                : step.completed
-                                                  ? 'text-gray-900'
-                                                  : 'text-gray-500',
-                                        ]"
-                                    >
+                                    <p :class="[
+                                        'font-medium transition-colors duration-200',
+                                        currentStep === step.id
+                                            ? 'text-[#005aeb]'
+                                            : step.completed
+                                                ? 'text-gray-900'
+                                                : 'text-gray-500',
+                                    ]">
                                         {{ step.title }}
                                     </p>
-                                    <p
-                                        v-if="currentStep === step.id"
-                                        class="mt-1 text-sm text-[#005aeb]"
-                                    >
+                                    <p v-if="currentStep === step.id" class="mt-1 text-sm text-[#005aeb]">
                                         Paso actual
                                     </p>
                                 </div>
@@ -366,26 +333,16 @@ const closeFullPreview = () => {
                         </nav>
 
                         <!-- Progreso y enlaces -->
-                        <div
-                            class="mt-4 space-y-4 border-t border-gray-200 pt-6"
-                        >
+                        <div class="mt-4 space-y-4 border-t border-gray-200 pt-6">
                             <!-- Barra de progreso -->
                             <div>
-                                <div
-                                    class="mb-2 flex justify-between text-sm text-gray-600"
-                                >
+                                <div class="mb-2 flex justify-between text-sm text-gray-600">
                                     <span>Progreso total</span>
-                                    <span class="font-medium text-[#005aeb]"
-                                        >{{ progress }}%</span
-                                    >
+                                    <span class="font-medium text-[#005aeb]">{{ progress }}%</span>
                                 </div>
-                                <div
-                                    class="h-2 w-full rounded-full bg-gray-200"
-                                >
-                                    <div
-                                        class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
-                                        :style="{ width: progress + '%' }"
-                                    ></div>
+                                <div class="h-2 w-full rounded-full bg-gray-200">
+                                    <div class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
+                                        :style="{ width: progress + '%' }"></div>
                                 </div>
                             </div>
 
@@ -402,21 +359,11 @@ const closeFullPreview = () => {
                             <!-- Enlaces legales -->
                             <div class="space-y-2 text-xs text-gray-500">
                                 <div class="flex space-x-4">
-                                    <a
-                                        href="#"
-                                        class="transition-colors duration-200 hover:text-gray-700"
-                                        >Condiciones</a
-                                    >
-                                    <a
-                                        href="#"
-                                        class="transition-colors duration-200 hover:text-gray-700"
-                                        >Privacidad</a
-                                    >
-                                    <a
-                                        href="#"
-                                        class="transition-colors duration-200 hover:text-gray-700"
-                                        >Contacto</a
-                                    >
+                                    <a href="#"
+                                        class="transition-colors duration-200 hover:text-gray-700">Condiciones</a>
+                                    <a href="#"
+                                        class="transition-colors duration-200 hover:text-gray-700">Privacidad</a>
+                                    <a href="#" class="transition-colors duration-200 hover:text-gray-700">Contacto</a>
                                 </div>
                                 <p class="text-gray-400">
                                     &copy; 2024 PortafolioAI. Todos los derechos
@@ -429,56 +376,30 @@ const closeFullPreview = () => {
 
                 <!-- Columna Central - Formulario -->
                 <div class="lg:col-span-5">
-                    <div
-                        class="rounded-2xl border border-gray-200/60 bg-white p-8 shadow-xs"
-                    >
+                    <div class="rounded-2xl border border-gray-200/60 bg-white p-8 shadow-xs">
                         <!-- Componentes Dinámicos -->
-                        <PersonalSection
-                            v-if="currentStep === 1"
-                            v-model="formData.personal"
-                        />
-                        <AboutSection
-                            v-if="currentStep === 2"
-                            v-model="formData.about"
-                        />
-                        <ExperienceSection
-                            v-if="currentStep === 3"
-                            v-model="formData.experience"
-                        />
-                        <SkillsSection
-                            v-if="currentStep === 4"
-                            v-model="formData.skills"
-                        />
-                        <ProjectsSection
-                            v-if="currentStep === 5"
-                            v-model="formData.projects"
-                        />
-                        <SocialSection
-                            v-if="currentStep === 6"
-                            v-model="formData.social"
-                        />
-                        <ConfigSection
-                            v-if="currentStep === 7"
-                            v-model="formData.config"
-                        />
+                        <PersonalSection v-if="currentStep === 1" v-model="formData.personal" />
+                        <AboutSection v-if="currentStep === 2" v-model="formData.about" />
+
+                        <EducationSection v-if="currentStep === 3" v-model="formData.education" />
+
+                        <ExperienceSection v-if="currentStep === 4" v-model="formData.experience" />
+                        <SkillsSection v-if="currentStep === 5" v-model="formData.skills" />
+                        <ProjectsSection v-if="currentStep === 6" v-model="formData.projects" />
+                        <SocialSection v-if="currentStep === 7" v-model="formData.social" />
+                        <ConfigSection v-if="currentStep === 8" v-model="formData.config" />
 
                         <!-- Navegación entre pasos -->
-                        <div
-                            class="mt-8 flex items-center justify-between border-t border-gray-200 pt-8"
-                        >
-                            <button
-                                @click="prevStep"
+                        <div class="mt-8 flex items-center justify-between border-t border-gray-200 pt-8">
+                            <button @click="prevStep"
                                 class="flex items-center space-x-2 rounded-lg border border-gray-300 px-6 py-3 text-gray-700 transition-colors duration-200 hover:bg-gray-50"
-                                :disabled="currentStep === 1"
-                            >
+                                :disabled="currentStep === 1">
                                 <ArrowLeft class="h-4 w-4" />
                                 <span>Anterior</span>
                             </button>
 
-                            <button
-                                @click="nextStep"
-                                class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-6 py-3 text-white transition-colors duration-200 hover:bg-[#0048c4]"
-                            >
+                            <button @click="nextStep"
+                                class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-6 py-3 text-white transition-colors duration-200 hover:bg-[#0048c4]">
                                 <span>{{ currentStep === 7 ? 'Finalizar' : 'Siguiente paso' }}</span>
                                 <ArrowRight class="h-4 w-4" />
                             </button>
@@ -489,54 +410,52 @@ const closeFullPreview = () => {
                 <!-- Columna Derecha - Vista Previa -->
                 <div class="lg:col-span-4">
                     <div
-                        class="sticky top-8 h-[calc(100vh-8rem)] overflow-hidden rounded-2xl border border-gray-200/60 bg-white shadow-xs"
-                    >
+                        class="sticky top-8 h-[calc(100vh-8rem)] overflow-hidden rounded-2xl border border-gray-200/60 bg-white shadow-xs">
                         <PreviewContainer>
-                            <component
-                                :is="currentTemplate"
-                                :data="{
-                                    personal: {
-                                        name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
-                                        title: formData.personal.title,
-                                        email: formData.personal.email,
-                                        phone: formData.personal.phone,
-                                        location:
-                                            `${formData.personal.city}, ${formData.personal.country}`
-                                                .trim()
-                                                .replace(
-                                                    /^,\s*|\s*,$/g,
-                                                    '',
-                                                ),
-                                        website: formData.social.website || formData.personal.website,
-                                        linkedin:
-                                            formData.social.linkedin || formData.personal.linkedin,
-                                        github: formData.social.github || formData.personal.github,
-                                        summary: formData.about.summary || formData.personal.summary,
-                                    },
-                                    experience: formData.experience.map(
-                                        (exp: any) => ({
-                                            company: exp.company,
-                                            position: exp.position,
-                                            startDate: exp.startDate,
-                                            endDate: exp.endDate,
-                                            current: exp.current,
-                                            description: exp.description,
-                                        }),
-                                    ),
-                                    skills: {
-                                        technical:
-                                            formData.skills.technical.map(
-                                                (skill: any) => skill.name,
+                            <component :is="currentTemplate" :data="{
+                                personal: {
+                                    name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
+                                    title: formData.personal.title,
+                                    email: formData.personal.email,
+                                    phone: formData.personal.phone,
+                                    location:
+                                        `${formData.personal.city}, ${formData.personal.country}`
+                                            .trim()
+                                            .replace(
+                                                /^,\s*|\s*,$/g,
+                                                '',
                                             ),
-                                        soft: formData.skills.soft.map(
+                                    website: formData.social.website || formData.personal.website,
+                                    linkedin:
+                                        formData.social.linkedin || formData.personal.linkedin,
+                                    github: formData.social.github || formData.personal.github,
+                                    summary: formData.about.summary || formData.personal.summary,
+                                },
+                                experience: formData.experience.map(
+                                    (exp: any) => ({
+                                        company: exp.company,
+                                        position: exp.position,
+                                        startDate: exp.startDate,
+                                        endDate: exp.endDate,
+                                        current: exp.current,
+                                        description: exp.description,
+                                    }),
+                                ),
+                                skills: {
+                                    technical:
+                                        formData.skills.technical.map(
                                             (skill: any) => skill.name,
                                         ),
-                                    },
-                                    projects: formData.projects,
-                                    education: formData.education,
-                                    certifications: [],
-                                    languages: [],
-                                }"
+                                    soft: formData.skills.soft.map(
+                                        (skill: any) => skill.name,
+                                    ),
+                                },
+                                projects: formData.projects,
+                                education: formData.education,
+                                certifications: [],
+                                languages: [],
+                            }" 
+                            class="w-full"
                             />
                         </PreviewContainer>
                     </div>
@@ -546,19 +465,13 @@ const closeFullPreview = () => {
     </div>
 
     <!-- Modal de vista previa completa -->
-    <div
-        v-if="showFullPreview"
+    <div v-if="showFullPreview"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-        @click="closeFullPreview"
-    >
-        <div
-            class="max-h-[90vh] w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white transition-all duration-300"
-            @click.stop
-        >
+        @click="closeFullPreview">
+        <div class="max-h-[90vh] w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white transition-all duration-300"
+            @click.stop>
             <!-- Header del modal -->
-            <div
-                class="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-6"
-            >
+            <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-6">
                 <div>
                     <h3 class="text-xl font-semibold text-gray-900">
                         Vista Previa: {{ portfolio.template_type }}
@@ -567,67 +480,53 @@ const closeFullPreview = () => {
                         Vista previa completa de tu portafolio
                     </p>
                 </div>
-                <button
-                    @click="closeFullPreview"
-                    class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-200"
-                >
-                    <svg
-                        class="h-5 w-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"
-                        ></path>
+                <button @click="closeFullPreview"
+                    class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-200">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
                     </svg>
                 </button>
             </div>
 
             <!-- Contenido del modal -->
             <div class="max-h-[80vh] overflow-auto">
-                <component
-                    :is="currentTemplate"
-                    :data="{
-                        personal: {
-                            name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
-                            title: formData.personal.title,
-                            email: formData.personal.email,
-                            phone: formData.personal.phone,
-                            location:
-                                `${formData.personal.city}, ${formData.personal.country}`
-                                    .trim()
-                                    .replace(/^,\s*|\s*,$/g, ''),
-                            website: formData.social.website || formData.personal.website,
-                            linkedin: formData.social.linkedin || formData.personal.linkedin,
-                            github: formData.social.github || formData.personal.github,
-                            summary: formData.about.summary || formData.personal.summary,
-                        },
-                        experience: formData.experience.map((exp: any) => ({
-                            company: exp.company,
-                            position: exp.position,
-                            startDate: exp.startDate,
-                            endDate: exp.endDate,
-                            current: exp.current,
-                            description: exp.description,
-                        })),
-                        skills: {
-                            technical: formData.skills.technical.map(
-                                (skill: any) => skill.name,
-                            ),
-                            soft: formData.skills.soft.map(
-                                (skill: any) => skill.name,
-                            ),
-                        },
-                        projects: formData.projects,
-                        education: formData.education,
-                        certifications: [],
-                        languages: [],
-                    }"
-                />
+                <component :is="currentTemplate" :data="{
+                    personal: {
+                        name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
+                        title: formData.personal.title,
+                        email: formData.personal.email,
+                        phone: formData.personal.phone,
+                        location:
+                            `${formData.personal.city}, ${formData.personal.country}`
+                                .trim()
+                                .replace(/^,\s*|\s*,$/g, ''),
+                        website: formData.social.website || formData.personal.website,
+                        linkedin: formData.social.linkedin || formData.personal.linkedin,
+                        github: formData.social.github || formData.personal.github,
+                        summary: formData.about.summary || formData.personal.summary,
+                    },
+                    experience: formData.experience.map((exp: any) => ({
+                        company: exp.company,
+                        position: exp.position,
+                        startDate: exp.startDate,
+                        endDate: exp.endDate,
+                        current: exp.current,
+                        description: exp.description,
+                    })),
+                    skills: {
+                        technical: formData.skills.technical.map(
+                            (skill: any) => skill.name,
+                        ),
+                        soft: formData.skills.soft.map(
+                            (skill: any) => skill.name,
+                        ),
+                    },
+                    projects: formData.projects,
+                    education: formData.education,
+                    certifications: [],
+                    languages: [],
+                }" />
             </div>
         </div>
     </div>
