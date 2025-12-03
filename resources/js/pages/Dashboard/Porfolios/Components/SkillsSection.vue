@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Plus, Trash2 } from 'lucide-vue-next';
+import { Plus, Trash2, ChevronDown } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 
 interface Skill {
     id: number;
@@ -17,11 +18,34 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue']);
 
+const expandedSkill = ref<number | null>(null);
+const lastAddedId = ref<number | null>(null);
+
+// Watcher para expandir automáticamente la última habilidad agregada (SOLO al agregar)
+watch(
+    () => [...props.modelValue.technical, ...props.modelValue.soft],
+    (newSkills) => {
+        // Solo si es diferente cantidad
+        if (lastAddedId.value !== null) {
+            // Buscar la habilidad con lastAddedId
+            const skill = newSkills.find(s => s.id === lastAddedId.value);
+            if (skill) {
+                expandedSkill.value = skill.id;
+            }
+            lastAddedId.value = null;
+        }
+    },
+    { deep: true }
+);
+
 const addSkill = (type: 'technical' | 'soft') => {
+    const newSkillId = Date.now();
+    lastAddedId.value = newSkillId; // Marcar que vamos a agregar
+
     const newSkill = {
-        id: Date.now(),
+        id: newSkillId,
         name: '',
-        level: 80,
+        level: 50,
         category: type === 'technical' ? 'Technical' : 'Soft',
     };
 
@@ -43,6 +67,10 @@ const updateSkill = (type: 'technical' | 'soft', index: number, field: keyof Ski
     updated[type][index] = { ...updated[type][index], [field]: value };
     emit('update:modelValue', updated);
 };
+
+const toggleSkill = (id: number) => {
+    expandedSkill.value = expandedSkill.value === id ? null : id;
+};
 </script>
 
 <template>
@@ -56,7 +84,7 @@ const updateSkill = (type: 'technical' | 'soft', index: number, field: keyof Ski
             </p>
         </div>
 
-        <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div class="space-y-8">
             <!-- Habilidades Técnicas -->
             <div>
                 <div class="mb-4 flex items-center justify-between">
@@ -65,50 +93,85 @@ const updateSkill = (type: 'technical' | 'soft', index: number, field: keyof Ski
                     </h3>
                     <button
                         @click="addSkill('technical')"
-                        class="flex items-center space-x-1 text-sm font-medium text-[#005aeb] hover:text-[#0048c4]"
+                        class="flex items-center space-x-1 text-sm font-medium text-blue-600 hover:text-blue-700"
                     >
                         <Plus class="h-4 w-4" />
                         <span>Agregar</span>
                     </button>
                 </div>
 
-                <div class="space-y-3">
+                <div v-if="modelValue.technical.length === 0" class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500">
+                    No has agregado habilidades técnicas
+                </div>
+
+                <div v-else class="space-y-3">
                     <div
                         v-for="(skill, index) in modelValue.technical"
                         :key="skill.id"
-                        class="flex items-center space-x-3 rounded-lg border border-gray-200 p-3"
+                        class="rounded-lg border border-gray-200 overflow-hidden"
                     >
-                        <div class="flex-1">
-                            <input
-                                :value="skill.name"
-                                @input="updateSkill('technical', index, 'name', ($event.target as HTMLInputElement).value)"
-                                type="text"
-                                class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-[#005aeb] focus:ring-1 focus:ring-[#005aeb]"
-                                placeholder="Ej: JavaScript"
-                            />
-                        </div>
-                        <div class="w-24">
-                            <input
-                                :value="skill.level"
-                                @input="updateSkill('technical', index, 'level', parseInt(($event.target as HTMLInputElement).value))"
-                                type="range"
-                                min="0"
-                                max="100"
-                                class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#005aeb]"
-                            />
-                        </div>
+                        <!-- Header Acordeón -->
                         <button
-                            @click="removeSkill('technical', index)"
-                            class="text-gray-400 hover:text-red-500"
+                            @click="toggleSkill(skill.id)"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
                         >
-                            <Trash2 class="h-4 w-4" />
+                            <div class="flex items-center gap-3 flex-1 text-left">
+                                <ChevronDown
+                                    class="h-5 w-5 text-gray-600 transition-transform duration-400 ease-out flex-shrink-0"
+                                    :class="{ 'transform rotate-180': expandedSkill === skill.id }"
+                                />
+                                <span class="text-base font-medium text-gray-900">
+                                    {{ skill.name || 'Nueva habilidad' }}
+                                </span>
+                                <span class="text-sm text-gray-500">{{ skill.level }}%</span>
+                            </div>
+                            <button
+                                @click.stop="removeSkill('technical', index)"
+                                class="text-gray-400 hover:text-red-500 p-1.5 flex-shrink-0"
+                            >
+                                <Trash2 class="h-4 w-4" />
+                            </button>
                         </button>
-                    </div>
-                    <div
-                        v-if="modelValue.technical.length === 0"
-                        class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500"
-                    >
-                        No has agregado habilidades técnicas
+
+                        <!-- Contenido Acordeón -->
+                        <transition
+                            enter-active-class="transition-all duration-400 ease-out"
+                            leave-active-class="transition-all duration-300 ease-in"
+                            enter-from-class="max-h-0 opacity-0 overflow-hidden"
+                            enter-to-class="max-h-[250px] opacity-100"
+                            leave-from-class="max-h-[250px] opacity-100"
+                            leave-to-class="max-h-0 opacity-0 overflow-hidden"
+                        >
+                            <div v-if="expandedSkill === skill.id" class="px-4 py-4 bg-white border-t border-gray-200">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Nombre
+                                        </label>
+                                        <input
+                                            :value="skill.name"
+                                            @input="updateSkill('technical', index, 'name', ($event.target as HTMLInputElement).value)"
+                                            type="text"
+                                            class="w-full text-base text-gray-900 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                            placeholder="Ej: JavaScript"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Nivel: <span class="font-semibold text-blue-600">{{ skill.level }}%</span>
+                                        </label>
+                                        <input
+                                            :value="skill.level"
+                                            @input="updateSkill('technical', index, 'level', parseInt(($event.target as HTMLInputElement).value))"
+                                            type="range"
+                                            min="0"
+                                            max="100"
+                                            class="w-full h-2.5 cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-500"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
                     </div>
                 </div>
             </div>
@@ -121,50 +184,85 @@ const updateSkill = (type: 'technical' | 'soft', index: number, field: keyof Ski
                     </h3>
                     <button
                         @click="addSkill('soft')"
-                        class="flex items-center space-x-1 text-sm font-medium text-[#005aeb] hover:text-[#0048c4]"
+                        class="flex items-center space-x-1 text-sm font-medium text-blue-600 hover:text-blue-700"
                     >
                         <Plus class="h-4 w-4" />
                         <span>Agregar</span>
                     </button>
                 </div>
 
-                <div class="space-y-3">
+                <div v-if="modelValue.soft.length === 0" class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500">
+                    No has agregado habilidades blandas
+                </div>
+
+                <div v-else class="space-y-3">
                     <div
                         v-for="(skill, index) in modelValue.soft"
                         :key="skill.id"
-                        class="flex items-center space-x-3 rounded-lg border border-gray-200 p-3"
+                        class="rounded-lg border border-gray-200 overflow-hidden"
                     >
-                        <div class="flex-1">
-                            <input
-                                :value="skill.name"
-                                @input="updateSkill('soft', index, 'name', ($event.target as HTMLInputElement).value)"
-                                type="text"
-                                class="w-full rounded border-gray-300 px-2 py-1 text-sm focus:border-[#005aeb] focus:ring-1 focus:ring-[#005aeb]"
-                                placeholder="Ej: Liderazgo"
-                            />
-                        </div>
-                        <div class="w-24">
-                            <input
-                                :value="skill.level"
-                                @input="updateSkill('soft', index, 'level', parseInt(($event.target as HTMLInputElement).value))"
-                                type="range"
-                                min="0"
-                                max="100"
-                                class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#005aeb]"
-                            />
-                        </div>
+                        <!-- Header Acordeón -->
                         <button
-                            @click="removeSkill('soft', index)"
-                            class="text-gray-400 hover:text-red-500"
+                            @click="toggleSkill(skill.id)"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
                         >
-                            <Trash2 class="h-4 w-4" />
+                            <div class="flex items-center gap-3 flex-1 text-left">
+                                <ChevronDown
+                                    class="h-5 w-5 text-gray-600 transition-transform duration-400 ease-out flex-shrink-0"
+                                    :class="{ 'transform rotate-180': expandedSkill === skill.id }"
+                                />
+                                <span class="text-base font-medium text-gray-900">
+                                    {{ skill.name || 'Nueva habilidad' }}
+                                </span>
+                                <span class="text-sm text-gray-500">{{ skill.level }}%</span>
+                            </div>
+                            <button
+                                @click.stop="removeSkill('soft', index)"
+                                class="text-gray-400 hover:text-red-500 p-1.5 flex-shrink-0"
+                            >
+                                <Trash2 class="h-4 w-4" />
+                            </button>
                         </button>
-                    </div>
-                    <div
-                        v-if="modelValue.soft.length === 0"
-                        class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500"
-                    >
-                        No has agregado habilidades blandas
+
+                        <!-- Contenido Acordeón -->
+                        <transition
+                            enter-active-class="transition-all duration-400 ease-out"
+                            leave-active-class="transition-all duration-300 ease-in"
+                            enter-from-class="max-h-0 opacity-0 overflow-hidden"
+                            enter-to-class="max-h-[250px] opacity-100"
+                            leave-from-class="max-h-[250px] opacity-100"
+                            leave-to-class="max-h-0 opacity-0 overflow-hidden"
+                        >
+                            <div v-if="expandedSkill === skill.id" class="px-4 py-4 bg-white border-t border-gray-200">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Nombre
+                                        </label>
+                                        <input
+                                            :value="skill.name"
+                                            @input="updateSkill('soft', index, 'name', ($event.target as HTMLInputElement).value)"
+                                            type="text"
+                                            class="w-full text-base text-gray-900 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                            placeholder="Ej: Liderazgo"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Nivel: <span class="font-semibold text-blue-600">{{ skill.level }}%</span>
+                                        </label>
+                                        <input
+                                            :value="skill.level"
+                                            @input="updateSkill('soft', index, 'level', parseInt(($event.target as HTMLInputElement).value))"
+                                            type="range"
+                                            min="0"
+                                            max="100"
+                                            class="w-full h-2.5 cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-500"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
                     </div>
                 </div>
             </div>

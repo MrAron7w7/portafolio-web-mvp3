@@ -66,6 +66,10 @@ const currentTemplate = computed(() => {
     return templateComponents[props.portfolio.template_type as keyof typeof templateComponents] || Moderna;
 });
 
+
+const technical = props.templateData.skills?.technical || [];
+const soft = props.templateData.skills?.soft || [];
+
 // Usar los datos del portfolio en lugar de datos estáticos
 const formData = reactive({
     personal: {
@@ -82,16 +86,16 @@ const formData = reactive({
             : '',
         phone: props.templateData.personal.phone || '',
         email: props.templateData.personal.email || '',
-        photo: null as string | null,
-        summary: props.templateData.personal.summary || '',
+        photo: props.templateData.personal.photo || '',
+
         website: props.templateData.personal.website || '',
         linkedin: props.templateData.personal.linkedin || '',
         github: props.templateData.personal.github || '',
-    },
-    about: {
         summary: props.templateData.personal.summary || '',
-        description: props.templateData.about?.description || '',
+        description: props.templateData.personal.description || '',
     },
+
+
     experience:
         props.templateData.experience?.map((exp: any, index: number) => ({
             id: index + 1,
@@ -103,25 +107,43 @@ const formData = reactive({
             endDate: exp.endDate || '',
             current: exp.current || false,
         })) || [],
-    skills: {
-        technical:
-            props.templateData.skills?.technical?.map(
-                (skill: string, index: number) => ({
+        skills: {
+        technical: technical.map((skill: any, index: number) => {
+
+            if (typeof skill === 'string') {
+                return {
                     id: index + 1,
                     name: skill,
-                    level: 80,
+                    level: 50,
                     category: 'Technical',
-                }),
-            ) || [],
-        soft:
-            props.templateData.skills?.soft?.map(
-                (skill: string, index: number) => ({
+                };
+            } else {
+                // Skill ya es objeto { name, level }
+                return {
+                    id: index + 1,
+                    name: skill.name || '',
+                    level: skill.level || 50,
+                    category: 'Technical',
+                };
+            }
+        }),
+        soft: soft.map((skill: any, index: number) => {
+            if (typeof skill === 'string') {
+                return {
                     id: index + 1000,
                     name: skill,
-                    level: 85,
+                    level: 50,
                     category: 'Soft',
-                }),
-            ) || [],
+                };
+            } else {
+                return {
+                    id: index + 1000,
+                    name: skill.name || '',
+                    level: skill.level || 50,
+                    category: 'Soft',
+                };
+            }
+        }),
     },
     social: {
         linkedin: props.templateData.personal.linkedin || '',
@@ -136,8 +158,7 @@ const formData = reactive({
     }
 });
 
-// Estado avanzado
-const isSaving = ref(false);
+
 
 // Progreso calculado
 const progress = computed(() => {
@@ -166,62 +187,85 @@ const goToStep = (stepId: number) => {
     }
 };
 
-// Guardar cambios
-const saveChanges = () => {
-    isSaving.value = true;
 
-    // Preparar datos para enviar al backend
-    const templateData = {
-        personal: {
-            name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
-            title: formData.personal.title,
-            email: formData.personal.email,
-            phone: formData.personal.phone,
-            location: `${formData.personal.city}, ${formData.personal.country}`
-                .trim()
-                .replace(/^,\s*|\s*,$/g, ''),
-            website: formData.social.website || formData.personal.website,
-            linkedin: formData.social.linkedin || formData.personal.linkedin,
-            github: formData.social.github || formData.personal.github,
-            summary: formData.about.summary || formData.personal.summary,
-        },
-        about: {
-            description: formData.about.description,
-        },
-        experience: formData.experience.map((exp: any) => ({
-            company: exp.company,
-            position: exp.position,
-            startDate: exp.startDate,
-            endDate: exp.endDate,
-            current: exp.current,
-            description: exp.description,
-        })),
-        skills: {
-            technical: formData.skills.technical.map((skill: any) => skill.name),
-            soft: formData.skills.soft.map((skill: any) => skill.name),
-        },
-        projects: formData.projects,
-        education: formData.education,
-        config: formData.config,
-    };
+// ... resto del código anterior ...
 
-    router.put(
-        `/portfolio/${props.portfolio.id}`,
-        {
-            template_data: templateData,
-        },
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                isSaving.value = false;
+// Estado del botón de guardado
+const isSaving = ref(false);
+const isSaved = ref(false);
+const SUCCESS_DURATION = 2500; // 2.5 segundos
+
+// Guardar cambios mejorado
+const saveChanges = async () => {
+    try {
+        isSaving.value = true;
+        isSaved.value = false;
+
+        // Preparar datos para enviar al backend
+        const templateData = {
+            personal: {
+                name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
+                title: formData.personal.title,
+                email: formData.personal.email,
+                phone: formData.personal.phone,
+                location: `${formData.personal.city}, ${formData.personal.country}`
+                    .trim()
+                    .replace(/^,\s*|\s*,$/g, ''),
+                website: formData.social.website || formData.personal.website,
+                photo: formData.personal.photo || formData.personal.photo,
+                linkedin: formData.social.linkedin || formData.personal.linkedin,
+                github: formData.social.github || formData.personal.github,
+                summary: formData.personal.summary || formData.personal.summary,
+                description: formData.personal.description,
             },
-            onError: () => {
-                isSaving.value = false;
+            experience: formData.experience.map((exp: any) => ({
+                company: exp.company,
+                position: exp.position,
+                startDate: exp.startDate,
+                endDate: exp.endDate,
+                current: exp.current,
+                description: exp.description,
+            })),
+            skills: {
+                technical: formData.skills.technical.map((skill: any) => ({
+                    name: skill.name,
+                    level: skill.level
+                })),
+
+                soft: formData.skills.soft.map((skill: any) => ({
+                    name: skill.name,
+                    level: skill.level
+                })),
             },
-        },
-    );
+            projects: formData.projects,
+            education: formData.education,
+            config: formData.config,
+        };
+
+        router.put(
+            `/dashboard/portfolio/${props.portfolio.id}`,
+            { template_data: templateData },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    isSaving.value = false;
+                    isSaved.value = true;
+
+                    // Retornar al estado normal después del tiempo especificado
+                    setTimeout(() => {
+                        isSaved.value = false;
+                    }, SUCCESS_DURATION);
+                },
+                onError: () => {
+                    isSaving.value = false;
+                },
+            },
+        );
+    } catch (error) {
+        isSaving.value = false;
+        console.error('Error al guardar:', error);
+    }
 };
-
 // Vista previa completa
 const showFullPreview = ref(false);
 
@@ -261,20 +305,55 @@ const closeFullPreview = () => {
                     </div>
 
                     <!-- Acciones -->
+                    <!-- Reemplaza esta sección en el header -->
                     <div class="flex items-center space-x-3">
                         <button @click="openFullPreview"
                             class="hidden items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:flex">
                             <Eye class="h-4 w-4" />
                             <span>Vista previa completa</span>
                         </button>
-                        <button @click="saveChanges" :disabled="isSaving"
-                            class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-4 py-2 text-white transition-colors duration-200 hover:bg-[#0048c4] disabled:opacity-50">
-                            <Save class="h-4 w-4" />
-                            <span>{{
-                                isSaving ? 'Guardando...' : 'Guardar'
-                                }}</span>
+
+                        <!-- Botón Guardar con Estados -->
+                        <button @click="saveChanges" :disabled="isSaving || isSaved" :class="[
+                            'flex items-center space-x-2 rounded-lg font-medium px-4 py-2 transition-all duration-300',
+                            // Estado normal
+                            !isSaving && !isSaved && 'bg-[#005aeb] text-white hover:bg-[#0048c4] shadow-md hover:shadow-lg',
+                            // Estado guardando
+                            isSaving && 'bg-[#005aeb] text-white opacity-75 cursor-not-allowed',
+                            // Estado guardado exitoso
+                            isSaved && 'bg-green-500 text-white shadow-lg shadow-green-500/30'
+                        ]">
+                            <!-- Spinner Loading -->
+                            <svg v-if="isSaving" class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+
+                            <!-- Checkmark Success -->
+                            <svg v-else-if="isSaved" class="h-4 w-4 animate-bounce" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+
+                            <!-- Ícono Save Normal -->
+                            <svg v-else class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V3" />
+                            </svg>
+
+                            <!-- Texto del botón -->
+                            <span class="text-sm">
+                                {{ isSaving ? 'Guardando...' : isSaved ? '¡Guardado!' : 'Guardar' }}
+                            </span>
                         </button>
                     </div>
+
                 </div>
             </div>
         </header>
@@ -379,7 +458,7 @@ const closeFullPreview = () => {
                     <div class="rounded-2xl border border-gray-200/60 bg-white p-8 shadow-xs">
                         <!-- Componentes Dinámicos -->
                         <PersonalSection v-if="currentStep === 1" v-model="formData.personal" />
-                        <AboutSection v-if="currentStep === 2" v-model="formData.about" />
+                        <AboutSection v-if="currentStep === 2" v-model="formData.personal" />
 
                         <EducationSection v-if="currentStep === 3" v-model="formData.education" />
 
@@ -418,6 +497,7 @@ const closeFullPreview = () => {
                                     title: formData.personal.title,
                                     email: formData.personal.email,
                                     phone: formData.personal.phone,
+                                    photo: formData.personal.photo,
                                     location:
                                         `${formData.personal.city}, ${formData.personal.country}`
                                             .trim()
@@ -429,7 +509,8 @@ const closeFullPreview = () => {
                                     linkedin:
                                         formData.social.linkedin || formData.personal.linkedin,
                                     github: formData.social.github || formData.personal.github,
-                                    summary: formData.about.summary || formData.personal.summary,
+                                    summary: formData.personal.summary || formData.personal.summary,
+                                    description: formData.personal.description,
                                 },
                                 experience: formData.experience.map(
                                     (exp: any) => ({
@@ -442,21 +523,21 @@ const closeFullPreview = () => {
                                     }),
                                 ),
                                 skills: {
-                                    technical:
-                                        formData.skills.technical.map(
-                                            (skill: any) => skill.name,
-                                        ),
-                                    soft: formData.skills.soft.map(
-                                        (skill: any) => skill.name,
-                                    ),
-                                },
+    technical: formData.skills.technical.map((skill: any) => ({
+        name: skill.name,
+        level: skill.level,
+    })),
+    soft: formData.skills.soft.map((skill: any) => ({
+        name: skill.name,
+        level: skill.level,
+    })),
+},
+
                                 projects: formData.projects,
                                 education: formData.education,
                                 certifications: [],
                                 languages: [],
-                            }" 
-                            class="w-full"
-                            />
+                            }" class="w-full" />
                         </PreviewContainer>
                     </div>
                 </div>
@@ -497,6 +578,7 @@ const closeFullPreview = () => {
                         title: formData.personal.title,
                         email: formData.personal.email,
                         phone: formData.personal.phone,
+                        photo: formData.personal.photo,
                         location:
                             `${formData.personal.city}, ${formData.personal.country}`
                                 .trim()
@@ -504,7 +586,8 @@ const closeFullPreview = () => {
                         website: formData.social.website || formData.personal.website,
                         linkedin: formData.social.linkedin || formData.personal.linkedin,
                         github: formData.social.github || formData.personal.github,
-                        summary: formData.about.summary || formData.personal.summary,
+                        summary: formData.personal.summary || formData.personal.summary,
+                        description: formData.personal.description,
                     },
                     experience: formData.experience.map((exp: any) => ({
                         company: exp.company,
@@ -515,13 +598,16 @@ const closeFullPreview = () => {
                         description: exp.description,
                     })),
                     skills: {
-                        technical: formData.skills.technical.map(
-                            (skill: any) => skill.name,
-                        ),
-                        soft: formData.skills.soft.map(
-                            (skill: any) => skill.name,
-                        ),
-                    },
+    technical: formData.skills.technical.map((skill: any) => ({
+        name: skill.name,
+        level: skill.level,
+    })),
+    soft: formData.skills.soft.map((skill: any) => ({
+        name: skill.name,
+        level: skill.level,
+    })),
+},
+
                     projects: formData.projects,
                     education: formData.education,
                     certifications: [],
@@ -555,5 +641,31 @@ select:focus {
 /* Shadow muy sutiles */
 .shadow-xs {
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+
+
+/* Animación suave para el checkmark - boton de guardado */
+@keyframes bounce-smooth {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+.animate-bounce {
+    animation: bounce-smooth 0.6s ease-in-out;
+}
+
+/* Transiciones suaves de colores */
+button {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
 }
 </style>

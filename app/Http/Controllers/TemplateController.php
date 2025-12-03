@@ -124,6 +124,7 @@ class TemplateController extends Controller
                 'github' => '',
                 'summary' => 'Breve resumen sobre tu experiencia y habilidades...',
             ],
+            
             'experience' => [],
             'education' => [],
             'skills' => [
@@ -220,19 +221,19 @@ class TemplateController extends Controller
     }
 
     // Método para actualizar el portfolio
-    public function updatePortfolio(Request $request, $portfolioId)
-    {
-        $portfolio = Portfolio::findOrFail($portfolioId);
-        
-        // Verificar propiedad
-        if ($portfolio->user_id !== auth()->id()) {
-            abort(403);
-        }
 
-        $portfolio->update([
-            'template_data' => $request->template_data
-        ]);
 
-        return back()->with('success', 'Portfolio actualizado correctamente');
+public function updatePortfolio(Request $request, Portfolio $portfolio)
+{
+    if ($portfolio->user_id !== auth()->id()) {
+        abort(403);
     }
+
+    $portfolio->update([
+        'template_data' => $request->template_data,
+    ]);
+
+    return back()->with('success', 'Portfolio actualizado correctamente');
+}
+
 }

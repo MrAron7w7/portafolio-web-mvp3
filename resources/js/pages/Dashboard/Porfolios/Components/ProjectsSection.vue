@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { Plus, Trash2, Upload } from 'lucide-vue-next';
+import { Plus, Trash2, Upload, ChevronDown } from 'lucide-vue-next';
+import { ref, computed, watch } from 'vue';
 
 interface Project {
     id: number;
-    title: string;
+    name: string;
     description: string;
     image: string | null;
     link: string;
-    tags: string[];
+    technologies: string[];
+}
+
+interface ProjectErrors {
+    name?: string;
+    description?: string;
+    link?: string;
+    technologies?: string;
 }
 
 const props = defineProps<{
@@ -16,44 +24,193 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue']);
 
+// Input local para cada proyecto
+const techInputs = ref<{ [key: number]: string }>({});
+// Errores por proyecto
+const projectErrors = ref<{ [key: number]: ProjectErrors }>({});
+// Índice del proyecto expandido (solo uno)
+const expandedIndex = ref<number | null>(null);
+
+// Watcher para expandir solo el último proyecto
+watch(
+    () => props.modelValue.length,
+    (newLength) => {
+        // Expandir solo el último si hay proyectos
+        if (newLength > 0) {
+            expandedIndex.value = newLength - 1;
+        } else {
+            expandedIndex.value = null;
+        }
+    }
+);
+
 const addProject = () => {
-    const newProject = {
+    const newProject: Project = {
         id: Date.now(),
-        title: '',
+        name: '',
         description: '',
         image: null,
         link: '',
-        tags: [],
+        technologies: [],
     };
     emit('update:modelValue', [...props.modelValue, newProject]);
+};
+
+const toggleProject = (index: number) => {
+    // Si ya está expandido, colapsarlo; si no, expandirlo
+    expandedIndex.value = expandedIndex.value === index ? null : index;
 };
 
 const removeProject = (index: number) => {
     const updated = [...props.modelValue];
     updated.splice(index, 1);
     emit('update:modelValue', updated);
+    delete techInputs.value[index];
+    delete projectErrors.value[index];
+    // Si se elimina el expandido, colapsar
+    if (expandedIndex.value === index) {
+        expandedIndex.value = null;
+    }
 };
 
 const updateProject = (index: number, field: keyof Project, value: any) => {
     const updated = [...props.modelValue];
     updated[index] = { ...updated[index], [field]: value };
     emit('update:modelValue', updated);
+    validateField(index, field);
 };
 
 const handleImageUpload = (index: number, event: Event) => {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
+        if (input.files[0].size > 2 * 1024 * 1024) {
+            if (!projectErrors.value[index]) projectErrors.value[index] = {};
+            projectErrors.value[index].image = 'La imagen no debe superar 2MB';
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = (e) => {
             updateProject(index, 'image', e.target?.result as string);
+            if (!projectErrors.value[index]) projectErrors.value[index] = {};
+            delete projectErrors.value[index].image;
         };
         reader.readAsDataURL(input.files[0]);
     }
 };
 
-const updateTags = (index: number, tagsString: string) => {
-    const tags = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-    updateProject(index, 'tags', tags);
+const validateField = (index: number, field: keyof Project) => {
+    if (!projectErrors.value[index]) projectErrors.value[index] = {};
+
+    const project = props.modelValue[index];
+
+    switch (field) {
+        case 'name':
+            if (!project.name.trim()) {
+                projectErrors.value[index].name = 'El nombre es requerido';
+            } else if (project.name.trim().length < 3) {
+                projectErrors.value[index].name = 'Mínimo 3 caracteres';
+            } else {
+                delete projectErrors.value[index].name;
+            }
+            break;
+
+        case 'description':
+            if (!project.description.trim()) {
+                projectErrors.value[index].description = 'La descripción es requerida';
+            } else if (project.description.trim().length < 10) {
+                projectErrors.value[index].description = 'Mínimo 10 caracteres';
+            } else if (project.description.length > 500) {
+                projectErrors.value[index].description = 'Máximo 500 caracteres';
+            } else {
+                delete projectErrors.value[index].description;
+            }
+            break;
+
+        case 'link':
+            if (project.link) {
+                const urlRegex = /^https?:\/\/.+\..+/;
+                if (!urlRegex.test(project.link)) {
+                    projectErrors.value[index].link = 'URL inválida (ej: https://ejemplo.com)';
+                } else {
+                    delete projectErrors.value[index].link;
+                }
+            } else {
+                delete projectErrors.value[index].link;
+            }
+            break;
+
+        case 'technologies':
+            if (project.technologies.length === 0) {
+                projectErrors.value[index].technologies = 'Agrega al menos una tecnología';
+            } else {
+                delete projectErrors.value[index].technologies;
+            }
+            break;
+    }
+};
+
+const validateProject = (index: number): boolean => {
+    const project = props.modelValue[index];
+    projectErrors.value[index] = {};
+
+    if (!project.name.trim()) {
+        projectErrors.value[index].name = 'El nombre es requerido';
+    } else if (project.name.trim().length < 3) {
+        projectErrors.value[index].name = 'Mínimo 3 caracteres';
+    }
+
+    if (!project.description.trim()) {
+        projectErrors.value[index].description = 'La descripción es requerida';
+    } else if (project.description.trim().length < 10) {
+        projectErrors.value[index].description = 'Mínimo 10 caracteres';
+    } else if (project.description.length > 500) {
+        projectErrors.value[index].description = 'Máximo 500 caracteres';
+    }
+
+    if (project.link) {
+        const urlRegex = /^https?:\/\/.+\..+/;
+        if (!urlRegex.test(project.link)) {
+            projectErrors.value[index].link = 'URL inválida (ej: https://ejemplo.com)';
+        }
+    }
+
+    if (project.technologies.length === 0) {
+        projectErrors.value[index].technologies = 'Agrega al menos una tecnología';
+    }
+
+    return Object.keys(projectErrors.value[index]).length === 0;
+};
+
+const processTechnologies = (index: number) => {
+    const input = techInputs.value[index] || '';
+    if (!input.trim()) return;
+
+    const newTechs = input
+        .split(',')
+        .map(tech => tech.trim())
+        .filter(tech => tech !== '');
+    
+    const allTechs = [...props.modelValue[index].technologies, ...newTechs];
+    updateProject(index, 'technologies', allTechs);
+    techInputs.value[index] = '';
+};
+
+const handleTechKeydown = (index: number, event: KeyboardEvent) => {
+    if (event.key === ',' || event.key === 'Enter') {
+        event.preventDefault();
+        processTechnologies(index);
+    }
+};
+
+const removeTechnology = (index: number, techIndex: number) => {
+    const updated = [...props.modelValue[index].technologies];
+    updated.splice(techIndex, 1);
+    updateProject(index, 'technologies', updated);
+};
+
+const getErrorClass = (index: number, field: keyof ProjectErrors) => {
+    return projectErrors.value[index]?.[field] ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-[#005aeb]';
 };
 </script>
 
@@ -68,118 +225,200 @@ const updateTags = (index: number, tagsString: string) => {
             </p>
         </div>
 
-        <div class="space-y-8">
+        <div class="space-y-3">
+            <!-- Accordion Items -->
             <div
                 v-for="(project, index) in modelValue"
                 :key="project.id"
-                class="rounded-lg border border-gray-200 p-6"
+                class="rounded-lg border border-gray-200 overflow-hidden transition-all"
             >
-                <div class="mb-4 flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900">
-                        Proyecto {{ index + 1 }}
-                    </h3>
-                    <button
-                        @click="removeProject(index)"
-                        class="text-red-600 hover:text-red-800"
-                    >
-                        <Trash2 class="h-4 w-4" />
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <!-- Imagen del proyecto -->
-                    <div class="md:col-span-2">
-                        <label class="mb-2 block text-sm font-medium text-gray-700">
-                            Imagen del proyecto
-                        </label>
-                        <div
-                            class="relative flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:bg-gray-100"
-                        >
-                            <div v-if="!project.image" class="flex flex-col items-center justify-center pb-6 pt-5">
-                                <Upload class="mb-3 h-8 w-8 text-gray-400" />
-                                <p class="mb-2 text-sm text-gray-500">
-                                    <span class="font-semibold">Haz clic para subir</span>
-                                </p>
-                                <p class="text-xs text-gray-500">PNG, JPG (MAX. 2MB)</p>
-                            </div>
-                            <img
-                                v-else
-                                :src="project.image"
-                                class="h-full w-full rounded-lg object-cover"
-                            />
-                            <input
-                                type="file"
-                                class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                                accept="image/*"
-                                @change="handleImageUpload(index, $event)"
-                            />
-                            <button
-                                v-if="project.image"
-                                @click.stop="updateProject(index, 'image', null)"
-                                class="absolute right-2 top-2 rounded-full bg-white p-1 shadow-sm hover:bg-gray-100"
-                            >
-                                <Trash2 class="h-4 w-4 text-red-500" />
-                            </button>
+                <!-- Accordion Header -->
+                <button
+                    @click="toggleProject(index)"
+                    class="w-full flex items-center justify-between px-6 py-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+                >
+                    <div class="flex items-center gap-3 flex-1 text-left">
+                        <ChevronDown
+                            class="h-5 w-5 text-gray-600 transition-transform"
+                            :class="{ 'transform rotate-180': expandedIndex === index }"
+                        />
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Proyecto {{ index + 1 }}
+                            </h3>
+                            <p v-if="project.name" class="text-sm text-gray-600">
+                                {{ project.name }}
+                            </p>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700">
-                            Título del proyecto *
-                        </label>
-                        <input
-                            :value="project.title"
-                            @input="updateProject(index, 'title', ($event.target as HTMLInputElement).value)"
-                            type="text"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                            placeholder="Nombre del proyecto"
-                        />
-                    </div>
+                    <!-- Botón eliminar -->
+                    <button
+                        @click.stop="removeProject(index)"
+                        class="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded transition-colors"
+                    >
+                        <Trash2 class="h-4 w-4" />
+                    </button>
+                </button>
 
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700">
-                            Enlace (URL)
-                        </label>
-                        <input
-                            :value="project.link"
-                            @input="updateProject(index, 'link', ($event.target as HTMLInputElement).value)"
-                            type="url"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                            placeholder="https://..."
-                        />
-                    </div>
+                <!-- Accordion Content -->
+                <transition
+                    enter-active-class="transition-all duration-300 ease-out"
+                    leave-active-class="transition-all duration-300 ease-in"
+                    enter-from-class="max-h-0 opacity-0"
+                    enter-to-class="max-h-[900px] opacity-100"
+                    leave-from-class="max-h-[900px] opacity-100"
+                    leave-to-class="max-h-0 opacity-0"
+                >
+                    <div v-if="expandedIndex === index" class="px-6 py-6 bg-white border-t border-gray-200">
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            <!-- Imagen del proyecto -->
+                            <div class="md:col-span-2">
+                                <label class="mb-2 block text-sm font-medium text-gray-700">
+                                    Imagen del proyecto
+                                </label>
+                                <div
+                                    class="relative flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:bg-gray-100"
+                                >
+                                    <div v-if="!project.image" class="flex flex-col items-center justify-center pb-6 pt-5">
+                                        <Upload class="mb-3 h-8 w-8 text-gray-400" />
+                                        <p class="mb-2 text-sm text-gray-500">
+                                            <span class="font-semibold">Haz clic para subir</span>
+                                        </p>
+                                        <p class="text-xs text-gray-500">PNG, JPG (MAX. 2MB)</p>
+                                    </div>
+                                    <img
+                                        v-else
+                                        :src="project.image"
+                                        class="h-full w-full rounded-lg object-cover"
+                                    />
+                                    <input
+                                        type="file"
+                                        class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                        accept="image/*"
+                                        @change="handleImageUpload(index, $event)"
+                                    />
+                                    <button
+                                        v-if="project.image"
+                                        @click.stop="updateProject(index, 'image', null)"
+                                        class="absolute right-2 top-2 rounded-full bg-white p-1 shadow-sm hover:bg-gray-100"
+                                    >
+                                        <Trash2 class="h-4 w-4 text-red-500" />
+                                    </button>
+                                </div>
+                                <p v-if="projectErrors[index]?.image" class="mt-1 text-sm text-red-500">
+                                    {{ projectErrors[index].image }}
+                                </p>
+                            </div>
 
-                    <div class="md:col-span-2">
-                        <label class="mb-2 block text-sm font-medium text-gray-700">
-                            Tecnologías (separadas por coma)
-                        </label>
-                        <input
-                            :value="project.tags.join(', ')"
-                            @input="updateTags(index, ($event.target as HTMLInputElement).value)"
-                            type="text"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                            placeholder="Vue, Laravel, TailwindCSS..."
-                        />
-                    </div>
+                            <!-- Nombre del proyecto -->
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">
+                                    Nombre del proyecto *
+                                </label>
+                                <input
+                                    :value="project.name"
+                                    @input="updateProject(index, 'name', ($event.target as HTMLInputElement).value)"
+                                    @blur="validateField(index, 'name')"
+                                    type="text"
+                                    class="w-full rounded-lg border px-4 py-2 transition-colors"
+                                    :class="getErrorClass(index, 'name')"
+                                    placeholder="Nombre del proyecto"
+                                />
+                                <p v-if="projectErrors[index]?.name" class="mt-1 text-sm text-red-500">
+                                    {{ projectErrors[index].name }}
+                                </p>
+                            </div>
 
-                    <div class="md:col-span-2">
-                        <label class="mb-2 block text-sm font-medium text-gray-700">
-                            Descripción
-                        </label>
-                        <textarea
-                            :value="project.description"
-                            @input="updateProject(index, 'description', ($event.target as HTMLInputElement).value)"
-                            rows="3"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                            placeholder="Describe el proyecto..."
-                        ></textarea>
+                            <!-- Enlace del proyecto -->
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">
+                                    Enlace (URL)
+                                </label>
+                                <input
+                                    :value="project.link"
+                                    @input="updateProject(index, 'link', ($event.target as HTMLInputElement).value)"
+                                    @blur="validateField(index, 'link')"
+                                    type="url"
+                                    class="w-full rounded-lg border px-4 py-2 transition-colors"
+                                    :class="getErrorClass(index, 'link')"
+                                    placeholder="https://..."
+                                />
+                                <p v-if="projectErrors[index]?.link" class="mt-1 text-sm text-red-500">
+                                    {{ projectErrors[index].link }}
+                                </p>
+                            </div>
+
+                            <!-- Tecnologías -->
+                            <div class="md:col-span-2">
+                                <label class="mb-2 block text-sm font-medium text-gray-700">
+                                    Tecnologías (presiona coma o enter para agregar) *
+                                </label>
+                                <div class="space-y-2">
+                                    <input
+                                        v-model="techInputs[index]"
+                                        @keydown="handleTechKeydown(index, $event)"
+                                        @blur="processTechnologies(index)"
+                                        type="text"
+                                        class="w-full rounded-lg border px-4 py-2 transition-colors"
+                                        :class="getErrorClass(index, 'technologies')"
+                                        placeholder="Escribe tecnología y presiona coma o enter..."
+                                    />
+
+                                    <p v-if="projectErrors[index]?.technologies" class="text-sm text-red-500">
+                                        {{ projectErrors[index].technologies }}
+                                    </p>
+
+                                    <!-- Display de tags -->
+                                    <div v-if="project.technologies.length" class="flex flex-wrap gap-2">
+                                        <span
+                                            v-for="(tech, techIndex) in project.technologies"
+                                            :key="techIndex"
+                                            class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700"
+                                        >
+                                            {{ tech }}
+                                            <button
+                                                @click="removeTechnology(index, techIndex)"
+                                                type="button"
+                                                class="hover:text-blue-900"
+                                            >
+                                                ✕
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="md:col-span-2">
+                                <label class="mb-2 block text-sm font-medium text-gray-700">
+                                    Descripción * 
+                                    <span class="text-xs text-gray-500">
+                                        ({{ project.description.length }}/500)
+                                    </span>
+                                </label>
+                                <textarea
+                                    :value="project.description"
+                                    @input="updateProject(index, 'description', ($event.target as HTMLInputElement).value)"
+                                    @blur="validateField(index, 'description')"
+                                    rows="3"
+                                    class="w-full rounded-lg border px-4 py-2 transition-colors"
+                                    :class="getErrorClass(index, 'description')"
+                                    placeholder="Describe el proyecto..."
+                                ></textarea>
+                                <p v-if="projectErrors[index]?.description" class="mt-1 text-sm text-red-500">
+                                    {{ projectErrors[index].description }}
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </transition>
             </div>
 
+            <!-- Botón agregar proyecto -->
             <button
                 @click="addProject"
-                class="flex w-full items-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-6 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]"
+                class="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-4 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]"
             >
                 <Plus class="h-5 w-5" />
                 <span>Agregar nuevo proyecto</span>
