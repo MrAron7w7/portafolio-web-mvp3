@@ -25,4 +25,21 @@ Route::middleware('auth')->group(function () {
 
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
         ->name('two-factor.show');
+
+    // New Settings Pages
+    Route::get('settings/general', function () {
+        return Inertia::render('settings/General');
+    })->name('settings.general');
+
+    Route::get('settings/subscription', function () {
+        return Inertia::render('settings/Subscription');
+    })->name('settings.subscription');
+
+    Route::get('settings/domain', function () {
+        return Inertia::render('settings/Domain');
+    })->name('settings.domain');
+
+    Route::get('settings/integrations', function () {
+        return Inertia::render('settings/Integrations');
+    })->name('settings.integrations');
 });

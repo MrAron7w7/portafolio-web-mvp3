@@ -15,16 +15,21 @@ import {
     FileText,
     Link,
     Palette,
-    Plus,
     Save,
     Settings,
     Star,
-    Trash2,
-    Upload,
     User,
     Zap,
 } from 'lucide-vue-next';
 import { computed, reactive, ref } from 'vue';
+import AboutSection from './Components/AboutSection.vue';
+import ConfigSection from './Components/ConfigSection.vue';
+import ExperienceSection from './Components/ExperienceSection.vue';
+import PersonalSection from './Components/PersonalSection.vue';
+import PreviewContainer from './Components/PreviewContainer.vue';
+import ProjectsSection from './Components/ProjectsSection.vue';
+import SkillsSection from './Components/SkillsSection.vue';
+import SocialSection from './Components/SocialSection.vue';
 
 // Props del portfolio
 const props = defineProps<{
@@ -84,7 +89,7 @@ const formData = reactive({
     },
     about: {
         summary: props.templateData.personal.summary || '',
-        description: '',
+        description: props.templateData.about?.description || '',
     },
     experience:
         props.templateData.experience?.map((exp: any, index: number) => ({
@@ -124,10 +129,13 @@ const formData = reactive({
     },
     projects: props.templateData.projects || [],
     education: props.templateData.education || [],
+    config: {
+        theme: 'moderna',
+        public: props.portfolio.is_public || false,
+    }
 });
 
 // Estado avanzado
-const advancedOptions = ref(false);
 const isSaving = ref(false);
 
 // Progreso calculado
@@ -157,66 +165,6 @@ const goToStep = (stepId: number) => {
     }
 };
 
-// Funciones de formulario
-const handlePhotoUpload = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            formData.personal.photo = e.target?.result as string;
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-};
-
-// Funciones para manejar arrays
-const addExperience = () => {
-    formData.experience.push({
-        id: Date.now(),
-        company: '',
-        position: '',
-        period: '',
-        description: '',
-        startDate: '',
-        endDate: '',
-        current: false,
-    });
-};
-
-const removeExperience = (index: number) => {
-    formData.experience.splice(index, 1);
-};
-
-const addSkill = (type: 'technical' | 'soft') => {
-    const newId =
-        type === 'technical'
-            ? formData.skills.technical.length + 1
-            : formData.skills.soft.length + 1000;
-    if (type === 'technical') {
-        formData.skills.technical.push({
-            id: newId,
-            name: '',
-            level: 80,
-            category: 'Technical',
-        });
-    } else {
-        formData.skills.soft.push({
-            id: newId,
-            name: '',
-            level: 85,
-            category: 'Soft',
-        });
-    }
-};
-
-const removeSkill = (type: 'technical' | 'soft', index: number) => {
-    if (type === 'technical') {
-        formData.skills.technical.splice(index, 1);
-    } else {
-        formData.skills.soft.splice(index, 1);
-    }
-};
-
 // Guardar cambios
 const saveChanges = () => {
     isSaving.value = true;
@@ -231,10 +179,13 @@ const saveChanges = () => {
             location: `${formData.personal.city}, ${formData.personal.country}`
                 .trim()
                 .replace(/^,\s*|\s*,$/g, ''),
-            website: formData.personal.website,
-            linkedin: formData.personal.linkedin,
-            github: formData.personal.github,
-            summary: formData.personal.summary,
+            website: formData.social.website || formData.personal.website,
+            linkedin: formData.social.linkedin || formData.personal.linkedin,
+            github: formData.social.github || formData.personal.github,
+            summary: formData.about.summary || formData.personal.summary,
+        },
+        about: {
+            description: formData.about.description,
         },
         experience: formData.experience.map((exp: any) => ({
             company: exp.company,
@@ -250,6 +201,7 @@ const saveChanges = () => {
         },
         projects: formData.projects,
         education: formData.education,
+        config: formData.config,
     };
 
     router.put(
@@ -436,6 +388,7 @@ const closeFullPreview = () => {
 
                 <!-- Columna Central - Formulario -->
                 <div class="lg:col-span-5">
+<<<<<<< HEAD
                     <div class="rounded-2xl border border-gray-200/60 bg-white p-8 shadow-xs">
                         <!-- Paso 1: Información Personal -->
                         <div v-if="currentStep === 1">
@@ -673,6 +626,40 @@ const closeFullPreview = () => {
                                 </button>
                             </div>
                         </div>
+=======
+                    <div
+                        class="rounded-2xl border border-gray-200/60 bg-white p-8 shadow-xs"
+                    >
+                        <!-- Componentes Dinámicos -->
+                        <PersonalSection
+                            v-if="currentStep === 1"
+                            v-model="formData.personal"
+                        />
+                        <AboutSection
+                            v-if="currentStep === 2"
+                            v-model="formData.about"
+                        />
+                        <ExperienceSection
+                            v-if="currentStep === 3"
+                            v-model="formData.experience"
+                        />
+                        <SkillsSection
+                            v-if="currentStep === 4"
+                            v-model="formData.skills"
+                        />
+                        <ProjectsSection
+                            v-if="currentStep === 5"
+                            v-model="formData.projects"
+                        />
+                        <SocialSection
+                            v-if="currentStep === 6"
+                            v-model="formData.social"
+                        />
+                        <ConfigSection
+                            v-if="currentStep === 7"
+                            v-model="formData.config"
+                        />
+>>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
 
                         <!-- Navegación entre pasos -->
                         <div class="mt-8 flex items-center justify-between border-t border-gray-200 pt-8">
@@ -683,9 +670,17 @@ const closeFullPreview = () => {
                                 <span>Anterior</span>
                             </button>
 
+<<<<<<< HEAD
                             <button @click="nextStep"
                                 class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-6 py-3 text-white transition-colors duration-200 hover:bg-[#0048c4]">
                                 <span>Siguiente paso</span>
+=======
+                            <button
+                                @click="nextStep"
+                                class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-6 py-3 text-white transition-colors duration-200 hover:bg-[#0048c4]"
+                            >
+                                <span>{{ currentStep === 7 ? 'Finalizar' : 'Siguiente paso' }}</span>
+>>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
                                 <ArrowRight class="h-4 w-4" />
                             </button>
                         </div>
@@ -694,6 +689,7 @@ const closeFullPreview = () => {
 
                 <!-- Columna Derecha - Vista Previa -->
                 <div class="lg:col-span-4">
+<<<<<<< HEAD
                     <div class="sticky top-8 rounded-2xl border border-gray-200/60 bg-white p-6 shadow-xs">
                         <!-- Header de la vista previa -->
                         <div class="mb-6 flex items-center justify-between">
@@ -730,6 +726,15 @@ const closeFullPreview = () => {
                             <!-- Vista previa de la plantilla seleccionada -->
                             <div class="max-h-[600px] overflow-auto">
                                 <component :is="currentTemplate" :data="{
+=======
+                    <div
+                        class="sticky top-8 h-[calc(100vh-8rem)] overflow-hidden rounded-2xl border border-gray-200/60 bg-white shadow-xs"
+                    >
+                        <PreviewContainer>
+                            <component
+                                :is="currentTemplate"
+                                :data="{
+>>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
                                     personal: {
                                         name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
                                         title: formData.personal.title,
@@ -742,11 +747,19 @@ const closeFullPreview = () => {
                                                     /^,\s*|\s*,$/g,
                                                     '',
                                                 ),
+<<<<<<< HEAD
                                         website: formData.personal.website,
                                         linkedin:
                                             formData.personal.linkedin,
                                         github: formData.personal.github,
                                         summary: formData.personal.summary,
+=======
+                                        website: formData.social.website || formData.personal.website,
+                                        linkedin:
+                                            formData.social.linkedin || formData.personal.linkedin,
+                                        github: formData.social.github || formData.personal.github,
+                                        summary: formData.about.summary || formData.personal.summary,
+>>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
                                     },
                                     experience: formData.experience.map(
                                         (exp: any) => ({
@@ -771,6 +784,7 @@ const closeFullPreview = () => {
                                     education: formData.education,
                                     certifications: [],
                                     languages: [],
+<<<<<<< HEAD
                                 }" />
                             </div>
                         </div>
@@ -797,6 +811,11 @@ const closeFullPreview = () => {
                                 </div>
                             </div>
                         </div>
+=======
+                                }"
+                            />
+                        </PreviewContainer>
+>>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
                     </div>
                 </div>
             </div>
@@ -830,6 +849,7 @@ const closeFullPreview = () => {
 
             <!-- Contenido del modal -->
             <div class="max-h-[80vh] overflow-auto">
+<<<<<<< HEAD
                 <component :is="currentTemplate" :data="{
                     personal: {
                         name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
@@ -866,6 +886,47 @@ const closeFullPreview = () => {
                     certifications: [],
                     languages: [],
                 }" />
+=======
+                <component
+                    :is="currentTemplate"
+                    :data="{
+                        personal: {
+                            name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
+                            title: formData.personal.title,
+                            email: formData.personal.email,
+                            phone: formData.personal.phone,
+                            location:
+                                `${formData.personal.city}, ${formData.personal.country}`
+                                    .trim()
+                                    .replace(/^,\s*|\s*,$/g, ''),
+                            website: formData.social.website || formData.personal.website,
+                            linkedin: formData.social.linkedin || formData.personal.linkedin,
+                            github: formData.social.github || formData.personal.github,
+                            summary: formData.about.summary || formData.personal.summary,
+                        },
+                        experience: formData.experience.map((exp: any) => ({
+                            company: exp.company,
+                            position: exp.position,
+                            startDate: exp.startDate,
+                            endDate: exp.endDate,
+                            current: exp.current,
+                            description: exp.description,
+                        })),
+                        skills: {
+                            technical: formData.skills.technical.map(
+                                (skill: any) => skill.name,
+                            ),
+                            soft: formData.skills.soft.map(
+                                (skill: any) => skill.name,
+                            ),
+                        },
+                        projects: formData.projects,
+                        education: formData.education,
+                        certifications: [],
+                        languages: [],
+                    }"
+                />
+>>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
             </div>
         </div>
     </div>
