@@ -388,245 +388,6 @@ const closeFullPreview = () => {
 
                 <!-- Columna Central - Formulario -->
                 <div class="lg:col-span-5">
-<<<<<<< HEAD
-                    <div class="rounded-2xl border border-gray-200/60 bg-white p-8 shadow-xs">
-                        <!-- Paso 1: Información Personal -->
-                        <div v-if="currentStep === 1">
-                            <div class="mb-8">
-                                <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">
-                                    Información Personal
-                                </h1>
-                                <p class="text-lg text-gray-600">
-                                    Completa tu información básica para comenzar
-                                    tu portafolio profesional.
-                                </p>
-                            </div>
-
-                            <!-- Foto de perfil -->
-                            <div class="mb-8 flex items-start space-x-6">
-                                <div class="relative">
-                                    <div
-                                        class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] text-xl font-semibold text-white">
-                                        <span v-if="!formData.personal.photo">
-                                            {{
-                                                formData.personal.firstName.charAt(
-                                                    0,
-                                                )
-                                            }}{{
-                                                formData.personal.lastName.charAt(
-                                                    0,
-                                                )
-                                            }}
-                                        </span>
-                                        <img v-else :src="formData.personal.photo"
-                                            class="h-20 w-20 rounded-full object-cover" />
-                                    </div>
-                                    <label
-                                        class="absolute -right-2 -bottom-2 cursor-pointer rounded-full border border-gray-300 bg-white p-1.5 shadow-sm transition-colors duration-200 hover:bg-gray-50">
-                                        <Upload class="h-4 w-4 text-gray-600" />
-                                        <input type="file" class="hidden" accept="image/*"
-                                            @change="handlePhotoUpload" />
-                                    </label>
-                                </div>
-                                <div>
-                                    <h3 class="mb-1 font-semibold text-gray-900">
-                                        Foto de perfil
-                                    </h3>
-                                    <p class="mb-3 text-sm text-gray-600">
-                                        Recomendado: 400x400 px, formato JPG o
-                                        PNG
-                                    </p>
-                                    <button class="text-sm font-medium text-[#005aeb] hover:text-[#0048c4]">
-                                        Eliminar foto
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Formulario -->
-                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        Nombre *
-                                    </label>
-                                    <input v-model="formData.personal.firstName" type="text"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Tu nombre" />
-                                </div>
-
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        Apellido *
-                                    </label>
-                                    <input v-model="formData.personal.lastName" type="text"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Tu apellido" />
-                                </div>
-
-                                <div class="md:col-span-2">
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        Título profesional *
-                                    </label>
-                                    <input v-model="formData.personal.title" type="text"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Ej: Diseñador UX/UI & Desarrollador Frontend" />
-                                </div>
-
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        Ciudad
-                                    </label>
-                                    <input v-model="formData.personal.city" type="text"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Tu ciudad" />
-                                </div>
-
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        País
-                                    </label>
-                                    <input v-model="formData.personal.country" type="text"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Tu país" />
-                                </div>
-
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        Teléfono
-                                    </label>
-                                    <input v-model="formData.personal.phone" type="tel"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="+34 612 345 678" />
-                                </div>
-
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        Email *
-                                    </label>
-                                    <input v-model="formData.personal.email" type="email"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="tu@email.com" />
-                                </div>
-
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        LinkedIn
-                                    </label>
-                                    <input v-model="formData.personal.linkedin" type="url"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="https://linkedin.com/in/tu-usuario" />
-                                </div>
-
-                                <div>
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        GitHub
-                                    </label>
-                                    <input v-model="formData.personal.github" type="url"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="https://github.com/tu-usuario" />
-                                </div>
-
-                                <div class="md:col-span-2">
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        Sitio Web
-                                    </label>
-                                    <input v-model="formData.personal.website" type="url"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="https://tu-sitio-web.com" />
-                                </div>
-
-                                <div class="md:col-span-2">
-                                    <label class="mb-2 block text-sm font-medium text-gray-700">
-                                        Resumen profesional *
-                                    </label>
-                                    <textarea v-model="formData.personal.summary" rows="4"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Breve descripción sobre tu experiencia y habilidades..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Paso 3: Experiencia -->
-                        <div v-if="currentStep === 3">
-                            <div class="mb-8">
-                                <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">
-                                    Experiencia Laboral
-                                </h1>
-                                <p class="text-lg text-gray-600">
-                                    Agrega tu historial profesional y
-                                    experiencias relevantes.
-                                </p>
-                            </div>
-
-                            <div class="space-y-6">
-                                <div v-for="(exp, index) in formData.experience" :key="exp.id"
-                                    class="rounded-lg border border-gray-200 p-6">
-                                    <div class="mb-4 flex items-center justify-between">
-                                        <h3 class="text-lg font-semibold text-gray-900">
-                                            Experiencia {{ index + 1 }}
-                                        </h3>
-                                        <button @click="removeExperience(index)"
-                                            class="text-red-600 hover:text-red-800">
-                                            <Trash2 class="h-4 w-4" />
-                                        </button>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                        <div>
-                                            <label class="mb-2 block text-sm font-medium text-gray-700">
-                                                Empresa *
-                                            </label>
-                                            <input v-model="exp.company" type="text"
-                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                                                placeholder="Nombre de la empresa" />
-                                        </div>
-                                        <div>
-                                            <label class="mb-2 block text-sm font-medium text-gray-700">
-                                                Cargo *
-                                            </label>
-                                            <input v-model="exp.position" type="text"
-                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                                                placeholder="Tu posición" />
-                                        </div>
-                                        <div>
-                                            <label class="mb-2 block text-sm font-medium text-gray-700">
-                                                Fecha de inicio
-                                            </label>
-                                            <input v-model="exp.startDate" type="month"
-                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]" />
-                                        </div>
-                                        <div>
-                                            <label class="mb-2 block text-sm font-medium text-gray-700">
-                                                Fecha de fin
-                                            </label>
-                                            <input v-model="exp.endDate" type="month" :disabled="exp.current"
-                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb] disabled:opacity-50" />
-                                        </div>
-                                        <div class="md:col-span-2">
-                                            <label class="flex items-center space-x-2">
-                                                <input v-model="exp.current" type="checkbox"
-                                                    class="rounded border-gray-300" />
-                                                <span class="text-sm text-gray-700">Trabajo actual</span>
-                                            </label>
-                                        </div>
-                                        <div class="md:col-span-2">
-                                            <label class="mb-2 block text-sm font-medium text-gray-700">
-                                                Descripción
-                                            </label>
-                                            <textarea v-model="exp.description" rows="3"
-                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                                                placeholder="Describe tus responsabilidades y logros..."></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button @click="addExperience"
-                                    class="flex w-full items-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-6 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]">
-                                    <Plus class="h-5 w-5" />
-                                    <span>Agregar nueva experiencia</span>
-                                </button>
-                            </div>
-                        </div>
-=======
                     <div
                         class="rounded-2xl border border-gray-200/60 bg-white p-8 shadow-xs"
                     >
@@ -659,7 +420,6 @@ const closeFullPreview = () => {
                             v-if="currentStep === 7"
                             v-model="formData.config"
                         />
->>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
 
                         <!-- Navegación entre pasos -->
                         <div class="mt-8 flex items-center justify-between border-t border-gray-200 pt-8">
@@ -670,17 +430,11 @@ const closeFullPreview = () => {
                                 <span>Anterior</span>
                             </button>
 
-<<<<<<< HEAD
-                            <button @click="nextStep"
-                                class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-6 py-3 text-white transition-colors duration-200 hover:bg-[#0048c4]">
-                                <span>Siguiente paso</span>
-=======
                             <button
                                 @click="nextStep"
                                 class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-6 py-3 text-white transition-colors duration-200 hover:bg-[#0048c4]"
                             >
                                 <span>{{ currentStep === 7 ? 'Finalizar' : 'Siguiente paso' }}</span>
->>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
                                 <ArrowRight class="h-4 w-4" />
                             </button>
                         </div>
@@ -689,44 +443,6 @@ const closeFullPreview = () => {
 
                 <!-- Columna Derecha - Vista Previa -->
                 <div class="lg:col-span-4">
-<<<<<<< HEAD
-                    <div class="sticky top-8 rounded-2xl border border-gray-200/60 bg-white p-6 shadow-xs">
-                        <!-- Header de la vista previa -->
-                        <div class="mb-6 flex items-center justify-between">
-                            <h3 class="font-semibold text-gray-900">
-                                Vista previa
-                            </h3>
-                            <div class="flex items-center space-x-2">
-                                <button class="p-2 text-gray-400 transition-colors duration-200 hover:text-gray-600">
-                                    <Palette class="h-4 w-4" />
-                                </button>
-                                <button
-                                    class="flex items-center space-x-2 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50">
-                                    <Eye class="h-4 w-4" />
-                                    <span>Vista previa</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Contenedor del preview -->
-                        <!-- Contenedor del preview -->
-                        <div class="overflow-hidden rounded-xl border-2 border-gray-200 bg-white">
-                            <!-- Mini navegador -->
-                            <div class="flex items-center space-x-2 border-b border-gray-200 bg-gray-100 px-4 py-2">
-                                <div class="flex space-x-1">
-                                    <div class="h-3 w-3 rounded-full bg-red-400"></div>
-                                    <div class="h-3 w-3 rounded-full bg-yellow-400"></div>
-                                    <div class="h-3 w-3 rounded-full bg-green-400"></div>
-                                </div>
-                                <div class="flex-1 truncate rounded bg-white px-3 py-1 text-xs text-gray-500">
-                                    {{ portfolio.slug }}.portafolioai.com
-                                </div>
-                            </div>
-
-                            <!-- Vista previa de la plantilla seleccionada -->
-                            <div class="max-h-[600px] overflow-auto">
-                                <component :is="currentTemplate" :data="{
-=======
                     <div
                         class="sticky top-8 h-[calc(100vh-8rem)] overflow-hidden rounded-2xl border border-gray-200/60 bg-white shadow-xs"
                     >
@@ -734,7 +450,6 @@ const closeFullPreview = () => {
                             <component
                                 :is="currentTemplate"
                                 :data="{
->>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
                                     personal: {
                                         name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
                                         title: formData.personal.title,
@@ -747,19 +462,11 @@ const closeFullPreview = () => {
                                                     /^,\s*|\s*,$/g,
                                                     '',
                                                 ),
-<<<<<<< HEAD
-                                        website: formData.personal.website,
-                                        linkedin:
-                                            formData.personal.linkedin,
-                                        github: formData.personal.github,
-                                        summary: formData.personal.summary,
-=======
                                         website: formData.social.website || formData.personal.website,
                                         linkedin:
                                             formData.social.linkedin || formData.personal.linkedin,
                                         github: formData.social.github || formData.personal.github,
                                         summary: formData.about.summary || formData.personal.summary,
->>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
                                     },
                                     experience: formData.experience.map(
                                         (exp: any) => ({
@@ -784,38 +491,9 @@ const closeFullPreview = () => {
                                     education: formData.education,
                                     certifications: [],
                                     languages: [],
-<<<<<<< HEAD
-                                }" />
-                            </div>
-                        </div>
-
-                        <!-- Información de la plantilla -->
-                        <div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
-                            <div class="flex items-center space-x-3">
-                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#005aeb]">
-                                    <span class="text-xs font-bold text-white">{{
-                                        portfolio.template_type
-                                            .charAt(0)
-                                            .toUpperCase()
-                                    }}</span>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-900">
-                                        Plantilla "{{
-                                            portfolio.template_type
-                                        }}"
-                                    </p>
-                                    <p class="text-xs text-gray-600">
-                                        Totalmente responsive y personalizable
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-=======
                                 }"
                             />
                         </PreviewContainer>
->>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
                     </div>
                 </div>
             </div>
@@ -849,44 +527,6 @@ const closeFullPreview = () => {
 
             <!-- Contenido del modal -->
             <div class="max-h-[80vh] overflow-auto">
-<<<<<<< HEAD
-                <component :is="currentTemplate" :data="{
-                    personal: {
-                        name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
-                        title: formData.personal.title,
-                        email: formData.personal.email,
-                        phone: formData.personal.phone,
-                        location:
-                            `${formData.personal.city}, ${formData.personal.country}`
-                                .trim()
-                                .replace(/^,\s*|\s*,$/g, ''),
-                        website: formData.personal.website,
-                        linkedin: formData.personal.linkedin,
-                        github: formData.personal.github,
-                        summary: formData.personal.summary,
-                    },
-                    experience: formData.experience.map((exp: any) => ({
-                        company: exp.company,
-                        position: exp.position,
-                        startDate: exp.startDate,
-                        endDate: exp.endDate,
-                        current: exp.current,
-                        description: exp.description,
-                    })),
-                    skills: {
-                        technical: formData.skills.technical.map(
-                            (skill: any) => skill.name,
-                        ),
-                        soft: formData.skills.soft.map(
-                            (skill: any) => skill.name,
-                        ),
-                    },
-                    projects: formData.projects,
-                    education: formData.education,
-                    certifications: [],
-                    languages: [],
-                }" />
-=======
                 <component
                     :is="currentTemplate"
                     :data="{
@@ -926,7 +566,6 @@ const closeFullPreview = () => {
                         languages: [],
                     }"
                 />
->>>>>>> 09d6720e59d0712d6e83ce3d1d76359455d51706
             </div>
         </div>
     </div>
