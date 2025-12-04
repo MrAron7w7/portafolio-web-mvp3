@@ -2,7 +2,7 @@
 const props = defineProps<{
     modelValue: {
         theme: string;
-        public: boolean;
+        is_public: boolean;
     };
 }>();
 
@@ -41,8 +41,8 @@ const updateField = (field: string, value: any) => {
                     <label class="relative inline-flex cursor-pointer items-center">
                         <input
                             type="checkbox"
-                            :checked="modelValue.public"
-                            @change="updateField('public', ($event.target as HTMLInputElement).checked)"
+                            :checked="modelValue.is_public"
+                            @change="updateField('is_public', ($event.target as HTMLInputElement).checked)"
                             class="peer sr-only"
                         />
                         <div

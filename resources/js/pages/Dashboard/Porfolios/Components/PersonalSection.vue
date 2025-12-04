@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Upload } from 'lucide-vue-next';
+import { usePersonalValidation } from './Composables/usePersonalValidation';
 
 const props = defineProps<{
     modelValue: {
@@ -20,9 +21,12 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue']);
 
+// ✅ Usar el composable
+const { errors, validateField } = usePersonalValidation();
+
 const handlePhotoUpload = (event: Event) => {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
+    if (input.files && input.files) {
         const reader = new FileReader();
         reader.onload = (e) => {
             emit('update:modelValue', {
@@ -30,15 +34,26 @@ const handlePhotoUpload = (event: Event) => {
                 photo: e.target?.result as string,
             });
         };
-        reader.readAsDataURL(input.files[0]);
+        
+reader.readAsDataURL(input.files[0]); ;
     }
 };
 
 const updateField = (field: string, value: string) => {
+    // ✅ Validar mientras escribes
+    validateField(field as any, value);
+    
     emit('update:modelValue', {
         ...props.modelValue,
         [field]: value,
     });
+};
+
+// Clase dinámica para inputs con error
+const getInputClass = (field: string) => {
+    return errors[field as keyof typeof errors]
+        ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+        : 'border-gray-300 focus:border-[#005aeb] focus:ring-[#005aeb]';
 };
 </script>
 
@@ -99,6 +114,7 @@ const updateField = (field: string, value: string) => {
 
         <!-- Formulario -->
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <!-- Nombre -->
             <div>
                 <label class="mb-2 block text-sm font-medium text-gray-700">
                     Nombre *
@@ -107,11 +123,16 @@ const updateField = (field: string, value: string) => {
                     :value="modelValue.firstName"
                     @input="updateField('firstName', ($event.target as HTMLInputElement).value)"
                     type="text"
-                    class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
+                    class="w-full rounded-lg border px-4 py-3 transition-colors duration-200 focus:ring-2"
+                    :class="getInputClass('firstName')"
                     placeholder="Tu nombre"
                 />
+                <p v-if="errors.firstName" class="mt-1 text-sm text-red-500">
+                    {{ errors.firstName }}
+                </p>
             </div>
 
+            <!-- Apellido -->
             <div>
                 <label class="mb-2 block text-sm font-medium text-gray-700">
                     Apellido *
@@ -120,11 +141,16 @@ const updateField = (field: string, value: string) => {
                     :value="modelValue.lastName"
                     @input="updateField('lastName', ($event.target as HTMLInputElement).value)"
                     type="text"
-                    class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
+                    class="w-full rounded-lg border px-4 py-3 transition-colors duration-200 focus:ring-2"
+                    :class="getInputClass('lastName')"
                     placeholder="Tu apellido"
                 />
+                <p v-if="errors.lastName" class="mt-1 text-sm text-red-500">
+                    {{ errors.lastName }}
+                </p>
             </div>
 
+            <!-- Título profesional -->
             <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-medium text-gray-700">
                     Título profesional *
@@ -133,11 +159,16 @@ const updateField = (field: string, value: string) => {
                     :value="modelValue.title"
                     @input="updateField('title', ($event.target as HTMLInputElement).value)"
                     type="text"
-                    class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
+                    class="w-full rounded-lg border px-4 py-3 transition-colors duration-200 focus:ring-2"
+                    :class="getInputClass('title')"
                     placeholder="Ej: Diseñador UX/UI & Desarrollador Frontend"
                 />
+                <p v-if="errors.title" class="mt-1 text-sm text-red-500">
+                    {{ errors.title }}
+                </p>
             </div>
 
+            <!-- Ciudad -->
             <div>
                 <label class="mb-2 block text-sm font-medium text-gray-700">
                     Ciudad
@@ -151,6 +182,7 @@ const updateField = (field: string, value: string) => {
                 />
             </div>
 
+            <!-- País -->
             <div>
                 <label class="mb-2 block text-sm font-medium text-gray-700">
                     País
@@ -164,6 +196,7 @@ const updateField = (field: string, value: string) => {
                 />
             </div>
 
+            <!-- Teléfono -->
             <div>
                 <label class="mb-2 block text-sm font-medium text-gray-700">
                     Teléfono
@@ -172,11 +205,16 @@ const updateField = (field: string, value: string) => {
                     :value="modelValue.phone"
                     @input="updateField('phone', ($event.target as HTMLInputElement).value)"
                     type="tel"
-                    class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
+                    class="w-full rounded-lg border px-4 py-3 transition-colors duration-200 focus:ring-2"
+                    :class="getInputClass('phone')"
                     placeholder="+34 612 345 678"
                 />
+                <p v-if="errors.phone" class="mt-1 text-sm text-red-500">
+                    {{ errors.phone }}
+                </p>
             </div>
 
+            <!-- Email -->
             <div>
                 <label class="mb-2 block text-sm font-medium text-gray-700">
                     Email *
@@ -185,9 +223,13 @@ const updateField = (field: string, value: string) => {
                     :value="modelValue.email"
                     @input="updateField('email', ($event.target as HTMLInputElement).value)"
                     type="email"
-                    class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
+                    class="w-full rounded-lg border px-4 py-3 transition-colors duration-200 focus:ring-2"
+                    :class="getInputClass('email')"
                     placeholder="tu@email.com"
                 />
+                <p v-if="errors.email" class="mt-1 text-sm text-red-500">
+                    {{ errors.email }}
+                </p>
             </div>
         </div>
     </div>

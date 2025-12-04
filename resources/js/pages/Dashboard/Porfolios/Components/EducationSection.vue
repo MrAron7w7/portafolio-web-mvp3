@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Plus, Trash2, ChevronDown } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 
 interface Education {
   id: number;
@@ -32,6 +32,18 @@ const educationErrors = ref<{ [key: number]: EducationErrors }>({});
 // Índice del acordeón expandido
 const expandedIndex = ref<number | null>(null);
 
+// Variables para el popover de eliminación
+const deleteConfirmIndex = ref<number | null>(null);
+const popoverPosition = ref({
+  top: 0,
+  left: 0,
+  arrowLeft: 0,
+  arrowTop: 0,
+  positionY: 'below' as 'below' | 'above',
+});
+const containerRef = ref<HTMLElement | null>(null);
+const deleteConfirmButtonRef = ref<HTMLElement | null>(null);
+
 // Abrir siempre la última formación agregada
 watch(
   () => props.modelValue.length,
@@ -43,6 +55,107 @@ watch(
     }
   }
 );
+
+// Cerrar popover
+const closeDeleteConfirm = () => {
+  deleteConfirmIndex.value = null;
+  deleteConfirmButtonRef.value = null;
+};
+
+// Listener global (resize / ESC)
+const handleGlobalClose = () => {
+  closeDeleteConfirm();
+};
+
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape') {
+    handleGlobalClose();
+  }
+};
+
+// Recalcular posición del popover
+const recalculatePopoverPosition = () => {
+  if (!deleteConfirmButtonRef.value) return;
+
+  const button = deleteConfirmButtonRef.value;
+  const rect = button.getBoundingClientRect();
+
+  const popoverWidth = 224;
+  const popoverHeight = 220;
+  const spacing = 8;
+  const windowPadding = 16;
+
+  // ===== POSICIÓN HORIZONTAL =====
+  const buttonCenterX = rect.left + rect.width / 2;
+  let popoverLeftPosition = buttonCenterX - popoverWidth / 2;
+
+  if (popoverLeftPosition + popoverWidth > window.innerWidth - windowPadding) {
+    popoverLeftPosition = window.innerWidth - popoverWidth - windowPadding;
+  }
+
+  if (popoverLeftPosition < windowPadding) {
+    popoverLeftPosition = windowPadding;
+  }
+
+  // ===== POSICIÓN VERTICAL =====
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+
+  let popoverTopPosition: number;
+  let positionY: 'below' | 'above';
+  let arrowTop: number;
+
+  if (spaceBelow >= popoverHeight + spacing) {
+    popoverTopPosition = rect.bottom + spacing;
+    positionY = 'below';
+    arrowTop = -8;
+  } else if (spaceAbove >= popoverHeight + spacing) {
+    popoverTopPosition = rect.top - popoverHeight + 32;
+    positionY = 'above';
+    arrowTop = popoverHeight - 4;
+  } else {
+    if (spaceBelow > spaceAbove) {
+      popoverTopPosition = rect.bottom + spacing;
+      positionY = 'below';
+      arrowTop = -8;
+    } else {
+      popoverTopPosition = rect.top - popoverHeight - spacing;
+      positionY = 'above';
+      arrowTop = popoverHeight - 4;
+    }
+  }
+
+  // ===== POSICIÓN DE LA FLECHA =====
+  let arrowLeft = buttonCenterX - popoverLeftPosition - 8;
+  arrowLeft = Math.max(8, Math.min(arrowLeft, popoverWidth - 16));
+
+  popoverPosition.value = {
+    top: popoverTopPosition,
+    left: popoverLeftPosition,
+    arrowLeft,
+    arrowTop,
+    positionY,
+  };
+};
+
+// Listener para scroll
+const handleScroll = () => {
+  if (deleteConfirmIndex.value !== null && deleteConfirmButtonRef.value) {
+    recalculatePopoverPosition();
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleGlobalClose);
+  window.addEventListener('scroll', handleScroll, true);
+  window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleGlobalClose);
+  window.removeEventListener('scroll', handleScroll, true);
+  window.removeEventListener('keydown', handleKeydown);
+});
 
 // VALIDACIÓN de campo individual
 const validateField = (index: number, field: keyof Education, value: any) => {
@@ -123,7 +236,6 @@ const validateField = (index: number, field: keyof Education, value: any) => {
       break;
 
     case 'description':
-      // Opcional: solo validamos si hay texto
       if (!value.trim()) {
         delete educationErrors.value[index].description;
       } else if (value.trim().length < 10) {
@@ -137,7 +249,6 @@ const validateField = (index: number, field: keyof Education, value: any) => {
 
     case 'current':
       if (value) {
-        // Si está estudiando actualmente, limpiamos error de endDate
         delete educationErrors.value[index].endDate;
       } else {
         if (!edu.endDate) {
@@ -148,9 +259,6 @@ const validateField = (index: number, field: keyof Education, value: any) => {
       break;
   }
 };
-
-
-
 
 // Clase de error para inputs
 const getErrorClass = (index: number, field: keyof EducationErrors) => {
@@ -173,8 +281,23 @@ const addEducation = () => {
   emit('update:modelValue', [...props.modelValue, newEducation]);
 };
 
-// Eliminar formación
-const removeEducation = (index: number) => {
+// Abrir popover de confirmación
+const openDeleteConfirm = (index: number, event: Event) => {
+  const button = event.currentTarget as HTMLElement;
+
+  if (deleteConfirmIndex.value === index) {
+    closeDeleteConfirm();
+    return;
+  }
+
+  deleteConfirmIndex.value = index;
+  deleteConfirmButtonRef.value = button;
+  recalculatePopoverPosition();
+};
+
+// Confirmar eliminación
+const confirmDelete = (index: number | null) => {
+  if (index === null) return;
   const updated = [...props.modelValue];
   updated.splice(index, 1);
   emit('update:modelValue', updated);
@@ -183,6 +306,7 @@ const removeEducation = (index: number) => {
   if (expandedIndex.value === index) {
     expandedIndex.value = null;
   }
+  closeDeleteConfirm();
 };
 
 // Toggle acordeón
@@ -191,11 +315,7 @@ const toggleEducation = (index: number) => {
 };
 
 // Actualizar campo + validar
-const updateEducation = (
-  index: number,
-  field: keyof Education,
-  value: any
-) => {
+const updateEducation = (index: number, field: keyof Education, value: any) => {
   const updated = [...props.modelValue];
   updated[index] = { ...updated[index], [field]: value };
   emit('update:modelValue', updated);
@@ -208,16 +328,15 @@ const handleCurrentChange = (index: number, checked: boolean) => {
   const updated = [...props.modelValue];
   updated[index] = { ...updated[index], current: checked };
   if (checked) {
-    updated[index].endDate = ''; // Limpia endDate si está estudiando
+    updated[index].endDate = '';
   }
   emit('update:modelValue', updated);
   validateField(index, 'current', checked);
 };
-
 </script>
 
 <template>
-  <div>
+  <div class="relative" ref="containerRef">
     <div class="mb-8">
       <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">
         Formación Académica
@@ -256,7 +375,7 @@ const handleCurrentChange = (index: number, checked: boolean) => {
 
           <!-- Botón eliminar -->
           <button
-            @click.stop="removeEducation(index)"
+            @click.stop="openDeleteConfirm(index, $event)"
             class="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded transition-colors"
           >
             <Trash2 class="h-4 w-4" />
@@ -363,19 +482,17 @@ const handleCurrentChange = (index: number, checked: boolean) => {
               <!-- Checkbox Actualmente estudiando -->
               <div class="md:col-span-2">
                 <label class="flex items-center space-x-3">
-                    <input
-  :checked="edu.current"
-  @change="handleCurrentChange(index, ($event.target as HTMLInputElement).checked)"
-  type="checkbox"
-/>
-
+                  <input
+                    :checked="edu.current"
+                    @change="handleCurrentChange(index, ($event.target as HTMLInputElement).checked)"
+                    type="checkbox"
+                    class="rounded border-gray-300 cursor-pointer w-4 h-4"
+                  />
                   <span class="text-sm font-medium text-gray-700 cursor-pointer">
                     Actualmente estudiando
                   </span>
                 </label>
               </div>
-
-          
             </div>
           </div>
         </transition>
@@ -390,5 +507,76 @@ const handleCurrentChange = (index: number, checked: boolean) => {
         <span>Agregar nueva formación</span>
       </button>
     </div>
+
+    <!-- Backdrop para cerrar popover -->
+    <div
+      v-if="deleteConfirmIndex !== null"
+      @click="closeDeleteConfirm"
+      class="fixed inset-0 z-40"
+    ></div>
+
+    <!-- Popover de confirmación -->
+    <transition
+      enter-active-class="transition-all duration-200 ease-out"
+      leave-active-class="transition-all duration-200 ease-in"
+      enter-from-class="opacity-0 scale-95 translate-y-2"
+      enter-to-class="opacity-100 scale-100 translate-y-0"
+      leave-from-class="opacity-100 scale-100 translate-y-0"
+      leave-to-class="opacity-0 scale-95 translate-y-2"
+    >
+      <div
+        v-if="deleteConfirmIndex !== null"
+        class="fixed w-56 bg-white rounded-lg shadow-2xl border border-gray-200 z-50 p-4 pointer-events-auto"
+        :style="{
+          top: popoverPosition.top + 'px',
+          left: popoverPosition.left + 'px',
+        }"
+      >
+        <!-- Flecha arriba -->
+        <div
+          v-if="popoverPosition.positionY === 'below'"
+          class="absolute -top-2 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45"
+          :style="{ left: popoverPosition.arrowLeft + 'px' }"
+        ></div>
+
+        <!-- Flecha abajo -->
+        <div
+          v-if="popoverPosition.positionY === 'above'"
+          class="absolute -bottom-2 w-4 h-4 bg-white border-b border-r border-gray-200 rotate-45"
+          :style="{ left: popoverPosition.arrowLeft + 'px' }"
+        ></div>
+
+        <div class="relative">
+          <div
+            class="flex items-center justify-center w-10 h-10 mx-auto bg-red-100 rounded-full mb-3"
+          >
+            <Trash2 class="h-5 w-5 text-red-600" />
+          </div>
+
+          <h4 class="text-sm font-semibold text-gray-900 text-center mb-1">
+            ¿Eliminar formación?
+          </h4>
+
+          <p class="text-xs text-gray-600 text-center mb-4">
+            Esta acción no se puede deshacer
+          </p>
+
+          <div class="flex gap-2">
+            <button
+              @click.stop="closeDeleteConfirm"
+              class="flex-1 px-3 py-2 text-xs font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              @click.stop="confirmDelete(deleteConfirmIndex)"
+              class="flex-1 px-3 py-2 text-xs font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+            >
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
