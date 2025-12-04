@@ -1,30 +1,27 @@
 <script setup lang="ts">
 import dashboard from '@/routes/dashboard';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import {
-    Bell,
-    Calendar,
-    ChevronDown,
-    Download,
-    Edit,
-    Eye,
     Folder,
     Menu,
     Plus,
     Search,
     Trash2,
 } from 'lucide-vue-next';
-import { onMounted, ref } from 'vue';
-
-// Estado del sidebar en móvil
-const sidebarOpen = ref(false);
+import DashboardLayout from '@/layouts/DashboardLayout.vue';
+import { computed, onMounted, ref } from 'vue';
 
 // Datos del usuario
-const user = ref({
-    name: 'Arón',
-    email: 'aron@ejemplo.com',
-    avatar: 'A',
-});
+
+// Datos del usuario
+const page = usePage();
+const authUser = page.props.auth.user;
+
+const user = computed(() => ({
+    name: authUser.name,
+    email: authUser.email,
+    avatar: authUser.name.charAt(0).toUpperCase(),
+}));
 
 // Métricas del dashboard
 const metrics = ref([
@@ -80,35 +77,10 @@ const hasPortfolios = ref(true);
 const deletePortfolio = (portfolioId: number) => {
     portfolios.value = portfolios.value.filter((p) => p.id !== portfolioId);
 };
-
-// Cerrar sidebar en móvil al hacer click fuera
-onMounted(() => {
-    document.addEventListener('click', (e) => {
-        const sidebar = document.querySelector('.sidebar');
-        const toggleBtn = document.querySelector('.sidebar-toggle');
-
-        if (
-            sidebarOpen.value &&
-            !sidebar?.contains(e.target as Node) &&
-            !toggleBtn?.contains(e.target as Node)
-        ) {
-            sidebarOpen.value = false;
-        }
-    });
-});
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-gray-50/50">
-        <!-- Sidebar Overlay para móvil -->
-        <div
-            v-if="sidebarOpen"
-            class="bg-opacity-50 fixed inset-0 z-40 bg-black lg:hidden"
-            @click="sidebarOpen = false"
-        ></div>
-
-        <!-- Contenido principal -->
-        <div class="flex min-w-0 flex-1 flex-col lg:ml-0">
+    <DashboardLayout v-slot="{ toggleSidebar }">
             <!-- Header -->
             <header
                 class="sticky top-0 z-30 border-b border-gray-200/60 bg-white/95 backdrop-blur-sm"
@@ -117,8 +89,8 @@ onMounted(() => {
                     <!-- Botón menú móvil y buscador -->
                     <div class="flex flex-1 items-center space-x-4">
                         <button
-                            @click="sidebarOpen = true"
-                            class="sidebar-toggle rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100 lg:hidden"
+                            @click="toggleSidebar"
+                            class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100 lg:hidden"
                         >
                             <Menu class="h-5 w-5" />
                         </button>
@@ -138,37 +110,6 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Iconos derecha -->
-                    <div class="flex items-center space-x-3">
-                        <!-- Notificaciones -->
-                        <button
-                            class="relative rounded-lg p-2.5 transition-colors duration-200 hover:bg-gray-100"
-                        >
-                            <Bell class="h-5 w-5 text-gray-600" />
-                            <span
-                                class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs text-white"
-                                >3</span
-                            >
-                        </button>
-
-                        <!-- Perfil -->
-                        <div class="relative">
-                            <button
-                                class="flex items-center space-x-3 rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100"
-                            >
-                                <div
-                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] text-sm font-semibold text-white"
-                                >
-                                    {{ user.avatar }}
-                                </div>
-                                <span
-                                    class="hidden text-sm font-medium text-gray-700 sm:block"
-                                    >{{ user.name }}</span
-                                >
-                                <ChevronDown class="h-4 w-4 text-gray-400" />
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </header>
 
@@ -378,8 +319,7 @@ onMounted(() => {
                     </div>
                 </section>
             </main>
-        </div>
-    </div>
+    </DashboardLayout>
 </template>
 
 <style scoped>
