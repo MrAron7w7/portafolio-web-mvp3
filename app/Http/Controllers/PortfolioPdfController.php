@@ -10,26 +10,36 @@ class PortfolioPdfController extends Controller
 {
     public function download($id)
     {
-        // 1. Buscar datos
-        $portfolio = Portfolio::with(['user', 'sections', 'certificates'])->findOrFail($id);
+        // 1. Buscamos el portafolio
+        $portfolio = Portfolio::findOrFail($id);
 
-        // 2. Renderizar la vista Blade a un String HTML
-        $html = view('pdf.modern_layout', compact('portfolio'))->render();
+        // 2. Determinamos qué vista Blade usar según el tipo de template
+        // Ejemplo: si template_type es 'moderna', buscará 'pdf.moderna'
+        $viewName = 'pdf.' . $portfolio->template_type;
 
-        // 3. Generar el PDF
-        // IMPORTANTE: Reemplaza la ruta de setNodeBinary con la que copiaste en el Paso 1
+        // Fallback: Si no has creado la vista todavía, usa una por defecto para que no falle
+        if (!View::exists($viewName)) {
+            $viewName = 'pdf.moderna'; // Asegúrate de crear al menos esta primero
+        }
+
+        // 3. Renderizar HTML
+        // Pasamos $data directamente para no escribir $portfolio->template_data['personal']... a cada rato
+        $data = $portfolio->template_data;
+        
+        $html = view($viewName, compact('portfolio', 'data'))->render();
+
+        // 4. Generar PDF con Browsershot
         $pdf = Browsershot::html($html)
-            ->setNodeBinary(config('services.browsershot.node_path')) //Se cambia en el .env
-            ->setNpmBinary(config('services.browsershot.npm_path')) //Se cambia en el .env
+            ->setNodeBinary(config('services.browsershot.node_path')) 
+            ->setNpmBinary(config('services.browsershot.npm_path'))
             ->format('A4')
             ->margins(10, 10, 10, 10)
-            ->showBackground() // Para ver colores de fondo e imágenes
-            ->waitUntilNetworkIdle() // Espera a que carguen imágenes externas (CDN, fotos)
+            ->showBackground()
+            ->waitUntilNetworkIdle()
             ->pdf();
 
-        // 4. Devolver descarga
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="portfolio.pdf"');
+            ->header('Content-Disposition', 'attachment; filename="portafolio-'.$portfolio->slug.'.pdf"');
     }
 }

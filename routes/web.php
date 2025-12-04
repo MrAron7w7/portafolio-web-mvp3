@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\PortfolioPdfController;
+use App\Http\Controllers\TemplateController;
 
 Route::get('/', function () {
 
@@ -33,7 +34,15 @@ Route::middleware(['auth', 'verified'])
         require __DIR__.'/editor.php';
     });
 
-Route::get('/test-pdf/{id}', [PortfolioPdfController::class, 'download']);
+
+// ruta para que descargue el pdf
+Route::get('/portfolio/{id}/download-pdf', [PortfolioPdfController::class, 'download'])
+    ->name('portfolio.download.pdf');
+
+
+// guardado
+Route::put('/portfolio/{id}', [TemplateController::class, 'updatePortfolio'])
+    ->name('portfolio.update');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/google_auth.php';

@@ -31,6 +31,7 @@ const props = defineProps<{
     portfolio: any;
     templateData: any;
     sections: any[];
+
 }>();
 
 // Estado del wizard
@@ -288,51 +289,51 @@ const closeFullPreview = () => {
                 <div class="flex items-center justify-between">
                     <!-- Logo -->
                     <div class="flex items-center space-x-3">
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005aeb]"
-                        >
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005aeb]">
                             <span class="text-sm font-bold text-white">P</span>
                         </div>
-                        <span class="text-xl font-bold text-gray-900"
-                            >PortafolioAI</span
-                        >
+                        <span class="text-xl font-bold text-gray-900">PortafolioAI</span>
                     </div>
 
                     <!-- Progreso general -->
                     <div class="hidden items-center space-x-4 md:flex">
                         <div class="text-sm text-gray-600">
-                            <span class="font-medium text-[#005aeb]"
-                                >{{ progress }}%</span
-                            >
+                            <span class="font-medium text-[#005aeb]">{{ progress }}%</span>
                             completado
                         </div>
                         <div class="h-2 w-32 rounded-full bg-gray-200">
-                            <div
-                                class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
-                                :style="{ width: progress + '%' }"
-                            ></div>
+                            <div class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
+                                :style="{ width: progress + '%' }"></div>
                         </div>
                     </div>
 
                     <!-- Acciones -->
                     <div class="flex items-center space-x-3">
-                        <button
-                            @click="openFullPreview"
-                            class="hidden items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:flex"
-                        >
+                        <button @click="openFullPreview"
+                            class="hidden items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:flex">
                             <Eye class="h-4 w-4" />
                             <span>Vista previa completa</span>
                         </button>
-                        <button
-                            @click="saveChanges"
-                            :disabled="isSaving"
-                            class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-4 py-2 text-white transition-colors duration-200 hover:bg-[#0048c4] disabled:opacity-50"
-                        >
+                        <button @click="saveChanges" :disabled="isSaving"
+                            class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-4 py-2 text-white transition-colors duration-200 hover:bg-[#0048c4] disabled:opacity-50">
                             <Save class="h-4 w-4" />
                             <span>{{
                                 isSaving ? 'Guardando...' : 'Guardar'
                             }}</span>
                         </button>
+                        <a :href="`/portfolio/${portfolio.id}/download-pdf`" target="_blank"
+                            class="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition shadow-sm text-sm font-medium">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                                <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                                <path d="M12 18v-6" />
+                                <path d="m9 15 3 3 3-3" />
+                            </svg>
+
+                            Exportar PDF
+                        </a>
                     </div>
                 </div>
             </div>
@@ -343,70 +344,48 @@ const closeFullPreview = () => {
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
                 <!-- Columna Izquierda - Stepper -->
                 <div class="lg:col-span-3">
-                    <div
-                        class="sticky top-8 rounded-2xl border border-gray-200/60 bg-white p-6 shadow-xs"
-                    >
+                    <div class="sticky top-8 rounded-2xl border border-gray-200/60 bg-white p-6 shadow-xs">
                         <!-- Lista de pasos -->
                         <nav class="space-y-2">
-                            <div
-                                v-for="(step, index) in steps"
-                                :key="step.id"
-                                class="group flex cursor-pointer items-start space-x-4"
-                                @click="goToStep(step.id)"
-                            >
+                            <div v-for="(step, index) in steps" :key="step.id"
+                                class="group flex cursor-pointer items-start space-x-4" @click="goToStep(step.id)">
                                 <!-- Línea vertical -->
                                 <div class="flex flex-col items-center">
-                                    <div
-                                        :class="[
-                                            'flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-200',
-                                            step.completed
-                                                ? 'border-[#005aeb] bg-[#005aeb] text-white'
-                                                : currentStep === step.id
-                                                  ? 'border-[#005aeb] bg-white text-[#005aeb]'
-                                                  : 'border-gray-300 bg-white text-gray-400',
-                                        ]"
-                                    >
-                                        <Check
-                                            v-if="step.completed"
-                                            class="h-4 w-4"
-                                        />
-                                        <component
-                                            :is="step.icon"
-                                            v-else-if="currentStep === step.id"
-                                            class="h-4 w-4"
-                                        />
+                                    <div :class="[
+                                        'flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-200',
+                                        step.completed
+                                            ? 'border-[#005aeb] bg-[#005aeb] text-white'
+                                            : currentStep === step.id
+                                                ? 'border-[#005aeb] bg-white text-[#005aeb]'
+                                                : 'border-gray-300 bg-white text-gray-400',
+                                    ]">
+                                        <Check v-if="step.completed" class="h-4 w-4" />
+                                        <component :is="step.icon" v-else-if="currentStep === step.id"
+                                            class="h-4 w-4" />
                                         <span v-else>{{ step.id }}</span>
                                     </div>
                                     <!-- Línea conectora -->
-                                    <div
-                                        v-if="index < steps.length - 1"
-                                        :class="[
-                                            'mt-2 h-8 w-0.5 transition-colors duration-200',
-                                            steps[index + 1].completed
-                                                ? 'bg-[#005aeb]'
-                                                : 'bg-gray-200',
-                                        ]"
-                                    ></div>
+                                    <div v-if="index < steps.length - 1" :class="[
+                                        'mt-2 h-8 w-0.5 transition-colors duration-200',
+                                        steps[index + 1].completed
+                                            ? 'bg-[#005aeb]'
+                                            : 'bg-gray-200',
+                                    ]"></div>
                                 </div>
 
                                 <!-- Texto del paso -->
                                 <div class="min-w-0 flex-1 pb-6">
-                                    <p
-                                        :class="[
-                                            'font-medium transition-colors duration-200',
-                                            currentStep === step.id
-                                                ? 'text-[#005aeb]'
-                                                : step.completed
-                                                  ? 'text-gray-900'
-                                                  : 'text-gray-500',
-                                        ]"
-                                    >
+                                    <p :class="[
+                                        'font-medium transition-colors duration-200',
+                                        currentStep === step.id
+                                            ? 'text-[#005aeb]'
+                                            : step.completed
+                                                ? 'text-gray-900'
+                                                : 'text-gray-500',
+                                    ]">
                                         {{ step.title }}
                                     </p>
-                                    <p
-                                        v-if="currentStep === step.id"
-                                        class="mt-1 text-sm text-[#005aeb]"
-                                    >
+                                    <p v-if="currentStep === step.id" class="mt-1 text-sm text-[#005aeb]">
                                         Paso actual
                                     </p>
                                 </div>
@@ -414,26 +393,16 @@ const closeFullPreview = () => {
                         </nav>
 
                         <!-- Progreso y enlaces -->
-                        <div
-                            class="mt-4 space-y-4 border-t border-gray-200 pt-6"
-                        >
+                        <div class="mt-4 space-y-4 border-t border-gray-200 pt-6">
                             <!-- Barra de progreso -->
                             <div>
-                                <div
-                                    class="mb-2 flex justify-between text-sm text-gray-600"
-                                >
+                                <div class="mb-2 flex justify-between text-sm text-gray-600">
                                     <span>Progreso total</span>
-                                    <span class="font-medium text-[#005aeb]"
-                                        >{{ progress }}%</span
-                                    >
+                                    <span class="font-medium text-[#005aeb]">{{ progress }}%</span>
                                 </div>
-                                <div
-                                    class="h-2 w-full rounded-full bg-gray-200"
-                                >
-                                    <div
-                                        class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
-                                        :style="{ width: progress + '%' }"
-                                    ></div>
+                                <div class="h-2 w-full rounded-full bg-gray-200">
+                                    <div class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
+                                        :style="{ width: progress + '%' }"></div>
                                 </div>
                             </div>
 
@@ -450,21 +419,11 @@ const closeFullPreview = () => {
                             <!-- Enlaces legales -->
                             <div class="space-y-2 text-xs text-gray-500">
                                 <div class="flex space-x-4">
-                                    <a
-                                        href="#"
-                                        class="transition-colors duration-200 hover:text-gray-700"
-                                        >Condiciones</a
-                                    >
-                                    <a
-                                        href="#"
-                                        class="transition-colors duration-200 hover:text-gray-700"
-                                        >Privacidad</a
-                                    >
-                                    <a
-                                        href="#"
-                                        class="transition-colors duration-200 hover:text-gray-700"
-                                        >Contacto</a
-                                    >
+                                    <a href="#"
+                                        class="transition-colors duration-200 hover:text-gray-700">Condiciones</a>
+                                    <a href="#"
+                                        class="transition-colors duration-200 hover:text-gray-700">Privacidad</a>
+                                    <a href="#" class="transition-colors duration-200 hover:text-gray-700">Contacto</a>
                                 </div>
                                 <p class="text-gray-400">
                                     &copy; 2024 PortafolioAI. Todos los derechos
@@ -477,15 +436,11 @@ const closeFullPreview = () => {
 
                 <!-- Columna Central - Formulario -->
                 <div class="lg:col-span-5">
-                    <div
-                        class="rounded-2xl border border-gray-200/60 bg-white p-8 shadow-xs"
-                    >
+                    <div class="rounded-2xl border border-gray-200/60 bg-white p-8 shadow-xs">
                         <!-- Paso 1: Información Personal -->
                         <div v-if="currentStep === 1">
                             <div class="mb-8">
-                                <h1
-                                    class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl"
-                                >
+                                <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">
                                     Información Personal
                                 </h1>
                                 <p class="text-lg text-gray-600">
@@ -498,8 +453,7 @@ const closeFullPreview = () => {
                             <div class="mb-8 flex items-start space-x-6">
                                 <div class="relative">
                                     <div
-                                        class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] text-xl font-semibold text-white"
-                                    >
+                                        class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] text-xl font-semibold text-white">
                                         <span v-if="!formData.personal.photo">
                                             {{
                                                 formData.personal.firstName.charAt(
@@ -511,37 +465,25 @@ const closeFullPreview = () => {
                                                 )
                                             }}
                                         </span>
-                                        <img
-                                            v-else
-                                            :src="formData.personal.photo"
-                                            class="h-20 w-20 rounded-full object-cover"
-                                        />
+                                        <img v-else :src="formData.personal.photo"
+                                            class="h-20 w-20 rounded-full object-cover" />
                                     </div>
                                     <label
-                                        class="absolute -right-2 -bottom-2 cursor-pointer rounded-full border border-gray-300 bg-white p-1.5 shadow-sm transition-colors duration-200 hover:bg-gray-50"
-                                    >
+                                        class="absolute -right-2 -bottom-2 cursor-pointer rounded-full border border-gray-300 bg-white p-1.5 shadow-sm transition-colors duration-200 hover:bg-gray-50">
                                         <Upload class="h-4 w-4 text-gray-600" />
-                                        <input
-                                            type="file"
-                                            class="hidden"
-                                            accept="image/*"
-                                            @change="handlePhotoUpload"
-                                        />
+                                        <input type="file" class="hidden" accept="image/*"
+                                            @change="handlePhotoUpload" />
                                     </label>
                                 </div>
                                 <div>
-                                    <h3
-                                        class="mb-1 font-semibold text-gray-900"
-                                    >
+                                    <h3 class="mb-1 font-semibold text-gray-900">
                                         Foto de perfil
                                     </h3>
                                     <p class="mb-3 text-sm text-gray-600">
                                         Recomendado: 400x400 px, formato JPG o
                                         PNG
                                     </p>
-                                    <button
-                                        class="text-sm font-medium text-[#005aeb] hover:text-[#0048c4]"
-                                    >
+                                    <button class="text-sm font-medium text-[#005aeb] hover:text-[#0048c4]">
                                         Eliminar foto
                                     </button>
                                 </div>
@@ -550,157 +492,102 @@ const closeFullPreview = () => {
                             <!-- Formulario -->
                             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 <div>
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         Nombre *
                                     </label>
-                                    <input
-                                        v-model="formData.personal.firstName"
-                                        type="text"
+                                    <input v-model="formData.personal.firstName" type="text"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Tu nombre"
-                                    />
+                                        placeholder="Tu nombre" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         Apellido *
                                     </label>
-                                    <input
-                                        v-model="formData.personal.lastName"
-                                        type="text"
+                                    <input v-model="formData.personal.lastName" type="text"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Tu apellido"
-                                    />
+                                        placeholder="Tu apellido" />
                                 </div>
 
                                 <div class="md:col-span-2">
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         Título profesional *
                                     </label>
-                                    <input
-                                        v-model="formData.personal.title"
-                                        type="text"
+                                    <input v-model="formData.personal.title" type="text"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Ej: Diseñador UX/UI & Desarrollador Frontend"
-                                    />
+                                        placeholder="Ej: Diseñador UX/UI & Desarrollador Frontend" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         Ciudad
                                     </label>
-                                    <input
-                                        v-model="formData.personal.city"
-                                        type="text"
+                                    <input v-model="formData.personal.city" type="text"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Tu ciudad"
-                                    />
+                                        placeholder="Tu ciudad" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         País
                                     </label>
-                                    <input
-                                        v-model="formData.personal.country"
-                                        type="text"
+                                    <input v-model="formData.personal.country" type="text"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Tu país"
-                                    />
+                                        placeholder="Tu país" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         Teléfono
                                     </label>
-                                    <input
-                                        v-model="formData.personal.phone"
-                                        type="tel"
+                                    <input v-model="formData.personal.phone" type="tel"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="+34 612 345 678"
-                                    />
+                                        placeholder="+34 612 345 678" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         Email *
                                     </label>
-                                    <input
-                                        v-model="formData.personal.email"
-                                        type="email"
+                                    <input v-model="formData.personal.email" type="email"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="tu@email.com"
-                                    />
+                                        placeholder="tu@email.com" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         LinkedIn
                                     </label>
-                                    <input
-                                        v-model="formData.personal.linkedin"
-                                        type="url"
+                                    <input v-model="formData.personal.linkedin" type="url"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="https://linkedin.com/in/tu-usuario"
-                                    />
+                                        placeholder="https://linkedin.com/in/tu-usuario" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         GitHub
                                     </label>
-                                    <input
-                                        v-model="formData.personal.github"
-                                        type="url"
+                                    <input v-model="formData.personal.github" type="url"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="https://github.com/tu-usuario"
-                                    />
+                                        placeholder="https://github.com/tu-usuario" />
                                 </div>
 
                                 <div class="md:col-span-2">
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         Sitio Web
                                     </label>
-                                    <input
-                                        v-model="formData.personal.website"
-                                        type="url"
+                                    <input v-model="formData.personal.website" type="url"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="https://tu-sitio-web.com"
-                                    />
+                                        placeholder="https://tu-sitio-web.com" />
                                 </div>
 
                                 <div class="md:col-span-2">
-                                    <label
-                                        class="mb-2 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">
                                         Resumen profesional *
                                     </label>
-                                    <textarea
-                                        v-model="formData.personal.summary"
-                                        rows="4"
+                                    <textarea v-model="formData.personal.summary" rows="4"
                                         class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                                        placeholder="Breve descripción sobre tu experiencia y habilidades..."
-                                    ></textarea>
+                                        placeholder="Breve descripción sobre tu experiencia y habilidades..."></textarea>
                                 </div>
                             </div>
                         </div>
@@ -708,9 +595,7 @@ const closeFullPreview = () => {
                         <!-- Paso 3: Experiencia -->
                         <div v-if="currentStep === 3">
                             <div class="mb-8">
-                                <h1
-                                    class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl"
-                                >
+                                <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">
                                     Experiencia Laboral
                                 </h1>
                                 <p class="text-lg text-gray-600">
@@ -720,116 +605,69 @@ const closeFullPreview = () => {
                             </div>
 
                             <div class="space-y-6">
-                                <div
-                                    v-for="(exp, index) in formData.experience"
-                                    :key="exp.id"
-                                    class="rounded-lg border border-gray-200 p-6"
-                                >
-                                    <div
-                                        class="mb-4 flex items-center justify-between"
-                                    >
-                                        <h3
-                                            class="text-lg font-semibold text-gray-900"
-                                        >
+                                <div v-for="(exp, index) in formData.experience" :key="exp.id"
+                                    class="rounded-lg border border-gray-200 p-6">
+                                    <div class="mb-4 flex items-center justify-between">
+                                        <h3 class="text-lg font-semibold text-gray-900">
                                             Experiencia {{ index + 1 }}
                                         </h3>
-                                        <button
-                                            @click="removeExperience(index)"
-                                            class="text-red-600 hover:text-red-800"
-                                        >
+                                        <button @click="removeExperience(index)"
+                                            class="text-red-600 hover:text-red-800">
                                             <Trash2 class="h-4 w-4" />
                                         </button>
                                     </div>
 
-                                    <div
-                                        class="grid grid-cols-1 gap-4 md:grid-cols-2"
-                                    >
+                                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                                         <div>
-                                            <label
-                                                class="mb-2 block text-sm font-medium text-gray-700"
-                                            >
+                                            <label class="mb-2 block text-sm font-medium text-gray-700">
                                                 Empresa *
                                             </label>
-                                            <input
-                                                v-model="exp.company"
-                                                type="text"
+                                            <input v-model="exp.company" type="text"
                                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                                                placeholder="Nombre de la empresa"
-                                            />
+                                                placeholder="Nombre de la empresa" />
                                         </div>
                                         <div>
-                                            <label
-                                                class="mb-2 block text-sm font-medium text-gray-700"
-                                            >
+                                            <label class="mb-2 block text-sm font-medium text-gray-700">
                                                 Cargo *
                                             </label>
-                                            <input
-                                                v-model="exp.position"
-                                                type="text"
+                                            <input v-model="exp.position" type="text"
                                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                                                placeholder="Tu posición"
-                                            />
+                                                placeholder="Tu posición" />
                                         </div>
                                         <div>
-                                            <label
-                                                class="mb-2 block text-sm font-medium text-gray-700"
-                                            >
+                                            <label class="mb-2 block text-sm font-medium text-gray-700">
                                                 Fecha de inicio
                                             </label>
-                                            <input
-                                                v-model="exp.startDate"
-                                                type="month"
-                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                                            />
+                                            <input v-model="exp.startDate" type="month"
+                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]" />
                                         </div>
                                         <div>
-                                            <label
-                                                class="mb-2 block text-sm font-medium text-gray-700"
-                                            >
+                                            <label class="mb-2 block text-sm font-medium text-gray-700">
                                                 Fecha de fin
                                             </label>
-                                            <input
-                                                v-model="exp.endDate"
-                                                type="month"
-                                                :disabled="exp.current"
-                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb] disabled:opacity-50"
-                                            />
+                                            <input v-model="exp.endDate" type="month" :disabled="exp.current"
+                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb] disabled:opacity-50" />
                                         </div>
                                         <div class="md:col-span-2">
-                                            <label
-                                                class="flex items-center space-x-2"
-                                            >
-                                                <input
-                                                    v-model="exp.current"
-                                                    type="checkbox"
-                                                    class="rounded border-gray-300"
-                                                />
-                                                <span
-                                                    class="text-sm text-gray-700"
-                                                    >Trabajo actual</span
-                                                >
+                                            <label class="flex items-center space-x-2">
+                                                <input v-model="exp.current" type="checkbox"
+                                                    class="rounded border-gray-300" />
+                                                <span class="text-sm text-gray-700">Trabajo actual</span>
                                             </label>
                                         </div>
                                         <div class="md:col-span-2">
-                                            <label
-                                                class="mb-2 block text-sm font-medium text-gray-700"
-                                            >
+                                            <label class="mb-2 block text-sm font-medium text-gray-700">
                                                 Descripción
                                             </label>
-                                            <textarea
-                                                v-model="exp.description"
-                                                rows="3"
+                                            <textarea v-model="exp.description" rows="3"
                                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#005aeb]"
-                                                placeholder="Describe tus responsabilidades y logros..."
-                                            ></textarea>
+                                                placeholder="Describe tus responsabilidades y logros..."></textarea>
                                         </div>
                                     </div>
                                 </div>
 
-                                <button
-                                    @click="addExperience"
-                                    class="flex w-full items-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-6 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]"
-                                >
+                                <button @click="addExperience"
+                                    class="flex w-full items-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-6 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]">
                                     <Plus class="h-5 w-5" />
                                     <span>Agregar nueva experiencia</span>
                                 </button>
@@ -837,22 +675,16 @@ const closeFullPreview = () => {
                         </div>
 
                         <!-- Navegación entre pasos -->
-                        <div
-                            class="mt-8 flex items-center justify-between border-t border-gray-200 pt-8"
-                        >
-                            <button
-                                @click="prevStep"
+                        <div class="mt-8 flex items-center justify-between border-t border-gray-200 pt-8">
+                            <button @click="prevStep"
                                 class="flex items-center space-x-2 rounded-lg border border-gray-300 px-6 py-3 text-gray-700 transition-colors duration-200 hover:bg-gray-50"
-                                :disabled="currentStep === 1"
-                            >
+                                :disabled="currentStep === 1">
                                 <ArrowLeft class="h-4 w-4" />
                                 <span>Anterior</span>
                             </button>
 
-                            <button
-                                @click="nextStep"
-                                class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-6 py-3 text-white transition-colors duration-200 hover:bg-[#0048c4]"
-                            >
+                            <button @click="nextStep"
+                                class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-6 py-3 text-white transition-colors duration-200 hover:bg-[#0048c4]">
                                 <span>Siguiente paso</span>
                                 <ArrowRight class="h-4 w-4" />
                             </button>
@@ -862,23 +694,18 @@ const closeFullPreview = () => {
 
                 <!-- Columna Derecha - Vista Previa -->
                 <div class="lg:col-span-4">
-                    <div
-                        class="sticky top-8 rounded-2xl border border-gray-200/60 bg-white p-6 shadow-xs"
-                    >
+                    <div class="sticky top-8 rounded-2xl border border-gray-200/60 bg-white p-6 shadow-xs">
                         <!-- Header de la vista previa -->
                         <div class="mb-6 flex items-center justify-between">
                             <h3 class="font-semibold text-gray-900">
                                 Vista previa
                             </h3>
                             <div class="flex items-center space-x-2">
-                                <button
-                                    class="p-2 text-gray-400 transition-colors duration-200 hover:text-gray-600"
-                                >
+                                <button class="p-2 text-gray-400 transition-colors duration-200 hover:text-gray-600">
                                     <Palette class="h-4 w-4" />
                                 </button>
                                 <button
-                                    class="flex items-center space-x-2 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50"
-                                >
+                                    class="flex items-center space-x-2 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50">
                                     <Eye class="h-4 w-4" />
                                     <span>Vista previa</span>
                                 </button>
@@ -887,103 +714,79 @@ const closeFullPreview = () => {
 
                         <!-- Contenedor del preview -->
                         <!-- Contenedor del preview -->
-                        <div
-                            class="overflow-hidden rounded-xl border-2 border-gray-200 bg-white"
-                        >
+                        <div class="overflow-hidden rounded-xl border-2 border-gray-200 bg-white">
                             <!-- Mini navegador -->
-                            <div
-                                class="flex items-center space-x-2 border-b border-gray-200 bg-gray-100 px-4 py-2"
-                            >
+                            <div class="flex items-center space-x-2 border-b border-gray-200 bg-gray-100 px-4 py-2">
                                 <div class="flex space-x-1">
-                                    <div
-                                        class="h-3 w-3 rounded-full bg-red-400"
-                                    ></div>
-                                    <div
-                                        class="h-3 w-3 rounded-full bg-yellow-400"
-                                    ></div>
-                                    <div
-                                        class="h-3 w-3 rounded-full bg-green-400"
-                                    ></div>
+                                    <div class="h-3 w-3 rounded-full bg-red-400"></div>
+                                    <div class="h-3 w-3 rounded-full bg-yellow-400"></div>
+                                    <div class="h-3 w-3 rounded-full bg-green-400"></div>
                                 </div>
-                                <div
-                                    class="flex-1 truncate rounded bg-white px-3 py-1 text-xs text-gray-500"
-                                >
+                                <div class="flex-1 truncate rounded bg-white px-3 py-1 text-xs text-gray-500">
                                     {{ portfolio.slug }}.portafolioai.com
                                 </div>
                             </div>
 
                             <!-- Vista previa de la plantilla seleccionada -->
                             <div class="max-h-[600px] overflow-auto">
-                                <component
-                                    :is="currentTemplate"
-                                    :data="{
-                                        personal: {
-                                            name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
-                                            title: formData.personal.title,
-                                            email: formData.personal.email,
-                                            phone: formData.personal.phone,
-                                            location:
-                                                `${formData.personal.city}, ${formData.personal.country}`
-                                                    .trim()
-                                                    .replace(
-                                                        /^,\s*|\s*,$/g,
-                                                        '',
-                                                    ),
-                                            website: formData.personal.website,
-                                            linkedin:
-                                                formData.personal.linkedin,
-                                            github: formData.personal.github,
-                                            summary: formData.personal.summary,
-                                        },
-                                        experience: formData.experience.map(
-                                            (exp: any) => ({
-                                                company: exp.company,
-                                                position: exp.position,
-                                                startDate: exp.startDate,
-                                                endDate: exp.endDate,
-                                                current: exp.current,
-                                                description: exp.description,
-                                            }),
-                                        ),
-                                        skills: {
-                                            technical:
-                                                formData.skills.technical.map(
-                                                    (skill: any) => skill.name,
+                                <component :is="currentTemplate" :data="{
+                                    personal: {
+                                        name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
+                                        title: formData.personal.title,
+                                        email: formData.personal.email,
+                                        phone: formData.personal.phone,
+                                        location:
+                                            `${formData.personal.city}, ${formData.personal.country}`
+                                                .trim()
+                                                .replace(
+                                                    /^,\s*|\s*,$/g,
+                                                    '',
                                                 ),
-                                            soft: formData.skills.soft.map(
+                                        website: formData.personal.website,
+                                        linkedin:
+                                            formData.personal.linkedin,
+                                        github: formData.personal.github,
+                                        summary: formData.personal.summary,
+                                    },
+                                    experience: formData.experience.map(
+                                        (exp: any) => ({
+                                            company: exp.company,
+                                            position: exp.position,
+                                            startDate: exp.startDate,
+                                            endDate: exp.endDate,
+                                            current: exp.current,
+                                            description: exp.description,
+                                        }),
+                                    ),
+                                    skills: {
+                                        technical:
+                                            formData.skills.technical.map(
                                                 (skill: any) => skill.name,
                                             ),
-                                        },
-                                        projects: formData.projects,
-                                        education: formData.education,
-                                        certifications: [],
-                                        languages: [],
-                                    }"
-                                />
+                                        soft: formData.skills.soft.map(
+                                            (skill: any) => skill.name,
+                                        ),
+                                    },
+                                    projects: formData.projects,
+                                    education: formData.education,
+                                    certifications: [],
+                                    languages: [],
+                                }" />
                             </div>
                         </div>
 
                         <!-- Información de la plantilla -->
-                        <div
-                            class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4"
-                        >
+                        <div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
                             <div class="flex items-center space-x-3">
-                                <div
-                                    class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#005aeb]"
-                                >
-                                    <span
-                                        class="text-xs font-bold text-white"
-                                        >{{
-                                            portfolio.template_type
-                                                .charAt(0)
-                                                .toUpperCase()
-                                        }}</span
-                                    >
+                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#005aeb]">
+                                    <span class="text-xs font-bold text-white">{{
+                                        portfolio.template_type
+                                            .charAt(0)
+                                            .toUpperCase()
+                                    }}</span>
                                 </div>
                                 <div class="flex-1">
-                                    <p
-                                        class="text-sm font-medium text-gray-900"
-                                    >
+                                    <p class="text-sm font-medium text-gray-900">
                                         Plantilla "{{
                                             portfolio.template_type
                                         }}"
@@ -1001,19 +804,13 @@ const closeFullPreview = () => {
     </div>
 
     <!-- Modal de vista previa completa -->
-    <div
-        v-if="showFullPreview"
+    <div v-if="showFullPreview"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-        @click="closeFullPreview"
-    >
-        <div
-            class="max-h-[90vh] w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white transition-all duration-300"
-            @click.stop
-        >
+        @click="closeFullPreview">
+        <div class="max-h-[90vh] w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white transition-all duration-300"
+            @click.stop>
             <!-- Header del modal -->
-            <div
-                class="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-6"
-            >
+            <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-6">
                 <div>
                     <h3 class="text-xl font-semibold text-gray-900">
                         Vista Previa: {{ portfolio.template_type }}
@@ -1022,67 +819,53 @@ const closeFullPreview = () => {
                         Vista previa completa de tu portafolio
                     </p>
                 </div>
-                <button
-                    @click="closeFullPreview"
-                    class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-200"
-                >
-                    <svg
-                        class="h-5 w-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"
-                        ></path>
+                <button @click="closeFullPreview"
+                    class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-200">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
                     </svg>
                 </button>
             </div>
 
             <!-- Contenido del modal -->
             <div class="max-h-[80vh] overflow-auto">
-                <component
-                    :is="currentTemplate"
-                    :data="{
-                        personal: {
-                            name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
-                            title: formData.personal.title,
-                            email: formData.personal.email,
-                            phone: formData.personal.phone,
-                            location:
-                                `${formData.personal.city}, ${formData.personal.country}`
-                                    .trim()
-                                    .replace(/^,\s*|\s*,$/g, ''),
-                            website: formData.personal.website,
-                            linkedin: formData.personal.linkedin,
-                            github: formData.personal.github,
-                            summary: formData.personal.summary,
-                        },
-                        experience: formData.experience.map((exp: any) => ({
-                            company: exp.company,
-                            position: exp.position,
-                            startDate: exp.startDate,
-                            endDate: exp.endDate,
-                            current: exp.current,
-                            description: exp.description,
-                        })),
-                        skills: {
-                            technical: formData.skills.technical.map(
-                                (skill: any) => skill.name,
-                            ),
-                            soft: formData.skills.soft.map(
-                                (skill: any) => skill.name,
-                            ),
-                        },
-                        projects: formData.projects,
-                        education: formData.education,
-                        certifications: [],
-                        languages: [],
-                    }"
-                />
+                <component :is="currentTemplate" :data="{
+                    personal: {
+                        name: `${formData.personal.firstName} ${formData.personal.lastName}`.trim(),
+                        title: formData.personal.title,
+                        email: formData.personal.email,
+                        phone: formData.personal.phone,
+                        location:
+                            `${formData.personal.city}, ${formData.personal.country}`
+                                .trim()
+                                .replace(/^,\s*|\s*,$/g, ''),
+                        website: formData.personal.website,
+                        linkedin: formData.personal.linkedin,
+                        github: formData.personal.github,
+                        summary: formData.personal.summary,
+                    },
+                    experience: formData.experience.map((exp: any) => ({
+                        company: exp.company,
+                        position: exp.position,
+                        startDate: exp.startDate,
+                        endDate: exp.endDate,
+                        current: exp.current,
+                        description: exp.description,
+                    })),
+                    skills: {
+                        technical: formData.skills.technical.map(
+                            (skill: any) => skill.name,
+                        ),
+                        soft: formData.skills.soft.map(
+                            (skill: any) => skill.name,
+                        ),
+                    },
+                    projects: formData.projects,
+                    education: formData.education,
+                    certifications: [],
+                    languages: [],
+                }" />
             </div>
         </div>
     </div>
