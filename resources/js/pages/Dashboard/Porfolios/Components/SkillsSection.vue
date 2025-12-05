@@ -1,22 +1,27 @@
 <script setup lang="ts">
 import { Plus, Trash2, ChevronDown } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
+import { useSkillValidation, type Skill, type SkillsData } from './Composables/useSkillValidation';
 
-interface Skill {
-    id: number;
-    name: string;
-    level: number;
-    category: string;
+interface SkillsProps {
+    technical: Skill[];
+    soft: Skill[];
 }
 
 const props = defineProps<{
-    modelValue: {
-        technical: Skill[];
-        soft: Skill[];
-    };
+    modelValue: SkillsProps;
 }>();
 
 const emit = defineEmits(['update:modelValue']);
+
+// Usar el composable de validación
+const {
+    errors: skillErrors,
+    validateField,
+    getErrorClass,
+    reindexErrors,
+    getLevelLabel,
+} = useSkillValidation();
 
 const expandedSkill = ref<number | null>(null);
 const lastAddedId = ref<number | null>(null);
@@ -28,7 +33,7 @@ watch(
         // Solo si es diferente cantidad
         if (lastAddedId.value !== null) {
             // Buscar la habilidad con lastAddedId
-            const skill = newSkills.find(s => s.id === lastAddedId.value);
+            const skill = newSkills.find((s) => s.id === lastAddedId.value);
             if (skill) {
                 expandedSkill.value = skill.id;
             }
@@ -38,11 +43,12 @@ watch(
     { deep: true }
 );
 
+// Agregar habilidad
 const addSkill = (type: 'technical' | 'soft') => {
     const newSkillId = Date.now();
     lastAddedId.value = newSkillId; // Marcar que vamos a agregar
 
-    const newSkill = {
+    const newSkill: Skill = {
         id: newSkillId,
         name: '',
         level: 50,
@@ -54,20 +60,32 @@ const addSkill = (type: 'technical' | 'soft') => {
     emit('update:modelValue', updated);
 };
 
+// Eliminar habilidad
 const removeSkill = (type: 'technical' | 'soft', index: number) => {
     const updated = { ...props.modelValue };
     updated[type] = [...updated[type]];
     updated[type].splice(index, 1);
     emit('update:modelValue', updated);
+
+    // Reindexar errores
+    reindexErrors(type, index);
+
+    if (expandedSkill.value === props.modelValue[type][index]?.id) {
+        expandedSkill.value = null;
+    }
 };
 
+// Actualizar habilidad
 const updateSkill = (type: 'technical' | 'soft', index: number, field: keyof Skill, value: any) => {
     const updated = { ...props.modelValue };
     updated[type] = [...updated[type]];
     updated[type][index] = { ...updated[type][index], [field]: value };
     emit('update:modelValue', updated);
+
+    validateField(type, index, field, value);
 };
 
+// Toggle acordeón
 const toggleSkill = (id: number) => {
     expandedSkill.value = expandedSkill.value === id ? null : id;
 };
@@ -76,9 +94,7 @@ const toggleSkill = (id: number) => {
 <template>
     <div>
         <div class="mb-8">
-            <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">
-                Habilidades
-            </h1>
+            <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">Habilidades</h1>
             <p class="text-lg text-gray-600">
                 Destaca tus competencias técnicas y habilidades blandas.
             </p>
@@ -88,19 +104,20 @@ const toggleSkill = (id: number) => {
             <!-- Habilidades Técnicas -->
             <div>
                 <div class="mb-4 flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900">
-                        Habilidades Técnicas
-                    </h3>
+                    <h3 class="text-lg font-semibold text-gray-900">Habilidades Técnicas</h3>
                     <button
                         @click="addSkill('technical')"
-                        class="flex items-center space-x-1 text-sm font-medium text-blue-600 hover:text-blue-700"
+                        class="flex items-center space-x-1 text-sm font-medium text-[#005aeb] transition-colors hover:text-[#0047b2]"
                     >
                         <Plus class="h-4 w-4" />
                         <span>Agregar</span>
                     </button>
                 </div>
 
-                <div v-if="modelValue.technical.length === 0" class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500">
+                <div
+                    v-if="modelValue.technical.length === 0"
+                    class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500"
+                >
                     No has agregado habilidades técnicas
                 </div>
 
@@ -108,26 +125,27 @@ const toggleSkill = (id: number) => {
                     <div
                         v-for="(skill, index) in modelValue.technical"
                         :key="skill.id"
-                        class="rounded-lg border border-gray-200 overflow-hidden"
+                        class="overflow-hidden rounded-lg border border-gray-200"
                     >
                         <!-- Header Acordeón -->
                         <button
                             @click="toggleSkill(skill.id)"
-                            class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+                            class="flex w-full items-center justify-between bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100"
                         >
-                            <div class="flex items-center gap-3 flex-1 text-left">
+                            <div class="flex flex-1 items-center gap-3 text-left">
                                 <ChevronDown
-                                    class="h-5 w-5 text-gray-600 transition-transform duration-400 ease-out flex-shrink-0"
-                                    :class="{ 'transform rotate-180': expandedSkill === skill.id }"
+                                    class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
+                                    :class="{ 'rotate-180 transform': expandedSkill === skill.id }"
                                 />
                                 <span class="text-base font-medium text-gray-900">
                                     {{ skill.name || 'Nueva habilidad' }}
                                 </span>
                                 <span class="text-sm text-gray-500">{{ skill.level }}%</span>
+                                <span class="text-xs text-gray-400">{{ getLevelLabel(skill.level) }}</span>
                             </div>
                             <button
                                 @click.stop="removeSkill('technical', index)"
-                                class="text-gray-400 hover:text-red-500 p-1.5 flex-shrink-0"
+                                class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
                             >
                                 <Trash2 class="h-4 w-4" />
                             </button>
@@ -137,37 +155,74 @@ const toggleSkill = (id: number) => {
                         <transition
                             enter-active-class="transition-all duration-400 ease-out"
                             leave-active-class="transition-all duration-300 ease-in"
-                            enter-from-class="max-h-0 opacity-0 overflow-hidden"
-                            enter-to-class="max-h-[250px] opacity-100"
-                            leave-from-class="max-h-[250px] opacity-100"
-                            leave-to-class="max-h-0 opacity-0 overflow-hidden"
+                            enter-from-class="max-h-0 overflow-hidden opacity-0"
+                            enter-to-class="max-h-[300px] opacity-100"
+                            leave-from-class="max-h-[300px] opacity-100"
+                            leave-to-class="max-h-0 overflow-hidden opacity-0"
                         >
-                            <div v-if="expandedSkill === skill.id" class="px-4 py-4 bg-white border-t border-gray-200">
+                            <div
+                                v-if="expandedSkill === skill.id"
+                                class="border-t border-gray-200 bg-white px-4 py-4"
+                            >
                                 <div class="space-y-4">
+                                    <!-- Nombre -->
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Nombre
+                                        <label class="mb-2 block text-sm font-medium text-gray-700">
+                                            Nombre *
                                         </label>
                                         <input
                                             :value="skill.name"
-                                            @input="updateSkill('technical', index, 'name', ($event.target as HTMLInputElement).value)"
+                                            @input="
+                                                updateSkill(
+                                                    'technical',
+                                                    index,
+                                                    'name',
+                                                    ($event.target as HTMLInputElement).value
+                                                )
+                                            "
                                             type="text"
-                                            class="w-full text-base text-gray-900 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                            class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:border-[#005aeb] focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                            :class="getErrorClass('technical', index, 'name')"
                                             placeholder="Ej: JavaScript"
                                         />
+                                        <p
+                                            v-if="skillErrors.technical[index]?.name"
+                                            class="mt-1 text-sm text-red-500"
+                                        >
+                                            {{ skillErrors.technical[index].name }}
+                                        </p>
                                     </div>
+
+                                    <!-- Nivel -->
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Nivel: <span class="font-semibold text-blue-600">{{ skill.level }}%</span>
+                                        <label class="mb-2 block text-sm font-medium text-gray-700">
+                                            Nivel:
+                                            <span class="font-semibold text-[#005aeb]">{{ skill.level }}%</span>
+                                            <span class="text-xs font-normal text-gray-500">
+                                                ({{ getLevelLabel(skill.level) }})
+                                            </span>
                                         </label>
                                         <input
                                             :value="skill.level"
-                                            @input="updateSkill('technical', index, 'level', parseInt(($event.target as HTMLInputElement).value))"
+                                            @input="
+                                                updateSkill(
+                                                    'technical',
+                                                    index,
+                                                    'level',
+                                                    parseInt(($event.target as HTMLInputElement).value)
+                                                )
+                                            "
                                             type="range"
                                             min="0"
                                             max="100"
-                                            class="w-full h-2.5 cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-500"
+                                            class="h-2.5 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#005aeb]"
                                         />
+                                        <p
+                                            v-if="skillErrors.technical[index]?.level"
+                                            class="mt-1 text-sm text-red-500"
+                                        >
+                                            {{ skillErrors.technical[index].level }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -179,19 +234,20 @@ const toggleSkill = (id: number) => {
             <!-- Habilidades Blandas -->
             <div>
                 <div class="mb-4 flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900">
-                        Habilidades Blandas
-                    </h3>
+                    <h3 class="text-lg font-semibold text-gray-900">Habilidades Blandas</h3>
                     <button
                         @click="addSkill('soft')"
-                        class="flex items-center space-x-1 text-sm font-medium text-blue-600 hover:text-blue-700"
+                        class="flex items-center space-x-1 text-sm font-medium text-[#005aeb] transition-colors hover:text-[#0047b2]"
                     >
                         <Plus class="h-4 w-4" />
                         <span>Agregar</span>
                     </button>
                 </div>
 
-                <div v-if="modelValue.soft.length === 0" class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500">
+                <div
+                    v-if="modelValue.soft.length === 0"
+                    class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500"
+                >
                     No has agregado habilidades blandas
                 </div>
 
@@ -199,26 +255,27 @@ const toggleSkill = (id: number) => {
                     <div
                         v-for="(skill, index) in modelValue.soft"
                         :key="skill.id"
-                        class="rounded-lg border border-gray-200 overflow-hidden"
+                        class="overflow-hidden rounded-lg border border-gray-200"
                     >
                         <!-- Header Acordeón -->
                         <button
                             @click="toggleSkill(skill.id)"
-                            class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+                            class="flex w-full items-center justify-between bg-gray-50 px-4 py-3 transition-colors hover:bg-gray-100"
                         >
-                            <div class="flex items-center gap-3 flex-1 text-left">
+                            <div class="flex flex-1 items-center gap-3 text-left">
                                 <ChevronDown
-                                    class="h-5 w-5 text-gray-600 transition-transform duration-400 ease-out flex-shrink-0"
-                                    :class="{ 'transform rotate-180': expandedSkill === skill.id }"
+                                    class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
+                                    :class="{ 'rotate-180 transform': expandedSkill === skill.id }"
                                 />
                                 <span class="text-base font-medium text-gray-900">
                                     {{ skill.name || 'Nueva habilidad' }}
                                 </span>
                                 <span class="text-sm text-gray-500">{{ skill.level }}%</span>
+                                <span class="text-xs text-gray-400">{{ getLevelLabel(skill.level) }}</span>
                             </div>
                             <button
                                 @click.stop="removeSkill('soft', index)"
-                                class="text-gray-400 hover:text-red-500 p-1.5 flex-shrink-0"
+                                class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
                             >
                                 <Trash2 class="h-4 w-4" />
                             </button>
@@ -228,37 +285,74 @@ const toggleSkill = (id: number) => {
                         <transition
                             enter-active-class="transition-all duration-400 ease-out"
                             leave-active-class="transition-all duration-300 ease-in"
-                            enter-from-class="max-h-0 opacity-0 overflow-hidden"
-                            enter-to-class="max-h-[250px] opacity-100"
-                            leave-from-class="max-h-[250px] opacity-100"
-                            leave-to-class="max-h-0 opacity-0 overflow-hidden"
+                            enter-from-class="max-h-0 overflow-hidden opacity-0"
+                            enter-to-class="max-h-[300px] opacity-100"
+                            leave-from-class="max-h-[300px] opacity-100"
+                            leave-to-class="max-h-0 overflow-hidden opacity-0"
                         >
-                            <div v-if="expandedSkill === skill.id" class="px-4 py-4 bg-white border-t border-gray-200">
+                            <div
+                                v-if="expandedSkill === skill.id"
+                                class="border-t border-gray-200 bg-white px-4 py-4"
+                            >
                                 <div class="space-y-4">
+                                    <!-- Nombre -->
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Nombre
+                                        <label class="mb-2 block text-sm font-medium text-gray-700">
+                                            Nombre *
                                         </label>
                                         <input
                                             :value="skill.name"
-                                            @input="updateSkill('soft', index, 'name', ($event.target as HTMLInputElement).value)"
+                                            @input="
+                                                updateSkill(
+                                                    'soft',
+                                                    index,
+                                                    'name',
+                                                    ($event.target as HTMLInputElement).value
+                                                )
+                                            "
                                             type="text"
-                                            class="w-full text-base text-gray-900 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                            class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:border-[#005aeb] focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                            :class="getErrorClass('soft', index, 'name')"
                                             placeholder="Ej: Liderazgo"
                                         />
+                                        <p
+                                            v-if="skillErrors.soft[index]?.name"
+                                            class="mt-1 text-sm text-red-500"
+                                        >
+                                            {{ skillErrors.soft[index].name }}
+                                        </p>
                                     </div>
+
+                                    <!-- Nivel -->
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Nivel: <span class="font-semibold text-blue-600">{{ skill.level }}%</span>
+                                        <label class="mb-2 block text-sm font-medium text-gray-700">
+                                            Nivel:
+                                            <span class="font-semibold text-[#005aeb]">{{ skill.level }}%</span>
+                                            <span class="text-xs font-normal text-gray-500">
+                                                ({{ getLevelLabel(skill.level) }})
+                                            </span>
                                         </label>
                                         <input
                                             :value="skill.level"
-                                            @input="updateSkill('soft', index, 'level', parseInt(($event.target as HTMLInputElement).value))"
+                                            @input="
+                                                updateSkill(
+                                                    'soft',
+                                                    index,
+                                                    'level',
+                                                    parseInt(($event.target as HTMLInputElement).value)
+                                                )
+                                            "
                                             type="range"
                                             min="0"
                                             max="100"
-                                            class="w-full h-2.5 cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-500"
+                                            class="h-2.5 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#005aeb]"
                                         />
+                                        <p
+                                            v-if="skillErrors.soft[index]?.level"
+                                            class="mt-1 text-sm text-red-500"
+                                        >
+                                            {{ skillErrors.soft[index].level }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>

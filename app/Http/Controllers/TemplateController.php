@@ -125,14 +125,14 @@ class TemplateController extends Controller
             'personal' => [
                 'firstName' => auth()->user()->name,
                 'lastName' => '',
-                'title' => 'Tu título profesional',
+                'title' => '',
                 'email' => auth()->user()->email,
                 'phone' => '',
                 'location' => '',
                 'website' => '',
                 'linkedin' => '',
                 'github' => '',
-                'summary' => 'Breve resumen sobre tu experiencia y habilidades...',
+                'summary' => '',
             ],
 
             'experience' => [],
@@ -150,15 +150,15 @@ class TemplateController extends Controller
         switch ($templateType) {
             case 'tecnologica':
                 $defaultData['personal']['title'] = 'Desarrollador de Software';
-                $defaultData['skills']['technical'] = ['JavaScript', 'PHP', 'Vue.js', 'Laravel'];
+                
                 break;
             case 'ejecutiva':
                 $defaultData['personal']['title'] = 'Director Ejecutivo';
-                $defaultData['skills']['soft'] = ['Liderazgo', 'Gestión', 'Estrategia'];
+                
                 break;
             case 'creativa':
                 $defaultData['personal']['title'] = 'Diseñador Creativo';
-                $defaultData['skills']['technical'] = ['Figma', 'Adobe Creative Suite', 'UI/UX'];
+                
                 break;
         }
 

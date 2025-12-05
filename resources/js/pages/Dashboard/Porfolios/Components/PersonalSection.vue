@@ -21,8 +21,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue']);
 
-// ✅ Usar el composable
-const { errors, validateField } = usePersonalValidation();
+// ✅ Usa el composable (será la misma instancia si se pasa por props, sino crea una nueva)
+const { errors, validateField } = props.validation || usePersonalValidation();
 
 const handlePhotoUpload = (event: Event) => {
     const input = event.target as HTMLInputElement;
@@ -34,28 +34,25 @@ const handlePhotoUpload = (event: Event) => {
                 photo: e.target?.result as string,
             });
         };
-        
-reader.readAsDataURL(input.files[0]); ;
+        reader.readAsDataURL(input.files[0]);
     }
 };
 
 const updateField = (field: string, value: string) => {
-    // ✅ Validar mientras escribes
     validateField(field as any, value);
-    
     emit('update:modelValue', {
         ...props.modelValue,
         [field]: value,
     });
 };
 
-// Clase dinámica para inputs con error
 const getInputClass = (field: string) => {
     return errors[field as keyof typeof errors]
         ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
         : 'border-gray-300 focus:border-[#005aeb] focus:ring-[#005aeb]';
 };
 </script>
+
 
 <template>
     <div>
