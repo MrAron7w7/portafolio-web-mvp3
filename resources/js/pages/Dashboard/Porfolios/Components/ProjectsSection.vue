@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { Plus, Trash2, Upload, ChevronDown } from 'lucide-vue-next';
+import { Plus, Trash2, ChevronDown, AlertCircle, Sparkles, X } from 'lucide-vue-next';
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useProjectValidation, type Project } from './Composables/useProjectValidation';
 
 const props = defineProps<{
     modelValue: Project[];
+    validation: any;
 }>();
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+    'update:modelValue': [value: Project[]];
+}>();
 
-// Usar el composable de validación
 const {
     errors: projectErrors,
     validateField,
@@ -18,13 +20,14 @@ const {
     getErrorClass,
     reindexErrors,
     getCharCount,
-} = useProjectValidation();
+} = props.validation;
 
-// Input local para cada proyecto (tecnologías)
-const techInputs = ref<{ [key: number]: string }>({});
-
-// Índice del proyecto expandido (solo uno)
+// Índice del acordeón expandido
 const expandedIndex = ref<number | null>(null);
+
+// NUEVO: Estado de "NUEVOS ITEMS"
+const newItems = ref(new Set<number>());
+const lastAddedId = ref<number | null>(null);
 
 // Variables para el popover de eliminación
 const deleteConfirmIndex = ref<number | null>(null);
@@ -35,17 +38,25 @@ const popoverPosition = ref({
     arrowTop: 0,
     positionY: 'below' as 'below' | 'above',
 });
-const containerRef = ref<HTMLElement | null>(null);
 const deleteConfirmButtonRef = ref<HTMLElement | null>(null);
 
-// Watcher para expandir solo el último proyecto
+// Variables para input de tecnologías
+const techInput = ref<{ [key: number]: string }>({});
+
+onMounted(() => {
+    props.validation.clearAllErrors();
+});
+
+// Auto-expandir nuevo item
 watch(
     () => props.modelValue.length,
-    (newLength) => {
-        if (newLength > 0) {
-            expandedIndex.value = newLength - 1;
-        } else {
-            expandedIndex.value = null;
+    (newLength, oldLength) => {
+        if (newLength > oldLength && lastAddedId.value !== null) {
+            const project = props.modelValue.find((p) => p.id === lastAddedId.value);
+            if (project) {
+                expandedIndex.value = lastAddedId.value;
+            }
+            lastAddedId.value = null;
         }
     }
 );
@@ -79,7 +90,6 @@ const recalculatePopoverPosition = () => {
     const spacing = 8;
     const windowPadding = 16;
 
-    // ===== POSICIÓN HORIZONTAL =====
     const buttonCenterX = rect.left + rect.width / 2;
     let popoverLeftPosition = buttonCenterX - popoverWidth / 2;
 
@@ -91,35 +101,28 @@ const recalculatePopoverPosition = () => {
         popoverLeftPosition = windowPadding;
     }
 
-    // ===== POSICIÓN VERTICAL =====
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
 
     let popoverTopPosition: number;
     let positionY: 'below' | 'above';
-    let arrowTop: number;
 
     if (spaceBelow >= popoverHeight + spacing) {
         popoverTopPosition = rect.bottom + spacing;
         positionY = 'below';
-        arrowTop = -8;
     } else if (spaceAbove >= popoverHeight + spacing) {
         popoverTopPosition = rect.top - popoverHeight + 32;
         positionY = 'above';
-        arrowTop = popoverHeight - 4;
     } else {
         if (spaceBelow > spaceAbove) {
             popoverTopPosition = rect.bottom + spacing;
             positionY = 'below';
-            arrowTop = -8;
         } else {
             popoverTopPosition = rect.top - popoverHeight - spacing;
             positionY = 'above';
-            arrowTop = popoverHeight - 4;
         }
     }
 
-    // ===== POSICIÓN DE LA FLECHA =====
     let arrowLeft = buttonCenterX - popoverLeftPosition - 8;
     arrowLeft = Math.max(8, Math.min(arrowLeft, popoverWidth - 16));
 
@@ -127,12 +130,11 @@ const recalculatePopoverPosition = () => {
         top: popoverTopPosition,
         left: popoverLeftPosition,
         arrowLeft,
-        arrowTop,
+        arrowTop: 0,
         positionY,
     };
 };
 
-// Listener para scroll
 const handleScroll = () => {
     if (deleteConfirmIndex.value !== null && deleteConfirmButtonRef.value) {
         recalculatePopoverPosition();
@@ -153,8 +155,13 @@ onUnmounted(() => {
 
 // Agregar proyecto
 const addProject = () => {
+    const newProjectId = Date.now();
+    lastAddedId.value = newProjectId;
+
+    newItems.value.add(newProjectId);
+
     const newProject: Project = {
-        id: Date.now(),
+        id: newProjectId,
         name: '',
         description: '',
         image: null,
@@ -162,87 +169,10 @@ const addProject = () => {
         technologies: [],
     };
     emit('update:modelValue', [...props.modelValue, newProject]);
-};
 
-// Toggle acordeón
-const toggleProject = (index: number) => {
-    expandedIndex.value = expandedIndex.value === index ? null : index;
-};
-
-// Eliminar proyecto
-const removeProject = (index: number) => {
-    const updated = [...props.modelValue];
-    updated.splice(index, 1);
-    emit('update:modelValue', updated);
-    delete techInputs.value[index];
-
-    // Reindexar errores
-    reindexErrors(index);
-
-    if (expandedIndex.value === index) {
-        expandedIndex.value = null;
-    }
-    closeDeleteConfirm();
-};
-
-// Actualizar proyecto
-const updateProject = (index: number, field: keyof Project, value: any) => {
-    const updated = [...props.modelValue];
-    updated[index] = { ...updated[index], [field]: value };
-    emit('update:modelValue', updated);
-
-    // Validar el campo
-    validateField(index, field, value);
-};
-
-// Manejo de subida de imagen
-const handleImageUpload = (index: number, event: Event) => {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-
-        // Validar imagen usando el composable
-        if (!validateImage(index, file)) {
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            updateProject(index, 'image', e.target?.result as string);
-            clearImageError(index);
-        };
-        reader.readAsDataURL(file);
-    }
-};
-
-// Procesar tecnologías
-const processTechnologies = (index: number) => {
-    const input = techInputs.value[index] || '';
-    if (!input.trim()) return;
-
-    const newTechs = input
-        .split(',')
-        .map((tech) => tech.trim())
-        .filter((tech) => tech !== '');
-
-    const allTechs = [...props.modelValue[index].technologies, ...newTechs];
-    updateProject(index, 'technologies', allTechs);
-    techInputs.value[index] = '';
-};
-
-// Manejo de teclado para tecnologías
-const handleTechKeydown = (index: number, event: KeyboardEvent) => {
-    if (event.key === ',' || event.key === 'Enter') {
-        event.preventDefault();
-        processTechnologies(index);
-    }
-};
-
-// Eliminar tecnología
-const removeTechnology = (index: number, techIndex: number) => {
-    const updated = [...props.modelValue[index].technologies];
-    updated.splice(techIndex, 1);
-    updateProject(index, 'technologies', updated);
+    setTimeout(() => {
+        newItems.value.delete(newProjectId);
+    }, 3000);
 };
 
 // Abrir popover de confirmación
@@ -262,12 +192,151 @@ const openDeleteConfirm = (index: number, event: Event) => {
 // Confirmar eliminación
 const confirmDelete = (index: number | null) => {
     if (index === null) return;
-    removeProject(index);
+    const idToRemove = props.modelValue[index].id;
+    newItems.value.delete(idToRemove);
+
+    const updated = [...props.modelValue];
+    updated.splice(index, 1);
+    emit('update:modelValue', updated);
+
+    reindexErrors(index);
+
+    if (expandedIndex.value === index) {
+        expandedIndex.value = null;
+    }
+    closeDeleteConfirm();
+};
+
+// Toggle acordeón
+const toggleProject = (id: number) => {
+    expandedIndex.value = expandedIndex.value === id ? null : id;
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
+};
+
+// Actualizar proyecto + validar
+const updateProject = (index: number, field: keyof Project, value: any) => {
+    const id = props.modelValue[index].id;
+
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
+
+    props.validation.markAsTouched(index, field);
+
+    const updated = [...props.modelValue];
+    updated[index] = { ...updated[index], [field]: value };
+    emit('update:modelValue', updated);
+
+    if (projectErrors[index]?.[field]) {
+        validateField(index, field, value, false);
+    }
+};
+
+// Manejar upload de imagen
+const handleImageUpload = (index: number, event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    const id = props.modelValue[index].id;
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
+
+    props.validation.markAsTouched(index, 'image');
+
+    if (validateImage(index, file)) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const updated = [...props.modelValue];
+            updated[index] = {
+                ...updated[index],
+                image: e.target?.result as string,
+            };
+            emit('update:modelValue', updated);
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+// Eliminar imagen
+const removeImage = (index: number) => {
+    clearImageError(index);
+    const updated = [...props.modelValue];
+    updated[index] = { ...updated[index], image: null };
+    emit('update:modelValue', updated);
+};
+
+// Agregar tecnología
+const addTechnology = (index: number, event: KeyboardEvent) => {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.trim();
+    const key = (event as any).key;
+
+    if ((key === 'Enter' || key === ',') && value) {
+        event.preventDefault();
+
+        const id = props.modelValue[index].id;
+        if (newItems.value.has(id)) {
+            newItems.value.delete(id);
+        }
+
+        props.validation.markAsTouched(index, 'technologies');
+
+        const updated = [...props.modelValue];
+        const newTechs = [...updated[index].technologies];
+        if (!newTechs.includes(value)) {
+            newTechs.push(value);
+        }
+        updated[index] = { ...updated[index], technologies: newTechs };
+        emit('update:modelValue', updated);
+
+        techInput.value[index] = '';
+
+        if (projectErrors[index]?.technologies) {
+            validateField(index, 'technologies', newTechs, false);
+        }
+    }
+};
+
+// Eliminar tecnología
+const removeTechnology = (index: number, tech: string) => {
+    const updated = [...props.modelValue];
+    updated[index] = {
+        ...updated[index],
+        technologies: updated[index].technologies.filter((t) => t !== tech),
+    };
+    emit('update:modelValue', updated);
+};
+
+// NUEVO: Función para obtener clase de error del contenedor
+const getContainerClass = (index: number, id: number) => {
+    if (hasProjectError(index)) {
+        return 'border-red-300 bg-red-50';
+    }
+    if (newItems.value.has(id)) {
+        return 'border-emerald-300 bg-emerald-50';
+    }
+    return 'border-gray-200 bg-white';
+};
+
+// NUEVO: Verificar si un proyecto tiene errores
+const hasProjectError = (index: number) => {
+    const errors = projectErrors[index];
+    return errors && Object.keys(errors).length > 0;
+};
+
+// NUEVO: Función para obtener clase de error con forceShow
+const getErrorClassForInput = (index: number, field: keyof any) => {
+    return props.validation.getErrorClass(index, field, false);
 };
 </script>
 
 <template>
-    <div class="relative" ref="containerRef">
+    <div>
         <div class="mb-8">
             <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">Proyectos</h1>
             <p class="text-lg text-gray-600">
@@ -280,32 +349,57 @@ const confirmDelete = (index: number | null) => {
             <div
                 v-for="(project, index) in modelValue"
                 :key="project.id"
-                class="overflow-hidden rounded-lg border border-gray-200 transition-all"
+                class="overflow-hidden rounded-lg border transition-all duration-500 ease-in-out"
+                :class="getContainerClass(index, project.id)"
             >
                 <!-- Header del acordeón -->
                 <button
-                    @click="toggleProject(index)"
-                    class="flex w-full items-center justify-between bg-gray-50 px-6 py-4 transition-colors hover:bg-gray-100"
+                    @click="toggleProject(project.id)"
+                    class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
+                    type="button"
                 >
                     <div class="flex flex-1 items-center gap-3 text-left">
                         <ChevronDown
-                            class="h-5 w-5 text-gray-600 transition-transform duration-300"
-                            :class="{ 'rotate-180 transform': expandedIndex === index }"
+                            class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
+                            :class="{ 'rotate-180 transform': expandedIndex === project.id }"
                         />
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">
-                                Proyecto {{ index + 1 }}
-                            </h3>
-                            <p v-if="project.name" class="text-sm text-gray-600">
-                                {{ project.name }}
-                            </p>
+
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-base font-medium transition-colors duration-300"
+                                    :class="{
+                                        'text-red-700': hasProjectError(index),
+                                        'text-emerald-700': newItems.has(project.id),
+                                        'text-gray-900': !hasProjectError(index) && !newItems.has(project.id)
+                                    }"
+                                >
+                                    {{ project.name || 'Nuevo proyecto' }}
+                                </span>
+
+                                <!-- ICONO DE ERROR -->
+                                <AlertCircle
+                                    v-if="hasProjectError(index)"
+                                    class="h-4 w-4 text-red-500 animate-pulse"
+                                />
+
+                                <!-- ICONO DE NUEVO -->
+                                <Sparkles
+                                    v-if="newItems.has(project.id) && !hasProjectError(index)"
+                                    class="h-4 w-4 text-emerald-500 animate-bounce"
+                                />
+                            </div>
+                            <span v-if="project.technologies.length > 0" class="text-xs text-gray-500">
+                                {{ project.technologies.slice(0, 2).join(', ') }}
+                                <span v-if="project.technologies.length > 2">, +{{ project.technologies.length - 2 }}</span>
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Botón eliminar -->
                     <button
                         @click.stop="openDeleteConfirm(index, $event)"
-                        class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-800"
+                        type="button"
+                        class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
                     >
                         <Trash2 class="h-4 w-4" />
                     </button>
@@ -316,65 +410,56 @@ const confirmDelete = (index: number | null) => {
                     enter-active-class="transition-all duration-300 ease-out"
                     leave-active-class="transition-all duration-300 ease-in"
                     enter-from-class="max-h-0 opacity-0 overflow-hidden"
-                    enter-to-class="max-h-[1100px] opacity-100"
-                    leave-from-class="max-h-[1100px] opacity-100"
+                    enter-to-class="max-h-[1200px] opacity-100"
+                    leave-from-class="max-h-[1200px] opacity-100"
                     leave-to-class="max-h-0 opacity-0 overflow-hidden"
                 >
                     <div
-                        v-if="expandedIndex === index"
-                        class="border-t border-gray-200 bg-white px-6 py-6"
+                        v-if="expandedIndex === project.id"
+                        class="border-t px-4 py-4 bg-white/50"
+                        :class="hasProjectError(index) ? 'border-red-200' : 'border-gray-200'"
                     >
-                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            <!-- Imagen del proyecto -->
-                            <div class="md:col-span-2">
-                                <label class="mb-2 block text-sm font-medium text-gray-700">
-                                    Imagen del proyecto
-                                </label>
+                        <div class="space-y-6">
+                            <!-- Imagen -->
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Imagen del proyecto</label>
                                 <div
-                                    class="relative flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:bg-gray-100"
+                                    v-if="!project.image"
+                                    class="relative rounded-lg border-2 border-dashed border-gray-300 p-6 text-center"
                                 >
-                                    <div
-                                        v-if="!project.image"
-                                        class="flex flex-col items-center justify-center pb-6 pt-5"
-                                    >
-                                        <Upload class="mb-3 h-8 w-8 text-gray-400" />
-                                        <p class="mb-2 text-sm text-gray-500">
-                                            <span class="font-semibold">Haz clic para subir</span>
-                                        </p>
-                                        <p class="text-xs text-gray-500">PNG, JPG, GIF, WebP (MAX. 2MB)</p>
-                                    </div>
-                                    <img
-                                        v-else
-                                        :src="project.image"
-                                        class="h-full w-full rounded-lg object-cover"
-                                    />
                                     <input
                                         type="file"
-                                        class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                                        accept="image/*"
+                                        accept="image/png,image/jpeg,image/gif,image/webp"
                                         @change="handleImageUpload(index, $event)"
+                                        class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                    />
+                                    <div class="pointer-events-none">
+                                        <p class="text-sm font-medium text-gray-700">Haz clic para subir</p>
+                                        <p class="text-xs text-gray-500">PNG, JPG, GIF, WebP (MAX. 2MB)</p>
+                                    </div>
+                                </div>
+                                <div v-else class="relative">
+                                    <img
+                                        :src="project.image"
+                                        alt="Project preview"
+                                        class="w-full rounded-lg object-cover max-h-48"
                                     />
                                     <button
-                                        v-if="project.image"
-                                        @click.stop="updateProject(index, 'image', null)"
-                                        class="absolute right-2 top-2 rounded-full bg-white p-1 shadow-sm hover:bg-gray-100"
+                                        @click="removeImage(index)"
+                                        type="button"
+                                        class="absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white transition-colors hover:bg-red-600"
                                     >
-                                        <Trash2 class="h-4 w-4 text-red-500" />
+                                        <X class="h-4 w-4" />
                                     </button>
                                 </div>
-                                <p
-                                    v-if="projectErrors[index]?.image"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                <p v-if="projectErrors[index]?.image" class="mt-1 text-sm text-red-500">
                                     {{ projectErrors[index].image }}
                                 </p>
                             </div>
 
-                            <!-- Nombre del proyecto -->
+                            <!-- Nombre -->
                             <div>
-                                <label class="mb-2 block text-sm font-medium text-gray-700">
-                                    Nombre del proyecto *
-                                </label>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Nombre del proyecto *</label>
                                 <input
                                     :value="project.name"
                                     @input="
@@ -385,23 +470,18 @@ const confirmDelete = (index: number | null) => {
                                         )
                                     "
                                     type="text"
-                                    class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2"
-                                    :class="getErrorClass(index, 'name')"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'name')"
                                     placeholder="Nombre del proyecto"
                                 />
-                                <p
-                                    v-if="projectErrors[index]?.name"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                <p v-if="projectErrors[index]?.name" class="mt-1 text-xs text-red-500">
                                     {{ projectErrors[index].name }}
                                 </p>
                             </div>
 
-                            <!-- Enlace del proyecto -->
+                            <!-- Link -->
                             <div>
-                                <label class="mb-2 block text-sm font-medium text-gray-700">
-                                    Enlace (URL)
-                                </label>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Enlace (opcional)</label>
                                 <input
                                     :value="project.link"
                                     @input="
@@ -412,72 +492,52 @@ const confirmDelete = (index: number | null) => {
                                         )
                                     "
                                     type="url"
-                                    class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2"
-                                    :class="getErrorClass(index, 'link')"
-                                    placeholder="https://..."
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'link')"
+                                    placeholder="https://ejemplo.com"
                                 />
-                                <p
-                                    v-if="projectErrors[index]?.link"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                <p v-if="projectErrors[index]?.link" class="mt-1 text-xs text-red-500">
                                     {{ projectErrors[index].link }}
                                 </p>
                             </div>
 
                             <!-- Tecnologías -->
-                            <div class="md:col-span-2">
-                                <label class="mb-2 block text-sm font-medium text-gray-700">
-                                    Tecnologías *
-                                </label>
-                                <p class="mb-2 text-xs text-gray-500">
-                                    Presiona coma o enter para agregar cada tecnología.
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Tecnologías *</label>
+                                <p class="mb-2 text-xs text-gray-500">Presiona coma o enter para agregar cada tecnología.</p>
+                                <input
+                                    :value="techInput[index] || ''"
+                                    @input="techInput[index] = ($event.target as HTMLInputElement).value"
+                                    @keydown="addTechnology(index, $event)"
+                                    type="text"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'technologies')"
+                                    placeholder="Vue.js, Tailwind CSS..."
+                                />
+                                <p v-if="projectErrors[index]?.technologies" class="mt-1 text-xs text-red-500">
+                                    {{ projectErrors[index].technologies }}
                                 </p>
-                                <div class="space-y-2">
-                                    <input
-                                        v-model="techInputs[index]"
-                                        @keydown="handleTechKeydown(index, $event)"
-                                        @blur="processTechnologies(index)"
-                                        type="text"
-                                        class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2"
-                                        :class="getErrorClass(index, 'technologies')"
-                                        placeholder="Escribe tecnología y presiona coma o enter..."
-                                    />
-
-                                    <p
-                                        v-if="projectErrors[index]?.technologies"
-                                        class="text-sm text-red-500"
+                                <div v-if="project.technologies.length > 0" class="mt-3 flex flex-wrap gap-2">
+                                    <span
+                                        v-for="tech in project.technologies"
+                                        :key="tech"
+                                        class="inline-flex items-center gap-2 rounded-full bg-[#005aeb]/10 px-3 py-1 text-xs font-medium text-[#005aeb]"
                                     >
-                                        {{ projectErrors[index].technologies }}
-                                    </p>
-
-                                    <!-- Display de tags -->
-                                    <div
-                                        v-if="project.technologies.length"
-                                        class="flex flex-wrap gap-2"
-                                    >
-                                        <span
-                                            v-for="(tech, techIndex) in project.technologies"
-                                            :key="techIndex"
-                                            class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700"
+                                        {{ tech }}
+                                        <button
+                                            @click="removeTechnology(index, tech)"
+                                            type="button"
+                                            class="text-[#005aeb] hover:text-[#0047b2]"
                                         >
-                                            {{ tech }}
-                                            <button
-                                                @click="removeTechnology(index, techIndex)"
-                                                type="button"
-                                                class="transition-colors hover:text-blue-900"
-                                            >
-                                                ✕
-                                            </button>
-                                        </span>
-                                    </div>
+                                            <X class="h-3 w-3" />
+                                        </button>
+                                    </span>
                                 </div>
                             </div>
 
                             <!-- Descripción -->
-                            <div class="md:col-span-2">
-                                <label class="mb-2 block text-sm font-medium text-gray-700">
-                                    Descripción *
-                                </label>
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Descripción *</label>
                                 <p class="mb-2 text-xs text-gray-500">
                                     Describe el proyecto, sus objetivos y tu rol en él.
                                 </p>
@@ -491,18 +551,18 @@ const confirmDelete = (index: number | null) => {
                                         )
                                     "
                                     rows="4"
-                                    class="w-full rounded-lg border px-4 py-3 transition-colors focus:ring-2"
-                                    :class="getErrorClass(index, 'description')"
-                                    placeholder="Describe el proyecto..."
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'description')"
+                                    placeholder="Describe brevemente el proyecto..."
                                 ></textarea>
                                 <div class="mt-1 flex items-center justify-between">
                                     <span
                                         v-if="projectErrors[index]?.description"
-                                        class="text-sm text-red-500"
+                                        class="text-xs text-red-500"
                                     >
                                         {{ projectErrors[index].description }}
                                     </span>
-                                    <span v-else class="text-sm text-transparent">placeholder</span>
+                                    <span v-else class="text-xs text-transparent">placeholder</span>
                                     <span
                                         class="text-xs"
                                         :class="[

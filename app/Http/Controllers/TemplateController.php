@@ -94,6 +94,7 @@ class TemplateController extends Controller
             'template_data' => $this->getTemplateDefaultData($request->template_type),
             'is_public' => false,
             'is_active' => true,
+            'is_completed' => false,
             'theme_settings' => $this->getDefaultThemeSettings($request->template_type),
         ]);
 
@@ -262,10 +263,17 @@ class TemplateController extends Controller
         
 
         // Actualizar el portfolio
-        $portfolio->update([
+        $dataToUpdate = [
             'template_data' => $templateData,
             'is_public' => $request->config['is_public'] ?? false,
-        ]);
+        ];
+        
+        // 👉 Solo agregar si el parámetro llega
+        if (isset($request->config['is_completed'])) {
+            $dataToUpdate['is_completed'] = $request->config['is_completed'];
+        }
+        
+        $portfolio->update($dataToUpdate);
 
         return back()->with('success', 'Portfolio actualizado correctamente');
     }

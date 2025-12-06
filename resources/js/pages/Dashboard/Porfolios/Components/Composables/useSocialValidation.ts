@@ -16,11 +16,19 @@ export const useSocialValidation = () => {
     // Estado de errores
     const errors = reactive<SocialErrors>({});
 
+    // NUEVO: Estado de campos tocados
+    const touched = reactive<{
+        linkedin?: boolean;
+        github?: boolean;
+        website?: boolean;
+    }>({});
+
     // Reglas de validación
     const rules = {
         linkedin: [
             (value: string) => {
-                if (!value?.trim()) return null; // Opcional
+                // Si está vacío, es válido (OPCIONAL)
+                if (!value?.trim()) return null;
                 return /^linkedin\.com\/in\/[a-zA-Z0-9\-]+$/.test(value)
                     ? null
                     : 'URL de LinkedIn inválida (ej: linkedin.com/in/usuario)';
@@ -28,7 +36,8 @@ export const useSocialValidation = () => {
         ],
         github: [
             (value: string) => {
-                if (!value?.trim()) return null; // Opcional
+                // Si está vacío, es válido (OPCIONAL)
+                if (!value?.trim()) return null;
                 return /^github\.com\/[a-zA-Z0-9\-]+$/.test(value)
                     ? null
                     : 'URL de GitHub inválida (ej: github.com/usuario)';
@@ -36,45 +45,65 @@ export const useSocialValidation = () => {
         ],
         website: [
             (value: string) => {
-                if (!value?.trim()) return null; // Opcional
+                // Si está vacío, es válido (OPCIONAL)
+                if (!value?.trim()) return null;
                 const urlRegex = /^https?:\/\/.+\..+/;
                 return urlRegex.test(value) ? null : 'URL inválida (ej: https://tu-sitio.com)';
             },
         ],
     };
 
-    // Validar un campo individual
-    const validateField = (field: keyof SocialData, value: string): boolean => {
+    // MODIFICADO: Validar un campo individual con forceShow
+    const validateField = (field: keyof SocialData, value: string, forceShow: boolean = false): boolean => {
         const fieldRules = rules[field] || [];
         for (const rule of fieldRules) {
             const error = rule(value);
             if (error) {
-                errors[field] = error;
+                // Solo guardar error si forceShow=true O el campo fue tocado
+                if (forceShow || touched[field]) {
+                    errors[field] = error;
+                }
                 return false;
             }
         }
+        // Si no hay error, limpiar el error guardado
         delete errors[field];
         return true;
     };
 
-    // Validar todos los campos
-    const validateAll = (formData: SocialData): boolean => {
-        let isValid = true;
+    // NUEVO: Marcar un campo específico como tocado
+    const markAsTouched = (field: keyof SocialData) => {
+        touched[field] = true;
+    };
 
+    // NUEVO: Marcar todos los campos como tocados
+    const markAllAsTouched = () => {
+        touched.linkedin = true;
+        touched.github = true;
+        touched.website = true;
+    };
+
+    // MODIFICADO: Validar todos los campos con forceShow
+    // IMPORTANTE: Todos los campos son opcionales, así que siempre retorna true si están vacíos
+    const validateAll = (formData: SocialData, forceShow: boolean = false): boolean => {
+        let isValid = true;
         Object.keys(rules).forEach((field) => {
-            if (!validateField(field as keyof SocialData, formData[field as keyof SocialData])) {
+            if (!validateField(field as keyof SocialData, formData[field as keyof SocialData], forceShow)) {
                 isValid = false;
             }
         });
-
         return isValid;
     };
 
-    // Obtener clase CSS para el input según si tiene error
-    const getErrorClass = (field: keyof SocialErrors): string => {
-        return errors[field]
-            ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
-            : 'border-gray-300 focus:border-[#005aeb] focus:ring-[#005aeb]';
+    // MODIFICADO: Obtener clase CSS para el input con forceShow
+    const getErrorClass = (field: keyof SocialErrors, forceShow: boolean = false): string => {
+        const hasError = errors[field];
+        const wasTouched = touched[field];
+
+        if (hasError && (forceShow || wasTouched)) {
+            return 'border-red-500 focus:border-red-500 focus:ring-red-200';
+        }
+        return 'border-gray-300 focus:border-[#005aeb] focus:ring-[#005aeb]';
     };
 
     // Verificar si hay errores
@@ -86,6 +115,9 @@ export const useSocialValidation = () => {
     const clearErrors = () => {
         Object.keys(errors).forEach((field) => {
             delete errors[field as keyof SocialErrors];
+        });
+        Object.keys(touched).forEach((field) => {
+            delete touched[field as keyof typeof touched];
         });
     };
 
@@ -114,32 +146,34 @@ export const useSocialValidation = () => {
     const getFieldInfo = (field: keyof SocialData) => {
         const info = {
             linkedin: {
-                label: '[translate:LinkedIn]',
-                placeholder: '[translate:usuario]',
-                prefix: '[translate:linkedin.com/in/]',
-                helper: '[translate:Tu perfil de LinkedIn (solo nombre de usuario)]',
+                label: 'LinkedIn',
+                placeholder: 'usuario',
+                prefix: 'linkedin.com/in/',
+                helper: 'Tu perfil de LinkedIn (solo nombre de usuario) - Opcional',
             },
             github: {
-                label: '[translate:GitHub]',
-                placeholder: '[translate:usuario]',
-                prefix: '[translate:github.com/]',
-                helper: '[translate:Tu perfil de GitHub (solo nombre de usuario)]',
+                label: 'GitHub',
+                placeholder: 'usuario',
+                prefix: 'github.com/',
+                helper: 'Tu perfil de GitHub (solo nombre de usuario) - Opcional',
             },
             website: {
-                label: '[translate:Sitio Web Personal]',
-                placeholder: '[translate:https://tu-sitio.com]',
+                label: 'Sitio Web Personal',
+                placeholder: 'https://tu-sitio.com',
                 prefix: null,
-                helper: '[translate:Tu sitio web personal o portafolio]',
+                helper: 'Tu sitio web personal o portafolio - Opcional',
             },
         };
-
         return info[field];
     };
 
     return {
         errors,
+        touched,
         validateField,
         validateAll,
+        markAsTouched,
+        markAllAsTouched,
         getErrorClass,
         hasErrors,
         clearErrors,

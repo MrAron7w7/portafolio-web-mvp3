@@ -1,26 +1,31 @@
 <script setup lang="ts">
-import { Plus, Trash2, ChevronDown } from 'lucide-vue-next';
+import { Plus, Trash2, ChevronDown, AlertCircle, Sparkles } from 'lucide-vue-next';
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useEducationValidation, type Education } from './Composables/useEducationValidation';
 
 const props = defineProps<{
     modelValue: Education[];
+    validation: any;
 }>();
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+    'update:modelValue': [value: Education[]];
+}>();
 
-// Usar el composable de validación
 const {
     errors: educationErrors,
     validateField,
     getErrorClass,
-    clearErrorsForIndex,
     reindexErrors,
     getCharCount,
-} = useEducationValidation();
+} = props.validation;
 
 // Índice del acordeón expandido
 const expandedIndex = ref<number | null>(null);
+
+// NUEVO: Estado de "NUEVOS ITEMS"
+const newItems = ref(new Set<number>());
+const lastAddedId = ref<number | null>(null);
 
 // Variables para el popover de eliminación
 const deleteConfirmIndex = ref<number | null>(null);
@@ -34,14 +39,20 @@ const popoverPosition = ref({
 const containerRef = ref<HTMLElement | null>(null);
 const deleteConfirmButtonRef = ref<HTMLElement | null>(null);
 
-// Abrir siempre la última formación agregada
+onMounted(() => {
+    props.validation.clearAllErrors();
+});
+
+// Auto-expandir nuevo item
 watch(
     () => props.modelValue.length,
-    (newLength) => {
-        if (newLength > 0) {
-            expandedIndex.value = newLength - 1;
-        } else {
-            expandedIndex.value = null;
+    (newLength, oldLength) => {
+        if (newLength > oldLength && lastAddedId.value !== null) {
+            const education = props.modelValue.find((e) => e.id === lastAddedId.value);
+            if (education) {
+                expandedIndex.value = lastAddedId.value;
+            }
+            lastAddedId.value = null;
         }
     }
 );
@@ -147,10 +158,16 @@ onUnmounted(() => {
     window.removeEventListener('keydown', handleKeydown);
 });
 
-// Añadir formación
+// Agregar educación
 const addEducation = () => {
+    const newId = Date.now();
+    lastAddedId.value = newId;
+
+    // 1. Lo marcamos como nuevo
+    newItems.value.add(newId);
+
     const newEducation: Education = {
-        id: Date.now(),
+        id: newId,
         degree: '',
         institution: '',
         startDate: '',
@@ -159,6 +176,11 @@ const addEducation = () => {
         current: false,
     };
     emit('update:modelValue', [...props.modelValue, newEducation]);
+
+    // Quitar el estado "nuevo" automáticamente después de 3 segundos
+    setTimeout(() => {
+        newItems.value.delete(newId);
+    }, 3000);
 };
 
 // Abrir popover de confirmación
@@ -178,10 +200,13 @@ const openDeleteConfirm = (index: number, event: Event) => {
 // Confirmar eliminación
 const confirmDelete = (index: number | null) => {
     if (index === null) return;
+    const idToRemove = props.modelValue[index].id;
+    newItems.value.delete(idToRemove);
+
     const updated = [...props.modelValue];
     updated.splice(index, 1);
     emit('update:modelValue', updated);
-    
+
     // Usar la función del composable para reindexar errores
     reindexErrors(index);
 
@@ -192,37 +217,83 @@ const confirmDelete = (index: number | null) => {
 };
 
 // Toggle acordeón
-const toggleEducation = (index: number) => {
-    expandedIndex.value = expandedIndex.value === index ? null : index;
+const toggleEducation = (id: number) => {
+    expandedIndex.value = expandedIndex.value === id ? null : id;
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
 };
 
 // Actualizar campo + validar
 const updateEducation = (index: number, field: keyof Education, value: any) => {
+    const id = props.modelValue[index].id;
+
+    // Si el usuario edita, ya no es "nuevo"
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
+
+    // Marcar campo como tocado al escribir
+    props.validation.markAsTouched(index, field);
+
     const updated = [...props.modelValue];
     updated[index] = { ...updated[index], [field]: value };
     emit('update:modelValue', updated);
 
-    validateField(index, field, value, updated[index]);
+    // Validar en tiempo real (forceShow = false)
+    if (educationErrors[index]?.[field]) {
+        validateField(index, field, value, updated[index], false);
+    }
 };
 
 // Checkbox "Actualmente estudiando"
 const handleCurrentChange = (index: number, checked: boolean) => {
+    const id = props.modelValue[index].id;
+
+    // Si el usuario edita, ya no es "nuevo"
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
+
+    // Marcar como tocado
+    props.validation.markAsTouched(index, 'current');
+
     const updated = [...props.modelValue];
     updated[index] = { ...updated[index], current: checked };
     if (checked) {
         updated[index].endDate = '';
     }
     emit('update:modelValue', updated);
-    validateField(index, 'current', checked, updated[index]);
+    validateField(index, 'current', checked, updated[index], false);
+};
+
+// Función para obtener clase de error del contenedor
+const getContainerClass = (index: number, id: number) => {
+    if (hasEducationError(index)) {
+        return 'border-red-300 bg-red-50';
+    }
+    if (newItems.value.has(id)) {
+        return 'border-emerald-300 bg-emerald-50';
+    }
+    return 'border-gray-200 bg-white';
+};
+
+// Verificar si una educación tiene errores
+const hasEducationError = (index: number) => {
+    const errors = educationErrors[index];
+    return errors && Object.keys(errors).length > 0;
+};
+
+// Función para obtener clase de error con forceShow
+const getErrorClassForInput = (index: number, field: keyof Education) => {
+    return props.validation.getErrorClass(index, field, false);
 };
 </script>
 
 <template>
     <div class="relative" ref="containerRef">
         <div class="mb-8">
-            <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">
-                Formación Académica
-            </h1>
+            <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">Educación</h1>
             <p class="text-lg text-gray-600">
                 Agrega tu historial educativo y formación profesional.
             </p>
@@ -231,35 +302,58 @@ const handleCurrentChange = (index: number, checked: boolean) => {
         <div class="space-y-3">
             <!-- Items del acordeón -->
             <div
-                v-for="(edu, index) in modelValue"
-                :key="edu.id"
-                class="overflow-hidden rounded-lg border border-gray-200 transition-all"
+                v-for="(education, index) in modelValue"
+                :key="education.id"
+                class="overflow-hidden rounded-lg border transition-all duration-500 ease-in-out"
+                :class="getContainerClass(index, education.id)"
             >
                 <!-- Header del acordeón -->
                 <button
-                    @click="toggleEducation(index)"
-                    class="flex w-full items-center justify-between bg-gray-50 px-6 py-4 transition-colors hover:bg-gray-100"
+                    @click="toggleEducation(education.id)"
+                    class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
+                    type="button"
                 >
                     <div class="flex flex-1 items-center gap-3 text-left">
                         <ChevronDown
-                            class="h-5 w-5 text-gray-600 transition-transform duration-400 ease-out"
-                            :class="{ 'rotate-180 transform': expandedIndex === index }"
+                            class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
+                            :class="{ 'rotate-180 transform': expandedIndex === education.id }"
                         />
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">
-                                Formación {{ index + 1 }}
-                            </h3>
-                            <p v-if="edu.degree" class="text-sm text-gray-600">
-                                {{ edu.degree }}
-                                {{ edu.institution ? `en ${edu.institution}` : '' }}
-                            </p>
+
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-base font-medium transition-colors duration-300"
+                                    :class="{
+                                        'text-red-700': hasEducationError(index),
+                                        'text-emerald-700': newItems.has(education.id),
+                                        'text-gray-900': !hasEducationError(index) && !newItems.has(education.id)
+                                    }"
+                                >
+                                    {{ education.degree || 'Nueva educación' }}
+                                </span>
+
+                                <!-- ICONO DE ERROR -->
+                                <AlertCircle
+                                    v-if="hasEducationError(index)"
+                                    class="h-4 w-4 text-red-500 animate-pulse"
+                                />
+
+                                <!-- ICONO DE NUEVO -->
+                                <Sparkles
+                                    v-if="newItems.has(education.id) && !hasEducationError(index)"
+                                    class="h-4 w-4 text-emerald-500 animate-bounce"
+                                />
+                            </div>
+                            <span v-if="education.institution" class="text-sm text-gray-500">
+                                en {{ education.institution }}
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Botón eliminar -->
                     <button
                         @click.stop="openDeleteConfirm(index, $event)"
-                        class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-800"
+                        type="button"
+                        class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
                     >
                         <Trash2 class="h-4 w-4" />
                     </button>
@@ -267,16 +361,17 @@ const handleCurrentChange = (index: number, checked: boolean) => {
 
                 <!-- Contenido del acordeón -->
                 <transition
-                    enter-active-class="transition-all duration-400 ease-out"
-                    leave-active-class="transition-all duration-400 ease-in"
+                    enter-active-class="transition-all duration-300 ease-out"
+                    leave-active-class="transition-all duration-300 ease-in"
                     enter-from-class="max-h-0 opacity-0 overflow-hidden"
-                    enter-to-class="max-h-[800px] opacity-100"
-                    leave-from-class="max-h-[800px] opacity-100"
+                    enter-to-class="max-h-[1200px] opacity-100"
+                    leave-from-class="max-h-[1200px] opacity-100"
                     leave-to-class="max-h-0 opacity-0 overflow-hidden"
                 >
                     <div
-                        v-if="expandedIndex === index"
-                        class="border-t border-gray-200 bg-white px-6 py-6"
+                        v-if="expandedIndex === education.id"
+                        class="border-t px-4 py-4 bg-white/50"
+                        :class="hasEducationError(index) ? 'border-red-200' : 'border-gray-200'"
                     >
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <!-- Título/Carrera -->
@@ -285,7 +380,7 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                     Título/Carrera *
                                 </label>
                                 <input
-                                    :value="edu.degree"
+                                    :value="education.degree"
                                     @input="
                                         updateEducation(
                                             index,
@@ -294,14 +389,11 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                         )
                                     "
                                     type="text"
-                                    class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2"
-                                    :class="getErrorClass(index, 'degree')"
-                                    placeholder="ej: Ingeniería de Sistemas"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'degree')"
+                                    placeholder="Ej: Ingeniería en Informática"
                                 />
-                                <p
-                                    v-if="educationErrors[index]?.degree"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                <p v-if="educationErrors[index]?.degree" class="mt-1 text-sm text-red-500">
                                     {{ educationErrors[index].degree }}
                                 </p>
                             </div>
@@ -312,7 +404,7 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                     Institución *
                                 </label>
                                 <input
-                                    :value="edu.institution"
+                                    :value="education.institution"
                                     @input="
                                         updateEducation(
                                             index,
@@ -321,14 +413,11 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                         )
                                     "
                                     type="text"
-                                    class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2"
-                                    :class="getErrorClass(index, 'institution')"
-                                    placeholder="ej: Universidad Nacional"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'institution')"
+                                    placeholder="Ej: Universidad Nacional"
                                 />
-                                <p
-                                    v-if="educationErrors[index]?.institution"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                <p v-if="educationErrors[index]?.institution" class="mt-1 text-sm text-red-500">
                                     {{ educationErrors[index].institution }}
                                 </p>
                             </div>
@@ -339,7 +428,7 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                     Fecha de inicio *
                                 </label>
                                 <input
-                                    :value="edu.startDate"
+                                    :value="education.startDate"
                                     @input="
                                         updateEducation(
                                             index,
@@ -348,24 +437,21 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                         )
                                     "
                                     type="month"
-                                    class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2"
-                                    :class="getErrorClass(index, 'startDate')"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'startDate')"
                                 />
-                                <p
-                                    v-if="educationErrors[index]?.startDate"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                <p v-if="educationErrors[index]?.startDate" class="mt-1 text-sm text-red-500">
                                     {{ educationErrors[index].startDate }}
                                 </p>
                             </div>
 
-                            <!-- Fecha de graduación -->
+                            <!-- Fecha de fin -->
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700">
-                                    Fecha de graduación
+                                    Fecha de fin
                                 </label>
                                 <input
-                                    :value="edu.endDate"
+                                    :value="education.endDate"
                                     @input="
                                         updateEducation(
                                             index,
@@ -374,23 +460,20 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                         )
                                     "
                                     type="month"
-                                    :disabled="edu.current"
-                                    class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                    :class="getErrorClass(index, 'endDate')"
+                                    :disabled="education.current"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                                    :class="getErrorClassForInput(index, 'endDate')"
                                 />
-                                <p
-                                    v-if="educationErrors[index]?.endDate"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                <p v-if="educationErrors[index]?.endDate" class="mt-1 text-sm text-red-500">
                                     {{ educationErrors[index].endDate }}
                                 </p>
                             </div>
 
-                            <!-- Checkbox Actualmente estudiando -->
+                            <!-- Checkbox actualmente estudiando -->
                             <div class="md:col-span-2">
                                 <label class="flex cursor-pointer items-center space-x-3">
                                     <input
-                                        :checked="edu.current"
+                                        :checked="education.current"
                                         @change="
                                             handleCurrentChange(
                                                 index,
@@ -406,19 +489,64 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                 </label>
                             </div>
 
-                           
+                            <!-- Descripción -->
+                            <div class="md:col-span-2">
+                                <label class="mb-2 block text-sm font-medium text-gray-700">
+                                    Descripción
+                                </label>
+                                <p class="mb-2 text-xs text-gray-500">
+                                    Información adicional sobre tu formación (opcional).
+                                </p>
+                                <textarea
+                                    :value="education.description"
+                                    @input="
+                                        updateEducation(
+                                            index,
+                                            'description',
+                                            ($event.target as HTMLTextAreaElement).value
+                                        )
+                                    "
+                                    rows="4"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'description')"
+                                    placeholder="Ej: Especialización en desarrollo web, becado..."
+                                ></textarea>
+                                <div class="mt-1 flex items-center justify-between">
+                                    <span
+                                        v-if="educationErrors[index]?.description"
+                                        class="text-sm text-red-500"
+                                    >
+                                        {{ educationErrors[index].description }}
+                                    </span>
+                                    <span v-else class="text-sm text-transparent">placeholder</span>
+                                    <span
+                                        class="text-xs"
+                                        :class="[
+                                            getCharCount(education.description).isOverLimit
+                                                ? 'font-medium text-red-500'
+                                                : getCharCount(education.description).isNearLimit
+                                                  ? 'text-amber-500'
+                                                  : 'text-gray-400',
+                                        ]"
+                                    >
+                                        {{ getCharCount(education.description).current }}/{{
+                                            getCharCount(education.description).max
+                                        }}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </transition>
             </div>
 
-            <!-- Botón agregar formación -->
+            <!-- Botón agregar educación -->
             <button
                 @click="addEducation"
-                class="flex w-full items-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-6 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]"
+                class="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-4 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]"
             >
                 <Plus class="h-5 w-5" />
-                <span>Agregar nueva formación</span>
+                <span>Agregar nueva educación</span>
             </button>
         </div>
 
@@ -461,14 +589,12 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                 ></div>
 
                 <div class="relative">
-                    <div
-                        class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
-                    >
+                    <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
                         <Trash2 class="h-5 w-5 text-red-600" />
                     </div>
 
                     <h4 class="mb-1 text-center text-sm font-semibold text-gray-900">
-                        ¿Eliminar formación?
+                        ¿Eliminar educación?
                     </h4>
 
                     <p class="mb-4 text-center text-xs text-gray-600">

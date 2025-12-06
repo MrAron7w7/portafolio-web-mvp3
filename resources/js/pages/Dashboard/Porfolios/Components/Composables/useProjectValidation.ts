@@ -21,6 +21,17 @@ export const useProjectValidation = () => {
     // Estado de errores por índice
     const errors = reactive<{ [key: number]: ProjectErrors }>({});
 
+    // NUEVO: Estado de campos tocados por índice
+    const touched = reactive<{ 
+        [key: number]: { 
+            name?: boolean; 
+            description?: boolean; 
+            link?: boolean; 
+            technologies?: boolean;
+            image?: boolean;
+        } 
+    }>({});
+
     // Reglas de validación
     const rules = {
         name: [
@@ -62,13 +73,22 @@ export const useProjectValidation = () => {
         }
     };
 
-    // Validar un campo individual
+    // NUEVO: Inicializar touched para un índice
+    const initTouched = (index: number) => {
+        if (!touched[index]) {
+            touched[index] = {};
+        }
+    };
+
+    // MODIFICADO: Validar un campo individual con forceShow
     const validateField = (
         index: number,
         field: keyof Project,
-        value: any
+        value: any,
+        forceShow: boolean = false
     ): boolean => {
         initErrors(index);
+        initTouched(index);
 
         switch (field) {
             case 'name':
@@ -78,11 +98,14 @@ export const useProjectValidation = () => {
                 for (const rule of fieldRules) {
                     const error = rule(value);
                     if (error) {
-                        errors[index][field] = error;
+                        // Solo guardar error si forceShow=true O el campo fue tocado
+                        if (forceShow || touched[index][field as keyof typeof touched[number]]) {
+                            errors[index][field as keyof ProjectErrors] = error;
+                        }
                         return false;
                     }
                 }
-                delete errors[index][field];
+                delete errors[index][field as keyof ProjectErrors];
                 return true;
             }
 
@@ -91,7 +114,10 @@ export const useProjectValidation = () => {
                 for (const rule of techRules) {
                     const error = rule(value as string[]);
                     if (error) {
-                        errors[index].technologies = error;
+                        // Solo guardar error si forceShow=true O el campo fue tocado
+                        if (forceShow || touched[index].technologies) {
+                            errors[index].technologies = error;
+                        }
                         return false;
                     }
                 }
@@ -109,12 +135,33 @@ export const useProjectValidation = () => {
         }
     };
 
+    // NUEVO: Marcar un campo específico como tocado
+    const markAsTouched = (index: number, field: keyof Project) => {
+        initTouched(index);
+        touched[index][field as keyof typeof touched[number]] = true;
+    };
+
+    // NUEVO: Marcar todos los campos como tocados
+    const markAllAsTouched = (projects: Project[] | undefined | null) => {
+        if (!projects || !Array.isArray(projects)) return;
+
+        projects.forEach((_, index) => {
+            initTouched(index);
+            touched[index].name = true;
+            touched[index].description = true;
+            touched[index].link = true;
+            touched[index].technologies = true;
+            touched[index].image = true;
+        });
+    };
+
     // Validar imagen (tamaño del archivo)
     const validateImage = (index: number, file: File): boolean => {
         initErrors(index);
+        initTouched(index);
+        touched[index].image = true;
 
         const maxSizeBytes = 2 * 1024 * 1024; // 2MB
-
         if (file.size > maxSizeBytes) {
             errors[index].image = 'La imagen no debe superar 2MB';
             return false;
@@ -138,41 +185,50 @@ export const useProjectValidation = () => {
     };
 
     // Validar todo un proyecto
-    const validateProject = (index: number, project: Project): boolean => {
+    const validateProject = (index: number, project: Project, forceShow: boolean = false): boolean => {
         let isValid = true;
-
-        if (!validateField(index, 'name', project.name)) {
+        if (!validateField(index, 'name', project.name, forceShow)) {
             isValid = false;
         }
-        if (!validateField(index, 'description', project.description)) {
+        if (!validateField(index, 'description', project.description, forceShow)) {
             isValid = false;
         }
-        if (!validateField(index, 'link', project.link)) {
+        if (!validateField(index, 'link', project.link, forceShow)) {
             isValid = false;
         }
-        if (!validateField(index, 'technologies', project.technologies)) {
+        if (!validateField(index, 'technologies', project.technologies, forceShow)) {
             isValid = false;
         }
-
         return isValid;
     };
 
-    // Validar todos los proyectos
-    const validateAll = (projects: Project[]): boolean => {
+    // MODIFICADO: Validar todos los proyectos con forceShow
+    const validateAll = (projects: Project[] | undefined | null, forceShow: boolean = false): boolean => {
+        if (!projects || !Array.isArray(projects)) {
+            return true;
+        }
+        if (projects.length === 0) {
+            return true;
+        }
+
         let allValid = true;
         projects.forEach((project, index) => {
-            if (!validateProject(index, project)) {
+            if (!validateProject(index, project, forceShow)) {
                 allValid = false;
             }
         });
         return allValid;
     };
 
-    // Obtener clase CSS para el input según si tiene error
-    const getErrorClass = (index: number, field: keyof ProjectErrors): string => {
-        return errors[index]?.[field]
-            ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
-            : 'border-gray-300 focus:border-[#005aeb] focus:ring-[#005aeb]';
+    // MODIFICADO: Obtener clase CSS para el input con forceShow
+    const getErrorClass = (index: number, field: keyof ProjectErrors, forceShow: boolean = false): string => {
+        const hasError = errors[index]?.[field];
+        const wasTouched = touched[index]?.[field as keyof typeof touched[number]];
+
+        if (hasError && (forceShow || wasTouched)) {
+            return 'border-red-500 focus:border-red-500 focus:ring-red-200';
+        }
+        return 'border-gray-300 focus:border-[#005aeb] focus:ring-[#005aeb]';
     };
 
     // Verificar si un índice tiene errores
@@ -183,6 +239,7 @@ export const useProjectValidation = () => {
     // Limpiar errores de un índice específico
     const clearErrorsForIndex = (index: number) => {
         delete errors[index];
+        delete touched[index];
     };
 
     // Limpiar todos los errores
@@ -190,22 +247,31 @@ export const useProjectValidation = () => {
         Object.keys(errors).forEach((key) => {
             delete errors[Number(key)];
         });
+        Object.keys(touched).forEach((key) => {
+            delete touched[Number(key)];
+        });
     };
 
     // Reindexar errores después de eliminar un elemento
     const reindexErrors = (removedIndex: number) => {
         const newErrors: { [key: number]: ProjectErrors } = {};
+        const newTouched: { [key: number]: typeof touched[number] } = {};
+
         Object.keys(errors).forEach((key) => {
             const numKey = Number(key);
             if (numKey < removedIndex) {
                 newErrors[numKey] = errors[numKey];
+                newTouched[numKey] = touched[numKey];
             } else if (numKey > removedIndex) {
                 newErrors[numKey - 1] = errors[numKey];
+                newTouched[numKey - 1] = touched[numKey];
             }
         });
+
         // Limpiar y reasignar
         clearAllErrors();
         Object.assign(errors, newErrors);
+        Object.assign(touched, newTouched);
     };
 
     // Contador de caracteres para description
@@ -223,11 +289,14 @@ export const useProjectValidation = () => {
 
     return {
         errors,
+        touched,
         validateField,
         validateImage,
         clearImageError,
         validateProject,
         validateAll,
+        markAsTouched,
+        markAllAsTouched,
         getErrorClass,
         hasErrors,
         clearErrorsForIndex,

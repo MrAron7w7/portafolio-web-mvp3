@@ -32,12 +32,20 @@ import { computed, reactive, ref, watch, onBeforeUnmount } from 'vue';
 import AboutSection from './Components/AboutSection.vue';
 import ConfigSection from './Components/ConfigSection.vue';
 import EducationSection from './Components/EducationSection.vue';
+import LanguageSection from './Components/LanguageSection.vue';
 import ExperienceSection from './Components/ExperienceSection.vue';
 import PersonalSection from './Components/PersonalSection.vue';
 import PreviewContainer from './Components/PreviewContainer.vue';
 import ProjectsSection from './Components/ProjectsSection.vue';
 import SkillsSection from './Components/SkillsSection.vue';
 import SocialSection from './Components/SocialSection.vue';
+
+
+
+
+
+
+
 
 // Props del portfolio
 const props = defineProps<{
@@ -86,11 +94,13 @@ const steps = ref([
     { id: 1, title: 'Información personal', completed: false, hasError: false, icon: User },
     { id: 2, title: 'Sobre mí', completed: false, hasError: false, icon: FileText },
     { id: 3, title: 'Formación Académica', completed: false, hasError: false, icon: Palette },
-    { id: 4, title: 'Experiencia', completed: false, hasError: false, icon: Briefcase },
-    { id: 5, title: 'Habilidades', completed: false, hasError: false, icon: Star },
-    { id: 6, title: 'Proyectos', completed: false, hasError: false, icon: Zap },
-    { id: 7, title: 'Redes sociales', completed: false, hasError: false, icon: Link },
-    { id: 8, title: 'Configuración', completed: false, hasError: false, icon: Settings },
+    { id: 4, title: 'Idiomas', completed: false, hasError: false, icon: Globe },
+    { id: 5, title: 'Experiencia', completed: false, hasError: false, icon: Briefcase },
+    { id: 6, title: 'Habilidades', completed: false, hasError: false, icon: Star },
+    { id: 7, title: 'Proyectos', completed: false, hasError: false, icon: Zap },
+    { id: 8, title: 'Redes sociales', completed: false, hasError: false, icon: Link },
+    { id: 9, title: 'Configuración', completed: false, hasError: false, icon: Settings },
+
 ]);
 
 const templateComponents = {
@@ -183,7 +193,10 @@ const formData = reactive({
     config: {
         theme: 'moderna',
         is_public: props.portfolio.is_public || false,
-    }
+        is_completed: props.portfolio.is_completed || false,
+    },
+    languages: props.templateData.languages || [],
+    certifications: props.templateData.certifications || [],
 });
 
 originalFormData.value = JSON.parse(JSON.stringify(formData));
@@ -255,8 +268,9 @@ const togglePublicStatus = async () => {
             },
             projects: formData.projects,
             education: formData.education,
+            languages: formData.languages,
             certifications: [],
-            languages: [],
+
         };
 
         router.put(
@@ -318,18 +332,41 @@ const closePublicToggleModal = () => {
 import { usePersonalValidation } from './Components/Composables/usePersonalValidation';
 import { useAboutValidation } from './Components/Composables/useAboutValidation';
 import { useEducationValidation } from './Components/Composables/useEducationValidation';
+import { useLanguageValidation } from './Components/Composables/useLanguageValidation';
 import { useExperienceValidation } from './Components/Composables/useExperienceValidation';
 import { useSkillValidation } from './Components/Composables/useSkillValidation';
 import { useProjectValidation } from './Components/Composables/useProjectValidation';
 import { useSocialValidation } from './Components/Composables/useSocialValidation';
 
-const { validateAll: validatePersonalFields } = usePersonalValidation();
-const { validateAll: validateAboutField } = useAboutValidation();
-const { validateAll: validateEducationFields } = useEducationValidation();
-const { validateAll: validateExperienceFields } = useExperienceValidation();
-const { validateAll: validateSkillFields } = useSkillValidation();
-const { validateAll: validateProjectFields } = useProjectValidation();
-const { validateAll: validateSocialFields } = useSocialValidation();
+const personalValidation = usePersonalValidation();
+const { validateAll: validatePersonalFields } = personalValidation;
+
+const aboutValidation = useAboutValidation();
+const { validateAll: validateAboutField } = aboutValidation;
+
+const educationValidation = useEducationValidation();
+const { validateAll: validateEducationFields } = educationValidation;
+
+
+// AHORA: Guardamos toda la instancia en una constante
+const languageValidation = useLanguageValidation();
+// Extraemos la función para usarla en el script del editor
+const { validateAll: validateLanguageFields } = languageValidation;
+
+const experienceValidation = useExperienceValidation();
+const { validateAll: validateExperienceFields } = experienceValidation;
+
+const skillValidation = useSkillValidation();
+const { validateAll: validateSkillFields } = skillValidation;
+
+const projectValidation = useProjectValidation();
+const { validateAll: validateProjectFields } = projectValidation;
+
+const socialValidation = useSocialValidation();
+const { validateAll: validateSocialFields } = socialValidation;
+
+
+
 
 const validatePersonal = (): boolean => {
     return validatePersonalFields(formData.personal);
@@ -344,6 +381,10 @@ const validateAbout = (): boolean => {
 
 const validateEducation = (): boolean => {
     return validateEducationFields(formData.education);
+};
+
+const validateLanguages = (): boolean => {
+    return validateLanguageFields(formData.languages);
 };
 
 const validateExperience = (): boolean => {
@@ -366,10 +407,12 @@ const validateConfig = (): boolean => {
     return true;
 };
 
+
 const validations = [
     validatePersonal,
     validateAbout,
     validateEducation,
+    validateLanguages,
     validateExperience,
     validateSkills,
     validateProjects,
@@ -396,7 +439,7 @@ const allStepsCompleted = computed(() => {
 watch(
     () => formData.personal,
     () => {
-        steps.value.completed = validatePersonal();
+        steps.value[0].completed = validatePersonal();
     },
     { deep: true }
 );
@@ -404,7 +447,7 @@ watch(
 watch(
     () => formData.personal.description,
     () => {
-        steps.value.completed = validateAbout();
+        steps.value[1].completed = validateAbout();
     },
     { deep: true }
 );
@@ -412,15 +455,24 @@ watch(
 watch(
     () => formData.education,
     () => {
-        steps.value.completed = validateEducation();
+        steps.value[2].completed = validateEducation();
     },
     { deep: true }
 );
 
 watch(
+    () => formData.languages,
+    () => {
+        steps.value[3].completed = validateLanguages();
+    },
+    { deep: true }
+);
+
+
+watch(
     () => formData.experience,
     () => {
-        steps.value.completed = validateExperience();
+        steps.value[4].completed = validateExperience();
     },
     { deep: true }
 );
@@ -428,7 +480,7 @@ watch(
 watch(
     () => formData.skills,
     () => {
-        steps.value.completed = validateSkills();
+        steps.value[5].completed = validateSkills();
     },
     { deep: true }
 );
@@ -436,10 +488,12 @@ watch(
 watch(
     () => formData.projects,
     () => {
-        steps.value.completed = validateProjects();
+        steps.value[6].completed = validateProjects();
     },
     { deep: true }
 );
+
+
 
 // ============================================
 // NUEVA LÓGICA DE VALIDACIÓN CON FEEDBACK
@@ -492,6 +546,65 @@ const stepCompletion = computed(() => {
 const nextStep = () => {
     if (!isCurrentStepValid.value) {
         showValidationError.value = true;
+
+
+
+        if (currentStep.value === 1) {
+            // Marcar todos los campos como tocados para mostrar errores
+            personalValidation.markAllAsTouched(formData.personal);
+            // Re-validar para que se muestren los errores
+            validatePersonal();
+        }
+
+        if (currentStep.value === 2) {
+            // Marcar todos los campos como tocados para mostrar errores
+            aboutValidation.markAllAsTouched(formData.personal);
+            // Re-validar para que se muestren los errores
+            validateAbout();
+        }
+
+        if (currentStep.value === 3) {
+            // Marcar todos los campos como tocados para mostrar errores
+            educationValidation.markAllAsTouched(formData.education);
+            // Re-validar para que se muestren los errores
+            validateEducation();
+        }
+        // Si el paso actual es Idiomas (ID 4)
+        if (currentStep.value === 4) {
+            // Marcar todos los campos como tocados para mostrar errores
+            languageValidation.markAllAsTouched(formData.languages);
+            // Re-validar para que se muestren los errores
+            validateLanguages();
+        }
+
+        // Si el paso actual es Experiencia (ID 5)
+        if (currentStep.value === 5) {
+            // Marcar todos los campos como tocados para mostrar errores
+            experienceValidation.markAllAsTouched(formData.experience);
+            // Re-validar para que se muestren los errores
+            validateExperience();
+        }
+
+        if (currentStep.value === 6) {
+            // Marcar todos los campos como tocados para mostrar errores
+            skillValidation.markAllAsTouched(formData.skills);
+            // Re-validar para que se muestren los errores
+            validateSkills();
+        }
+
+        if (currentStep.value === 7) {
+            // Marcar todos los campos como tocados para mostrar errores
+            projectValidation.markAllAsTouched(formData.projects);
+            // Re-validar para que se muestren los errores
+            validateProjects();
+        }
+
+        if (currentStep.value === 8) {
+            // Marcar todos los campos como tocados para mostrar errores
+            socialValidation.markAllAsTouched(formData.social);
+            // Re-validar para que se muestren los errores
+            validateSocial();
+        }
 
         const nextButton = document.querySelector('[data-next-button]');
         if (nextButton) {
@@ -595,8 +708,8 @@ const saveChanges = async () => {
             },
             projects: formData.projects,
             education: formData.education,
+            languages: formData.languages,
             certifications: [],
-            languages: [],
         };
 
         router.put(
@@ -606,6 +719,7 @@ const saveChanges = async () => {
                 config: {
                     theme: formData.config.theme,
                     is_public: formData.config.is_public,
+               
                 },
             },
             {
@@ -687,8 +801,8 @@ const completeForm = async () => {
             },
             projects: formData.projects,
             education: formData.education,
+            languages: formData.languages,
             certifications: [],
-            languages: [],
         };
 
         router.put(
@@ -698,6 +812,7 @@ const completeForm = async () => {
                 config: {
                     theme: formData.config.theme,
                     is_public: formData.config.is_public,
+                    is_completed: true
                 },
                 status: 'completed',
             },
@@ -764,7 +879,7 @@ const finishAndRedirect = async () => {
         await new Promise(resolve => setTimeout(resolve, 1500));
     }
 
-    router.visit('/dashboard/portfolio');
+    router.visit('/dashboard');
 };
 
 const cancelExit = () => {
@@ -861,16 +976,23 @@ watch(showFullPreview, (newVal) => {
                     <!-- Derecha: Acciones -->
                     <div class="flex items-center space-x-3">
                         <!-- Botón Público/Privado (SIEMPRE MUESTRA ESTADO GUARDADO) -->
-                        <button @click="openPublicToggleModal" :class="[
-                            'hidden items-center space-x-2 rounded-lg px-4 py-2 font-medium transition-all duration-200 sm:flex',
-                            isPortfolioPublicInHeader
-                                ? 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
-                                : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
-                        ]">
-                            <Globe v-if="isPortfolioPublicInHeader" class="h-4 w-4" />
-                            <Lock v-else class="h-4 w-4" />
-                            <span class="text-sm">{{ isPortfolioPublicInHeader ? 'Público' : 'Privado' }}</span>
-                        </button>
+                        <button 
+  @click="openPublicToggleModal" 
+  :disabled="!formData.config.is_completed"
+  :class="[
+    'hidden items-center space-x-2 rounded-lg px-4 py-2 font-medium transition-all duration-200 sm:flex',
+    !formData.config.is_completed
+      ? 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed opacity-50'
+      : formData.config.is_public
+        ? 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
+        : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
+  ]">
+  <Globe v-if="formData.config.is_public && formData.config.is_completed" class="h-4 w-4" />
+  <Lock v-else class="h-4 w-4" />
+  <span class="text-sm">
+    {{ !formData.config.is_completed ? 'Desactivado' : (formData.config.is_public ? 'Público' : 'Privado') }}
+  </span>
+</button>
 
                         <button @click="openFullPreview"
                             class="hidden items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:flex">
@@ -920,14 +1042,31 @@ watch(showFullPreview, (newVal) => {
                             <div
                                 class="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20">
                                 <button @click="router.visit(`/dashboard/portfolio/${portfolio.id}`)"
-                                    class="block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors first:rounded-t-lg">
+                                    :disabled="!savedPortfolioState.is_public" class="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm transition-colors first:rounded-t-lg
+                                        text-gray-700 hover:bg-gray-50
+                                        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                        </path>
+                                    </svg>
                                     Ver portafolio público
                                 </button>
+
                                 <button @click="handleFinish"
-                                    class="block w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 transition-colors last:rounded-b-lg border-t border-gray-100">
+                                    class="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 transition-colors last:rounded-b-lg border-t border-gray-100">
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
                                     Salir del editor
                                 </button>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -943,9 +1082,8 @@ watch(showFullPreview, (newVal) => {
                         <!-- Lista de pasos -->
                         <nav class="space-y-2">
                             <div v-for="(step, index) in steps" :key="step.id"
-                                class="group flex cursor-pointer items-start space-x-4 transition-opacity duration-200"
-                                :class="{ 'opacity-60': !step.completed && step.id > currentStep }"
-                                @click="goToStep(step.id)">
+                                class="group flex items-start space-x-4 transition-opacity duration-200"
+                                :class="{ 'opacity-60': !step.completed && step.id > currentStep }">
                                 <!-- Línea vertical -->
                                 <div class="flex flex-col items-center">
                                     <div :class="[
@@ -1008,8 +1146,9 @@ watch(showFullPreview, (newVal) => {
                                     <span>Progreso total</span>
                                     <span class="font-medium text-[#005aeb]">{{ progress }}%</span>
                                 </div>
-                                <div class="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
-                                    <div class="h-2 rounded-full bg-gradient-to-r from-[#005aeb] to-[#0048c4] transition-all duration-500"
+
+                                <div class="h-2 w-full rounded-full bg-gray-200">
+                                    <div class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
                                         :style="{ width: progress + '%' }"></div>
                                 </div>
                             </div>
@@ -1019,14 +1158,29 @@ watch(showFullPreview, (newVal) => {
                                 <p class="text-sm font-medium text-gray-900">
                                     Plantilla: <span class="text-[#005aeb]">{{ portfolio.template_type }}</span>
                                 </p>
-                                <p class="mt-2 text-sm font-medium text-gray-900">
+                                <p class="mt-2 text-sm font-medium text-gray-900 flex items-center">
                                     Estado:
-                                    <span :class="[
+                                    <span 
+                                        :class="[
+                                        'flex items-center ml-2 gap-1',
                                         isPortfolioPublicInHeader ? 'text-blue-600' : 'text-gray-600'
-                                    ]">
-                                        {{ isPortfolioPublicInHeader ? '🌐 Público' : '🔒 Privado' }}
+                                        ]"
+                                    >
+                                        <!-- Public State -->
+                                        <template v-if="isPortfolioPublicInHeader">
+                                        <Globe class="h-4 w-4 flex-shrink-0" />
+                                        <span>Público</span>
+                                        </template>
+
+                                        <!-- Private State -->
+                                        <template v-else>
+                                        <Lock class="h-4 w-4 flex-shrink-0" />
+                                        <span>Privado</span>
+                                        </template>
                                     </span>
                                 </p>
+
+
                                 <p class="mt-1 text-xs text-gray-600">
                                     ID: {{ portfolio.id }}
                                 </p>
@@ -1084,14 +1238,23 @@ watch(showFullPreview, (newVal) => {
                         <Transition name="step-slide" mode="out-in">
                             <div :key="currentStep">
                                 <!-- Componentes Dinámicos -->
-                                <PersonalSection v-if="currentStep === 1" v-model="formData.personal" />
-                                <AboutSection v-if="currentStep === 2" v-model="formData.personal" />
-                                <EducationSection v-if="currentStep === 3" v-model="formData.education" />
-                                <ExperienceSection v-if="currentStep === 4" v-model="formData.experience" />
-                                <SkillsSection v-if="currentStep === 5" v-model="formData.skills" />
-                                <ProjectsSection v-if="currentStep === 6" v-model="formData.projects" />
-                                <SocialSection v-if="currentStep === 7" v-model="formData.social" />
-                                <ConfigSection v-if="currentStep === 8" v-model="formData.config" />
+                                <PersonalSection v-if="currentStep === 1" v-model="formData.personal"
+                                    :validation="personalValidation" />
+                                <AboutSection v-if="currentStep === 2" v-model="formData.personal"
+                                    :validation="aboutValidation" />
+                                <EducationSection v-if="currentStep === 3" v-model="formData.education"
+                                    :validation="educationValidation" />
+                                <LanguageSection v-if="currentStep === 4" v-model="formData.languages"
+                                    :languages="formData.languages" :validation="languageValidation" />
+                                <ExperienceSection v-if="currentStep === 5" v-model="formData.experience"
+                                    :validation="experienceValidation" />
+                                <SkillsSection v-if="currentStep === 6" v-model="formData.skills"
+                                    :validation="skillValidation" />
+                                <ProjectsSection v-if="currentStep === 7" v-model="formData.projects"
+                                    :validation="projectValidation" />
+                                <SocialSection v-if="currentStep === 8" v-model="formData.social"
+                                    :validation="socialValidation" />
+                                <ConfigSection v-if="currentStep === 9" v-model="formData.config" />
                             </div>
                         </Transition>
 
@@ -1169,8 +1332,8 @@ watch(showFullPreview, (newVal) => {
 
                                 projects: formData.projects,
                                 education: formData.education,
-                                certifications: [],
-                                languages: [],
+                                languages: formData.languages,
+                                certifications: formData.certifications,
                             }" class="w-full" />
                         </PreviewContainer>
                     </div>
@@ -1194,7 +1357,7 @@ watch(showFullPreview, (newVal) => {
                 enter-to-class="opacity-100 scale-100" leave-active-class="transition-all duration-200 ease-in"
                 leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
 
-                <div class="max-h-[90vh] w-full max-w-6xl transform rounded-2xl bg-white shadow-2xl overflow-hidden"
+                <div class="max-h-[90vh] w-full max-w-9xl transform rounded-2xl bg-white shadow-2xl overflow-hidden"
                     @click.stop>
 
                     <!-- Header del modal -->
@@ -1256,8 +1419,8 @@ watch(showFullPreview, (newVal) => {
                             },
                             projects: formData.projects,
                             education: formData.education,
-                            certifications: [],
-                            languages: [],
+                            languages: formData.languages,
+                            certifications: formData.certifications,
                         }" />
                     </div>
                 </div>
@@ -1295,13 +1458,14 @@ watch(showFullPreview, (newVal) => {
                         <div class="rounded-lg bg-blue-50 p-3 border border-blue-100 mb-4">
                             <p class="text-sm text-blue-900">
                                 <span class="font-semibold">✓ Pasos completados:</span> {{ validStepsCount }}/{{
-                                steps.length }}
+                                    steps.length }}
                             </p>
                         </div>
                         <div class="rounded-lg bg-green-50 p-3 border border-green-100">
                             <p class="text-sm text-green-900">
-                                <span class="font-semibold">📋 Estado:</span> Tu portafolio está listo para ser
-                                publicado.
+                                <span class="font-semibold">📋 Estado:</span> Completaste todos los pasos del
+                                formulario. Tu portafolio ya está preparado.
+
                             </p>
                         </div>
                     </div>
@@ -1353,7 +1517,7 @@ watch(showFullPreview, (newVal) => {
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
             @click="closePublicToggleModal">
             <Transition name="modal-scale">
-                <div class="w-full max-w-md transform rounded-2xl bg-white shadow-2xl" @click.stop>
+                <div class="w-full max-w-md transform rounded-2xl bg-white shadow-2xl overflow-hidden" @click.stop>
 
                     <!-- Header del modal -->
                     <div :class="[
@@ -1389,13 +1553,13 @@ watch(showFullPreview, (newVal) => {
                     <div class="px-6 py-4">
                         <div v-if="isPortfolioPublicInHeader" class="rounded-lg bg-blue-50 p-3 border border-blue-100">
                             <p class="text-sm text-blue-900">
-                                <span class="font-semibold">🌐 Público:</span> Cualquiera con el enlace puede ver tu
+                                <span class="font-semibold">Público:</span> Cualquiera con el enlace puede ver tu
                                 portafolio.
                             </p>
                         </div>
                         <div v-else class="rounded-lg bg-gray-50 p-3 border border-gray-200">
                             <p class="text-sm text-gray-900">
-                                <span class="font-semibold">🔒 Privado:</span> Solo tú puedes ver tu portafolio en el
+                                <span class="font-semibold">Privado:</span> Solo tú puedes ver tu portafolio en el
                                 editor.
                             </p>
                         </div>

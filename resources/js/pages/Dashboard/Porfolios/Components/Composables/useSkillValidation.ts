@@ -24,6 +24,19 @@ export const useSkillValidation = () => {
         soft: {},
     });
 
+    // NUEVO: Estado de campos tocados por tipo e índice
+    const touched = reactive<{ 
+        [key: string]: { 
+            [key: number]: { 
+                name?: boolean; 
+                level?: boolean;
+            } 
+        } 
+    }>({
+        technical: {},
+        soft: {},
+    });
+
     // Reglas de validación
     const rules = {
         name: [
@@ -55,14 +68,31 @@ export const useSkillValidation = () => {
         }
     };
 
-    // Validar un campo individual
+    // NUEVO: Inicializar touched para un tipo
+    const initTouchedForType = (type: 'technical' | 'soft') => {
+        if (!touched[type]) {
+            touched[type] = {};
+        }
+    };
+
+    // NUEVO: Inicializar touched para un índice
+    const initTouchedForIndex = (type: 'technical' | 'soft', index: number) => {
+        initTouchedForType(type);
+        if (!touched[type][index]) {
+            touched[type][index] = {};
+        }
+    };
+
+    // MODIFICADO: Validar un campo individual con forceShow
     const validateField = (
         type: 'technical' | 'soft',
         index: number,
         field: keyof Skill,
-        value: any
+        value: any,
+        forceShow: boolean = false
     ): boolean => {
         initErrors(type, index);
+        initTouchedForIndex(type, index);
 
         switch (field) {
             case 'name': {
@@ -70,7 +100,10 @@ export const useSkillValidation = () => {
                 for (const rule of nameRules) {
                     const error = rule(value);
                     if (error) {
-                        errors[type][index].name = error;
+                        // Solo guardar error si forceShow=true O el campo fue tocado
+                        if (forceShow || touched[type][index].name) {
+                            errors[type][index].name = error;
+                        }
                         return false;
                     }
                 }
@@ -83,7 +116,10 @@ export const useSkillValidation = () => {
                 for (const rule of levelRules) {
                     const error = rule(value);
                     if (error) {
-                        errors[type][index].level = error;
+                        // Solo guardar error si forceShow=true O el campo fue tocado
+                        if (forceShow || touched[type][index].level) {
+                            errors[type][index].level = error;
+                        }
                         return false;
                     }
                 }
@@ -96,50 +132,75 @@ export const useSkillValidation = () => {
         }
     };
 
+    // NUEVO: Marcar un campo específico como tocado
+    const markAsTouched = (type: 'technical' | 'soft', index: number, field: keyof Skill) => {
+        initTouchedForIndex(type, index);
+        touched[type][index][field as keyof typeof touched[string][number]] = true;
+    };
+
+    // NUEVO: Marcar todos los campos como tocados
+    const markAllAsTouched = (skillsData: SkillsData) => {
+        if (skillsData?.technical && Array.isArray(skillsData.technical)) {
+            skillsData.technical.forEach((_, index) => {
+                initTouchedForIndex('technical', index);
+                touched['technical'][index].name = true;
+                touched['technical'][index].level = true;
+            });
+        }
+
+        if (skillsData?.soft && Array.isArray(skillsData.soft)) {
+            skillsData.soft.forEach((_, index) => {
+                initTouchedForIndex('soft', index);
+                touched['soft'][index].name = true;
+                touched['soft'][index].level = true;
+            });
+        }
+    };
+
     // Validar una habilidad completa
-    const validateSkill = (type: 'technical' | 'soft', index: number, skill: Skill): boolean => {
+    const validateSkill = (type: 'technical' | 'soft', index: number, skill: Skill, forceShow: boolean = false): boolean => {
         let isValid = true;
-
-        if (!validateField(type, index, 'name', skill.name)) {
+        if (!validateField(type, index, 'name', skill.name, forceShow)) {
             isValid = false;
         }
-        if (!validateField(type, index, 'level', skill.level)) {
+        if (!validateField(type, index, 'level', skill.level, forceShow)) {
             isValid = false;
         }
-
         return isValid;
     };
 
-    // Validar todas las habilidades de un tipo
-    const validateByType = (type: 'technical' | 'soft', skills: Skill[]): boolean => {
+    // MODIFICADO: Validar todas las habilidades de un tipo con forceShow
+    const validateByType = (type: 'technical' | 'soft', skills: Skill[], forceShow: boolean = false): boolean => {
         let allValid = true;
         skills.forEach((skill, index) => {
-            if (!validateSkill(type, index, skill)) {
+            if (!validateSkill(type, index, skill, forceShow)) {
                 allValid = false;
             }
         });
         return allValid;
     };
 
-    // Validar todas las habilidades
-    const validateAll = (skillsData: SkillsData): boolean => {
+    // MODIFICADO: Validar todas las habilidades con forceShow
+    const validateAll = (skillsData: SkillsData, forceShow: boolean = false): boolean => {
         let allValid = true;
-
-        if (!validateByType('technical', skillsData.technical)) {
+        if (!validateByType('technical', skillsData.technical, forceShow)) {
             allValid = false;
         }
-        if (!validateByType('soft', skillsData.soft)) {
+        if (!validateByType('soft', skillsData.soft, forceShow)) {
             allValid = false;
         }
-
         return allValid;
     };
 
-    // Obtener clase CSS para el input según si tiene error
-    const getErrorClass = (type: 'technical' | 'soft', index: number, field: keyof SkillErrors): string => {
-        return errors[type]?.[index]?.[field]
-            ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
-            : 'border-gray-300 focus:border-[#005aeb] focus:ring-[#005aeb]';
+    // MODIFICADO: Obtener clase CSS para el input con forceShow
+    const getErrorClass = (type: 'technical' | 'soft', index: number, field: keyof SkillErrors, forceShow: boolean = false): string => {
+        const hasError = errors[type]?.[index]?.[field];
+        const wasTouched = touched[type]?.[index]?.[field as keyof typeof touched[string][number]];
+
+        if (hasError && (forceShow || wasTouched)) {
+            return 'border-red-500 focus:border-red-500 focus:ring-red-200';
+        }
+        return 'border-gray-300 focus:border-[#005aeb] focus:ring-[#005aeb]';
     };
 
     // Verificar si una habilidad tiene errores
@@ -152,17 +213,23 @@ export const useSkillValidation = () => {
         if (errors[type]) {
             delete errors[type][index];
         }
+        if (touched[type]) {
+            delete touched[type][index];
+        }
     };
 
     // Limpiar errores de un tipo
     const clearErrorsForType = (type: 'technical' | 'soft') => {
         errors[type] = {};
+        touched[type] = {};
     };
 
     // Limpiar todos los errores
     const clearAllErrors = () => {
         errors.technical = {};
         errors.soft = {};
+        touched.technical = {};
+        touched.soft = {};
     };
 
     // Reindexar errores después de eliminar una habilidad
@@ -170,16 +237,21 @@ export const useSkillValidation = () => {
         if (!errors[type]) return;
 
         const newErrors: { [key: number]: SkillErrors } = {};
+        const newTouched: { [key: number]: { name?: boolean; level?: boolean } } = {};
+
         Object.keys(errors[type]).forEach((key) => {
             const numKey = Number(key);
             if (numKey < removedIndex) {
                 newErrors[numKey] = errors[type][numKey];
+                newTouched[numKey] = touched[type][numKey];
             } else if (numKey > removedIndex) {
                 newErrors[numKey - 1] = errors[type][numKey];
+                newTouched[numKey - 1] = touched[type][numKey];
             }
         });
 
         errors[type] = newErrors;
+        touched[type] = newTouched;
     };
 
     // Obtener el porcentaje formateado
@@ -192,10 +264,13 @@ export const useSkillValidation = () => {
 
     return {
         errors,
+        touched,
         validateField,
         validateSkill,
         validateByType,
         validateAll,
+        markAsTouched,
+        markAllAsTouched,
         getErrorClass,
         hasErrors,
         clearErrorsForSkill,

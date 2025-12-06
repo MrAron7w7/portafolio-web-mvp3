@@ -21,6 +21,7 @@ class Portfolio extends Model
         'template_data',
         'is_public',
         'is_active',
+        'is_completed',
         'custom_domain',
         'theme_settings',
         'seo_metadata',

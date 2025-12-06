@@ -1,25 +1,31 @@
 <script setup lang="ts">
-import { Plus, Trash2, ChevronDown } from 'lucide-vue-next';
+import { Plus, Trash2, ChevronDown, AlertCircle, Sparkles } from 'lucide-vue-next';
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useExperienceValidation, type Experience } from './Composables/useExperienceValidation';
 
 const props = defineProps<{
     modelValue: Experience[];
+    validation: any;
 }>();
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+    'update:modelValue': [value: Experience[]];
+}>();
 
-// Usar el composable de validación
 const {
     errors: experienceErrors,
     validateField,
     getErrorClass,
     reindexErrors,
     getCharCount,
-} = useExperienceValidation();
+} = props.validation;
 
 // Índice del acordeón expandido
 const expandedIndex = ref<number | null>(null);
+
+// NUEVO: Estado de "NUEVOS ITEMS"
+const newItems = ref(new Set<number>());
+const lastAddedId = ref<number | null>(null);
 
 // Variables para el popover de eliminación
 const deleteConfirmIndex = ref<number | null>(null);
@@ -33,14 +39,20 @@ const popoverPosition = ref({
 const containerRef = ref<HTMLElement | null>(null);
 const deleteConfirmButtonRef = ref<HTMLElement | null>(null);
 
-// Abrir siempre la última experiencia agregada
+onMounted(() => {
+    props.validation.clearAllErrors();
+});
+
+// Auto-expandir nuevo item
 watch(
     () => props.modelValue.length,
-    (newLength) => {
-        if (newLength > 0) {
-            expandedIndex.value = newLength - 1;
-        } else {
-            expandedIndex.value = null;
+    (newLength, oldLength) => {
+        if (newLength > oldLength && lastAddedId.value !== null) {
+            const experience = props.modelValue.find((e) => e.id === lastAddedId.value);
+            if (experience) {
+                expandedIndex.value = lastAddedId.value;
+            }
+            lastAddedId.value = null;
         }
     }
 );
@@ -148,8 +160,14 @@ onUnmounted(() => {
 
 // Agregar experiencia
 const addExperience = () => {
+    const newExperienceId = Date.now();
+    lastAddedId.value = newExperienceId;
+
+    // 1. Lo marcamos como nuevo
+    newItems.value.add(newExperienceId);
+
     const newExperience: Experience = {
-        id: Date.now(),
+        id: newExperienceId,
         company: '',
         position: '',
         period: '',
@@ -159,6 +177,11 @@ const addExperience = () => {
         current: false,
     };
     emit('update:modelValue', [...props.modelValue, newExperience]);
+
+    // Opcional: Quitar el estado "nuevo" automáticamente después de 3 segundos
+    setTimeout(() => {
+        newItems.value.delete(newExperienceId);
+    }, 3000);
 };
 
 // Abrir popover de confirmación
@@ -178,6 +201,9 @@ const openDeleteConfirm = (index: number, event: Event) => {
 // Confirmar eliminación
 const confirmDelete = (index: number | null) => {
     if (index === null) return;
+    const idToRemove = props.modelValue[index].id;
+    newItems.value.delete(idToRemove); // Limpiamos del set
+
     const updated = [...props.modelValue];
     updated.splice(index, 1);
     emit('update:modelValue', updated);
@@ -192,28 +218,77 @@ const confirmDelete = (index: number | null) => {
 };
 
 // Toggle acordeón
-const toggleExperience = (index: number) => {
-    expandedIndex.value = expandedIndex.value === index ? null : index;
+const toggleExperience = (id: number) => {
+    expandedIndex.value = expandedIndex.value === id ? null : id;
+    // Opcional: Si lo cierras, también podrías quitar el estado "nuevo"
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
 };
 
 // Actualizar campo + validar
 const updateExperience = (index: number, field: keyof Experience, value: any) => {
+    const id = props.modelValue[index].id;
+
+    // 2. Si el usuario edita, ya no es "nuevo"
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
+
+    // MODIFICADO: Marcar campo como tocado al escribir
+    props.validation.markAsTouched(index, field);
+
     const updated = [...props.modelValue];
     updated[index] = { ...updated[index], [field]: value };
     emit('update:modelValue', updated);
 
-    validateField(index, field, value, updated[index]);
+    // MODIFICADO: Validar en tiempo real (forceShow = false)
+    if (experienceErrors[index]?.[field]) {
+        validateField(index, field, value, updated[index], false);
+    }
 };
 
 // Checkbox "Trabajo actual"
 const handleCurrentChange = (index: number, checked: boolean) => {
+    const id = props.modelValue[index].id;
+
+    // Si el usuario edita, ya no es "nuevo"
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
+
+    // Marcar como tocado
+    props.validation.markAsTouched(index, 'current');
+
     const updated = [...props.modelValue];
     updated[index] = { ...updated[index], current: checked };
     if (checked) {
         updated[index].endDate = '';
     }
     emit('update:modelValue', updated);
-    validateField(index, 'current', checked, updated[index]);
+    validateField(index, 'current', checked, updated[index], false);
+};
+
+// NUEVO: Función para obtener clase de error del contenedor (igual a LanguageSection)
+const getContainerClass = (index: number, id: number) => {
+    if (hasExperienceError(index)) {
+        return 'border-red-300 bg-red-50';
+    }
+    if (newItems.value.has(id)) {
+        return 'border-emerald-300 bg-emerald-50';
+    }
+    return 'border-gray-200 bg-white';
+};
+
+// NUEVO: Verificar si una experiencia tiene errores
+const hasExperienceError = (index: number) => {
+    const errors = experienceErrors[index];
+    return errors && Object.keys(errors).length > 0;
+};
+
+// NUEVO: Función para obtener clase de error con forceShow
+const getErrorClassForInput = (index: number, field: keyof Experience) => {
+    return props.validation.getErrorClass(index, field, false);
 };
 </script>
 
@@ -233,33 +308,54 @@ const handleCurrentChange = (index: number, checked: boolean) => {
             <div
                 v-for="(exp, index) in modelValue"
                 :key="exp.id"
-                class="overflow-hidden rounded-lg border border-gray-200 transition-all"
+                class="overflow-hidden rounded-lg border transition-all duration-500 ease-in-out"
+                :class="getContainerClass(index, exp.id)"
             >
                 <!-- Header del acordeón -->
                 <button
-                    @click="toggleExperience(index)"
-                    class="flex w-full items-center justify-between bg-gray-50 px-6 py-4 transition-colors hover:bg-gray-100"
+                    @click="toggleExperience(exp.id)"
+                    class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
+                    type="button"
                 >
                     <div class="flex flex-1 items-center gap-3 text-left">
                         <ChevronDown
-                            class="h-5 w-5 text-gray-600 transition-transform duration-300"
-                            :class="{ 'rotate-180 transform': expandedIndex === index }"
+                            class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
+                            :class="{ 'rotate-180 transform': expandedIndex === exp.id }"
                         />
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">
-                                Experiencia {{ index + 1 }}
-                            </h3>
-                            <p v-if="exp.position" class="text-sm text-gray-600">
-                                {{ exp.position }}
-                                {{ exp.company ? `en ${exp.company}` : '' }}
-                            </p>
+
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-base font-medium transition-colors duration-300"
+                                    :class="{
+                                        'text-red-700': hasExperienceError(index),
+                                        'text-emerald-700': newItems.has(exp.id),
+                                        'text-gray-900': !hasExperienceError(index) && !newItems.has(exp.id)
+                                    }"
+                                >
+                                    {{ exp.position || exp.company || 'Nueva experiencia' }}
+                                </span>
+
+                                <!-- ICONO DE ERROR -->
+                                <AlertCircle
+                                    v-if="hasExperienceError(index)"
+                                    class="h-4 w-4 text-red-500 animate-pulse"
+                                />
+
+                                <!-- ICONO DE NUEVO -->
+                                <Sparkles
+                                    v-if="newItems.has(exp.id) && !hasExperienceError(index)"
+                                    class="h-4 w-4 text-emerald-500 animate-bounce"
+                                />
+                            </div>
+                            <span v-if="exp.company" class="text-sm text-gray-500">{{ exp.company }}</span>
                         </div>
                     </div>
 
-                    <!-- Botón eliminar -->
                     <button
                         @click.stop="openDeleteConfirm(index, $event)"
-                        class="rounded p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-800"
+                        type="button"
+                        class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
                     >
                         <Trash2 class="h-4 w-4" />
                     </button>
@@ -275,8 +371,9 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                     leave-to-class="max-h-0 opacity-0 overflow-hidden"
                 >
                     <div
-                        v-if="expandedIndex === index"
-                        class="border-t border-gray-200 bg-white px-6 py-6"
+                        v-if="expandedIndex === exp.id"
+                        class="border-t px-4 py-4 bg-white/50"
+                        :class="hasExperienceError(index) ? 'border-red-200' : 'border-gray-200'"
                     >
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <!-- Empresa -->
@@ -294,8 +391,8 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                         )
                                     "
                                     type="text"
-                                    class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2"
-                                    :class="getErrorClass(index, 'company')"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'company')"
                                     placeholder="Nombre de la empresa"
                                 />
                                 <p
@@ -321,8 +418,8 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                         )
                                     "
                                     type="text"
-                                    class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2"
-                                    :class="getErrorClass(index, 'position')"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'position')"
                                     placeholder="Tu posición"
                                 />
                                 <p
@@ -348,8 +445,8 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                         )
                                     "
                                     type="month"
-                                    class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2"
-                                    :class="getErrorClass(index, 'startDate')"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'startDate')"
                                 />
                                 <p
                                     v-if="experienceErrors[index]?.startDate"
@@ -375,8 +472,8 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                     "
                                     type="month"
                                     :disabled="exp.current"
-                                    class="w-full rounded-lg border px-4 py-2 transition-colors focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                    :class="getErrorClass(index, 'endDate')"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                                    :class="getErrorClassForInput(index, 'endDate')"
                                 />
                                 <p
                                     v-if="experienceErrors[index]?.endDate"
@@ -424,8 +521,8 @@ const handleCurrentChange = (index: number, checked: boolean) => {
                                         )
                                     "
                                     rows="4"
-                                    class="w-full rounded-lg border px-4 py-3 transition-colors focus:ring-2"
-                                    :class="getErrorClass(index, 'description')"
+                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    :class="getErrorClassForInput(index, 'description')"
                                     placeholder="Describe tus responsabilidades, logros principales..."
                                 ></textarea>
                                 <div class="mt-1 flex items-center justify-between">
