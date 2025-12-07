@@ -24,11 +24,14 @@ import {
     Zap,
     AlertCircle,
     CheckCircle,
-    AlertTriangle,
+    Loader2 ,
     Globe,
     Lock,
+    X,
 } from 'lucide-vue-next';
 import { computed, reactive, ref, watch, onBeforeUnmount } from 'vue';
+
+
 import AboutSection from './Components/AboutSection.vue';
 import ConfigSection from './Components/ConfigSection.vue';
 import EducationSection from './Components/EducationSection.vue';
@@ -1008,24 +1011,9 @@ watch(showFullPreview, (newVal) => {
                             isSaved && 'bg-green-500 text-white shadow-lg shadow-green-500/30',
                             !hasUnsavedChanges && !isSaving && !isSaved && 'bg-gray-100 text-gray-500 cursor-not-allowed'
                         ]">
-                            <svg v-if="isSaving" class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                            <svg v-else-if="isSaved" class="h-4 w-4 animate-bounce" xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
-                            <svg v-else class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V3" />
-                            </svg>
+                            <Loader2 v-if="isSaving" class="w-5 h-5 animate-spin" />
+                            <Check v-else-if="isSaved" class="w-5 h-5 animate-bounce" />
+                            <Save v-else  class="h-4 w-4" />
                             <span class="text-sm">
                                 {{ isSaving ? 'Guardando...' : isSaved ? '¡Guardado!' : 'Guardar' }}
                             </span>
@@ -1045,24 +1033,16 @@ watch(showFullPreview, (newVal) => {
                                     :disabled="!savedPortfolioState.is_public" class="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm transition-colors first:rounded-t-lg
                                         text-gray-700 hover:bg-gray-50
                                         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
-                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                        </path>
-                                    </svg>
+
+                                    <Eye class="w-5 h-5" />
+
                                     Ver portafolio público
                                 </button>
 
                                 <button @click="handleFinish"
                                     class="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 transition-colors last:rounded-b-lg border-t border-gray-100">
-                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
+                                    <X class="w-4 h-4 flex-shrink-0" />
+
                                     Salir del editor
                                 </button>
                             </div>
@@ -1079,6 +1059,7 @@ watch(showFullPreview, (newVal) => {
                 <!-- Columna Izquierda - Stepper -->
                 <div class="lg:col-span-3">
                     <div class="sticky top-8 rounded-2xl border border-gray-200/60 bg-white p-6 shadow-xs">
+                      
                         <!-- Lista de pasos -->
                         <nav class="space-y-2">
                             <div v-for="(step, index) in steps" :key="step.id"
@@ -1200,6 +1181,7 @@ watch(showFullPreview, (newVal) => {
                                 </p>
                             </div>
                         </div>
+                        
                     </div>
                 </div>
 
@@ -1357,8 +1339,7 @@ watch(showFullPreview, (newVal) => {
                 enter-to-class="opacity-100 scale-100" leave-active-class="transition-all duration-200 ease-in"
                 leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
 
-                <div class="max-h-[90vh] w-full max-w-9xl transform rounded-2xl bg-white shadow-2xl overflow-hidden"
-                    @click.stop>
+                <div class="max-h-[90vh] w-full max-w-9xl transform rounded-2xl bg-white shadow-2xl overflow-hidden" @click.stop>
 
                     <!-- Header del modal -->
                     <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-6">
@@ -1372,11 +1353,7 @@ watch(showFullPreview, (newVal) => {
                         </div>
                         <button @click="closeFullPreview"
                             class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-200">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12">
-                                </path>
-                            </svg>
+                            <X class="h-5 w-5" />
                         </button>
                     </div>
 
@@ -1480,14 +1457,7 @@ watch(showFullPreview, (newVal) => {
                             </button>
                             <button @click="completeForm" :disabled="isCompleting || !allStepsCompleted"
                                 class="flex items-center justify-center space-x-2 rounded-lg bg-green-500 px-4 py-2.5 text-white font-medium transition-all duration-200 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                                <svg v-if="isCompleting" class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg"
-                                    fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
+                                <Loader2 v-if="isCompleting" class="h-4 w-4 animate-spin flex-shrink-0" />
                                 <CheckCircle v-else class="h-4 w-4" />
                                 <span>{{ isCompleting ? 'Finalizando...' : 'Finalizar' }}</span>
                             </button>
@@ -1578,14 +1548,7 @@ watch(showFullPreview, (newVal) => {
                                     ? 'bg-gray-500 hover:bg-gray-600'
                                     : 'bg-blue-500 hover:bg-blue-600'
                             ]">
-                                <svg v-if="isTogglingPublic" class="h-4 w-4 animate-spin"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
+                                <Loader2 v-if="isTogglingPublic" class="h-4 w-4 animate-spin flex-shrink-0" />
                                 <span>{{ isTogglingPublic ? 'Cambiando...' : (isPortfolioPublicInHeader ? 'Hacer Privado' : 'Hacer Público') }}</span>
                             </button>
                         </div>
