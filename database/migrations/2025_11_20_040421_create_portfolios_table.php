@@ -18,6 +18,7 @@ return new class extends Migration
             $table->json('template_data')->nullable();
             $table->boolean('is_public')->default(false);
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_completed')->default(false);
             $table->string('custom_domain')->nullable();
             $table->json('theme_settings')->nullable(); // colores, fuentes, etc.
             $table->json('seo_metadata')->nullable(); // title, description, keywords
