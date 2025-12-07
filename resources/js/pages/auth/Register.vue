@@ -75,20 +75,42 @@ import { Form, Head } from '@inertiajs/vue3';
                         <!-- Name -->
                         <div class="space-y-2">
                             <Label
-                                for="name"
+                                for="first_name"
                                 class="text-text-primary-light dark:text-text-primary-dark text-sm leading-normal font-medium"
                             >
-                                Nombre completo
+                                Nombre(s)
                             </Label>
                             <Input
-                                id="name"
+                                id="first_name"
                                 type="text"
                                 required
                                 autofocus
                                 :tabindex="1"
-                                autocomplete="name"
-                                name="name"
-                                placeholder="Tu nombre completo"
+                                autocomplete="first_name"
+                                name="first_name"
+                                placeholder="Tus nombres"
+                                class="text-text-primary-light dark:text-text-primary-dark border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-primary/50 focus:outline-0"
+                            />
+                            <InputError :message="errors.name" />
+                        </div>
+
+                        <!-- Apellidos -->
+                        <div class="space-y-2">
+                            <Label
+                                for="last_name"
+                                class="text-text-primary-light dark:text-text-primary-dark text-sm leading-normal font-medium"
+                            >
+                                Apellidos
+                            </Label>
+                            <Input
+                                id="last_name"
+                                type="text"
+                                required
+                                autofocus
+                                :tabindex="1"
+                                autocomplete="last_name"
+                                name="last_name"
+                                placeholder="Tus Apellidos"
                                 class="text-text-primary-light dark:text-text-primary-dark border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-primary/50 focus:outline-0"
                             />
                             <InputError :message="errors.name" />

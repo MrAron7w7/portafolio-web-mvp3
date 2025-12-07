@@ -18,9 +18,11 @@ const page = usePage();
 const authUser = page.props.auth.user;
 
 const user = computed(() => ({
-    name: authUser.name,
+    first_name: authUser.first_name,
+    last_name: authUser.last_name,
     email: authUser.email,
-    avatar: authUser.name.charAt(0).toUpperCase(),
+    avatar_url: authUser.avatar_url,
+    full_name: authUser.first_name + ' ' + authUser.last_name,
 }));
 
 // Métricas del dashboard
@@ -123,7 +125,7 @@ const deletePortfolio = (portfolioId: number) => {
                         <h1
                             class="mb-2 text-2xl font-bold text-gray-900 lg:text-3xl"
                         >
-                            Hola {{ user.name }} 👋, bienvenido a tu panel de
+                            Hola {{ user.full_name }} 👋, bienvenido a tu panel de
                             portafolios
                         </h1>
                         <p class="text-lg text-gray-600">

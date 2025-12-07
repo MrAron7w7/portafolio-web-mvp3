@@ -20,7 +20,8 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
     ];
@@ -48,11 +49,26 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'last_login_at' => 'datetime',
+            'email_notifications' => 'boolean',
+            'marketing_emails' => 'boolean',
         ];
     }
 
     public function portfolios(): HasMany
     {
         return $this->hasMany(Portfolio::class);
+    }
+
+    // Accessor para obtener el nombre completo
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
+    // Accessor alternativo
+    public function getNameAttribute(): string
+    {
+        return $this->getFullNameAttribute();
     }
 }
