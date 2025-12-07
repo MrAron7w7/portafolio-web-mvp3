@@ -1,63 +1,128 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
+import { useAboutValidation, type AboutData } from './Composables/useAboutValidation';
+
 const props = defineProps<{
-    modelValue: {
-        summary: string;
-        description: string;
-    };
+    modelValue: AboutData;
+    validation: any;
 }>();
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+    'update:modelValue': [value: AboutData];
+}>();
 
-const updateField = (field: string, value: string) => {
-    emit('update:modelValue', {
-        ...props.modelValue,
-        [field]: value,
-    });
+const {
+    errors: aboutErrors,
+    validateField,
+    getErrorClass,
+    getCharCount,
+} = props.validation;
+
+onMounted(() => {
+    props.validation.clearErrors();
+});
+
+// Actualizar campo + validar
+const updateField = (field: keyof AboutData, value: string) => {
+    // Marcar como tocado al escribir
+    props.validation.markAsTouched(field);
+
+    const updated = { ...props.modelValue, [field]: value };
+    emit('update:modelValue', updated);
+
+    // Validar en tiempo real (forceShow = false)
+    if (aboutErrors[field]) {
+        validateField(field, value, false);
+    }
 };
 </script>
 
 <template>
     <div>
         <div class="mb-8">
-            <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">
-                Sobre Mí
-            </h1>
+            <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">Sobre Mí</h1>
             <p class="text-lg text-gray-600">
                 Cuéntanos un poco más sobre ti, tu trayectoria y tus objetivos.
             </p>
         </div>
 
-        <div class="grid grid-cols-1 gap-6">
+        <div class="space-y-6">
+            <!-- Resumen -->
             <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">
-                    Resumen breve *
-                </label>
+                <label class="mb-2 block text-sm font-medium text-gray-700">Resumen Profesional *</label>
                 <p class="mb-2 text-xs text-gray-500">
                     Este texto aparecerá en la cabecera o sección principal.
                 </p>
                 <textarea
                     :value="modelValue.summary"
-                    @input="updateField('summary', ($event.target as HTMLInputElement).value)"
-                    rows="3"
-                    class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                    placeholder="Soy un desarrollador apasionado por..."
+                    @input="updateField('summary', ($event.target as HTMLTextAreaElement).value)"
+                    rows="4"
+                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                    :class="getErrorClass('summary', false)"
+                    placeholder="Soy un desarrollador apasionado con experiencia en..."
                 ></textarea>
+                <div class="mt-1 flex items-center justify-between">
+                    <span
+                        v-if="aboutErrors.summary"
+                        class="text-sm text-red-500"
+                    >
+                        {{ aboutErrors.summary }}
+                    </span>
+                    <span v-else class="text-sm text-transparent">placeholder</span>
+                    <span
+                        class="text-xs"
+                        :class="[
+                            getCharCount(modelValue.summary, 'summary').isOverLimit
+                                ? 'font-medium text-red-500'
+                                : getCharCount(modelValue.summary, 'summary').isNearLimit
+                                  ? 'text-amber-500'
+                                  : 'text-gray-400',
+                        ]"
+                    >
+                        {{ getCharCount(modelValue.summary, 'summary').current }}/{{
+                            getCharCount(modelValue.summary, 'summary').max
+                        }}
+                    </span>
+                </div>
             </div>
 
+            <!-- Descripción -->
             <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">
-                    Biografía completa
-                </label>
+                <label class="mb-2 block text-sm font-medium text-gray-700">Descripción Detallada *</label>
                 <p class="mb-2 text-xs text-gray-500">
                     Una descripción más detallada para la sección "Sobre mí".
                 </p>
                 <textarea
                     :value="modelValue.description"
-                    @input="updateField('description', ($event.target as HTMLInputElement).value)"
+                    @input="updateField('description', ($event.target as HTMLTextAreaElement).value)"
                     rows="8"
-                    class="w-full rounded-lg border border-gray-300 px-4 py-3 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]"
-                    placeholder="Comencé mi carrera en..."
+                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                    :class="getErrorClass('description', false)"
+                    placeholder="Aquí puedes contar tu historia completa, tu trayectoria profesional, objetivos..."
                 ></textarea>
+                <div class="mt-1 flex items-center justify-between">
+                    <span
+                        v-if="aboutErrors.description"
+                        class="text-sm text-red-500"
+                    >
+                        {{ aboutErrors.description }}
+                    </span>
+                    <span v-else class="text-sm text-transparent">placeholder</span>
+                    <span
+                        class="text-xs"
+                        :class="[
+                            getCharCount(modelValue.description, 'description').isOverLimit
+                                ? 'font-medium text-red-500'
+                                : getCharCount(modelValue.description, 'description').isNearLimit
+                                  ? 'text-amber-500'
+                                  : 'text-gray-400',
+                        ]"
+                    >
+                        {{ getCharCount(modelValue.description, 'description').current }}/{{
+                            getCharCount(modelValue.description, 'description').max
+                        }}
+                    </span>
+                </div>
             </div>
         </div>
     </div>
