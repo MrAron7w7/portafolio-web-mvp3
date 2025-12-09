@@ -3,8 +3,7 @@
    ============================================ -->
    <script setup lang="ts">
     import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-vue-next';
-    import { Transition } from 'vue';
-    
+
     import PersonalSection from '@/pages/Dashboard/Porfolios/Components/PersonalSection.vue';
     import AboutSection from '@/pages/Dashboard/Porfolios/Components/AboutSection.vue';
     import EducationSection from '@/pages/Dashboard/Porfolios/Components/EducationSection.vue';

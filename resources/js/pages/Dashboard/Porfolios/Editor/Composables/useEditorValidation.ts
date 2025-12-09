@@ -83,7 +83,7 @@ export function useEditorValidation(formData: any, currentStep: any) {
     // ESTADO DE VALIDACIÓN
     // ============================================
     const showValidationError = ref(false);
-    const validationErrorTimeout = ref<NodeJS.Timeout | null>(null);
+    const validationErrorTimeout = ref<number.Timeout | null>(null);
 
     // ============================================
     // COMPUTED PROPERTIES (DEFINIR ANTES DE LOS WATCHES)

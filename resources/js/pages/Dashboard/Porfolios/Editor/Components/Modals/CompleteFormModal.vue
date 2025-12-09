@@ -3,7 +3,7 @@
    ============================================ -->
    <script setup lang="ts">
     import { CheckCircle, Loader2, ArrowLeft } from 'lucide-vue-next';
-    import { Transition } from 'vue';
+
     
     interface Props {
         isOpen: boolean;
@@ -28,7 +28,7 @@
                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
                 @click="$emit('close')">
                 <Transition name="modal-scale">
-                    <div class="w-full max-w-md transform rounded-2xl bg-white shadow-2xl" @click.stop>
+                    <div v-show="true" class="w-full max-w-md transform rounded-2xl bg-white shadow-2xl" @click.stop>
                         <!-- Header del modal -->
                         <div class="border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-5">
                             <div class="flex items-start space-x-3">

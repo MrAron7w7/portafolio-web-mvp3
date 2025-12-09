@@ -3,7 +3,7 @@
    ============================================ -->
    <script setup lang="ts">
     import { router } from '@inertiajs/vue3';
-    import { onBeforeUnmount, ref, watch } from 'vue';
+    import { onBeforeUnmount, watch } from 'vue';
     
     // Composables
     import { useEditorState } from './Composables/useEditorState';

@@ -3,7 +3,7 @@
    ============================================ -->
    <script setup lang="ts">
     import { Globe, Lock, Loader2 } from 'lucide-vue-next';
-    import { Transition } from 'vue';
+
     
     interface Props {
         isOpen: boolean;
@@ -11,22 +11,22 @@
         isPublic: boolean;
         toggleMessage: string;
     }
-    
+
     withDefaults(defineProps<Props>(), {});
-    
+
     defineEmits<{
         close: [];
         toggle: [];
     }>();
     </script>
-    
+
     <template>
         <Transition name="modal-fade">
             <div v-if="isOpen"
                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
                 @click="$emit('close')">
                 <Transition name="modal-scale">
-                    <div class="w-full max-w-md transform rounded-2xl bg-white shadow-2xl overflow-hidden" @click.stop>
+                    <div v-show="true" class="w-full max-w-md transform rounded-2xl bg-white shadow-2xl overflow-hidden" @click.stop>
                         <!-- Header del modal -->
                         <div :class="[
                             'border-b border-gray-100 bg-gradient-to-r px-6 py-5',

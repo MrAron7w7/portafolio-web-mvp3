@@ -3,8 +3,8 @@
    ============================================ -->
    <script setup lang="ts">
     import { X } from 'lucide-vue-next';
-    import { Transition } from 'vue';
-    import PreviewContainer from '../PreviewContainer.vue';
+ 
+ 
     
     interface Props {
         isOpen: boolean;
