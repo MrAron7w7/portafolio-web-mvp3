@@ -71,6 +71,11 @@ const deletePortfolio = (portfolioId: number) => {
 const editPortfolio = (portfolioId: number) => {
     router.visit(`/dashboard/portfolio/${portfolioId}/editor`);
 };
+
+// Función para ver portafolio
+const viewPortfolio = (portfolioId: number) => {
+    router.visit(`/dashboard/portfolio/${portfolioId}/view`);
+};
 </script>
 
 <template>
@@ -286,8 +291,9 @@ const editPortfolio = (portfolioId: number) => {
                                             <Edit class="h-4 w-4" />
                                         </button>
                                         <button
+                                            @click="viewPortfolio(portfolio.id)"
                                             class="rounded-lg p-2 text-gray-400 transition-colors duration-200 hover:bg-green-50 hover:text-green-600"
-                                            title="Previsualizar"
+                                            title="Ver portafolio"
                                         >
                                             <Eye class="h-4 w-4" />
                                         </button>
