@@ -1,0 +1,335 @@
+<script setup lang="ts">
+import { Head, Link, router } from '@inertiajs/vue3';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import { Edit, Eye, Filter, Search, Trash2, UserCheck, UserX, X } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
+
+const props = defineProps<{
+    users: {
+        data: Array<{
+            id: number;
+            first_name: string;
+            last_name: string;
+            name: string;
+            email: string;
+            role: string;
+            created_at: string;
+            status: string;
+            portfolios_count: number;
+        }>;
+        links: any;
+        meta?: any;
+    };
+    roles: Array<{ id: number; name: string }>;
+}>();
+
+const searchQuery = ref('');
+const deleteConfirm = ref<number | null>(null);
+const showFilters = ref(false);
+
+// Filtros avanzados
+const roleFilter = ref('all');
+const statusFilter = ref('all');
+const dateFilter = ref('all');
+
+const roleOptions = [
+    { value: 'all', label: 'Todos los roles' },
+    { value: 'admin', label: 'Administradores' },
+    { value: 'user', label: 'Usuarios' },
+];
+
+const statusOptions = [
+    { value: 'all', label: 'Todos los estados' },
+    { value: 'active', label: 'Activos' },
+    { value: 'inactive', label: 'Inactivos' },
+];
+
+const dateOptions = [
+    { value: 'all', label: 'Cualquier fecha' },
+    { value: 'today', label: 'Hoy' },
+    { value: 'week', label: 'Última semana' },
+    { value: 'month', label: 'Último mes' },
+    { value: '3months', label: 'Últimos 3 meses' },
+];
+
+const activeFiltersCount = computed(() => {
+    let count = 0;
+    if (roleFilter.value !== 'all') count++;
+    if (statusFilter.value !== 'all') count++;
+    if (dateFilter.value !== 'all') count++;
+    return count;
+});
+
+const clearFilters = () => {
+    roleFilter.value = 'all';
+    statusFilter.value = 'all';
+    dateFilter.value = 'all';
+    searchQuery.value = '';
+};
+
+const filteredUsers = computed(() => {
+    let result = props.users.data;
+    
+    // Búsqueda por texto
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase();
+        result = result.filter(
+            user => 
+                user.name.toLowerCase().includes(query) ||
+                user.email.toLowerCase().includes(query)
+        );
+    }
+    
+    // Filtro por rol
+    if (roleFilter.value !== 'all') {
+        result = result.filter(user => user.role === roleFilter.value);
+    }
+    
+    // Filtro por estado
+    if (statusFilter.value !== 'all') {
+        result = result.filter(user => user.status === statusFilter.value);
+    }
+    
+    return result;
+});
+
+const confirmDelete = (userId: number) => {
+    deleteConfirm.value = userId;
+};
+
+const cancelDelete = () => {
+    deleteConfirm.value = null;
+};
+
+const deleteUser = (userId: number) => {
+    router.delete(`/admin/users/${userId}`, {
+        preserveScroll: true,
+        onSuccess: () => {
+            deleteConfirm.value = null;
+        },
+    });
+};
+
+const getRoleBadgeClass = (role: string) => {
+    return role === 'admin'
+        ? 'bg-purple-100 text-purple-700'
+        : 'bg-blue-100 text-blue-700';
+};
+
+const getStatusBadgeClass = (status: string) => {
+    return status === 'active'
+        ? 'bg-green-100 text-green-700'
+        : 'bg-red-100 text-red-700';
+};
+</script>
+
+<template>
+    <Head title="Gestión de Usuarios" />
+
+    <AdminLayout title="Gestión de Usuarios">
+        <!-- Header con búsqueda y filtros -->
+        <div class="mb-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                <!-- Búsqueda -->
+                <div class="relative flex-1">
+                    <Search class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                    <input
+                        v-model="searchQuery"
+                        type="text"
+                        placeholder="Buscar por nombre o email..."
+                        class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
+                    />
+                </div>
+                
+                <!-- Botón filtros -->
+                <button
+                    @click="showFilters = !showFilters"
+                    :class="[
+                        'inline-flex items-center space-x-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition',
+                        showFilters || activeFiltersCount > 0
+                            ? 'border-[#005aeb] bg-blue-50 text-[#005aeb]'
+                            : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ]"
+                >
+                    <Filter class="h-4 w-4" />
+                    <span>Filtros</span>
+                    <span v-if="activeFiltersCount > 0" class="flex h-5 w-5 items-center justify-center rounded-full bg-[#005aeb] text-xs text-white">
+                        {{ activeFiltersCount }}
+                    </span>
+                </button>
+                
+                <p class="text-sm text-gray-500">
+                    {{ filteredUsers.length }} de {{ props.users.data.length }} usuarios
+                </p>
+            </div>
+            
+            <!-- Panel de filtros avanzados -->
+            <div v-if="showFilters" class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-900">Filtros Avanzados</h3>
+                    <button
+                        v-if="activeFiltersCount > 0"
+                        @click="clearFilters"
+                        class="text-sm text-[#005aeb] hover:underline"
+                    >
+                        Limpiar filtros
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Filtro por rol -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Rol</label>
+                        <select
+                            v-model="roleFilter"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
+                        >
+                            <option v-for="option in roleOptions" :key="option.value" :value="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro por estado -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Estado</label>
+                        <select
+                            v-model="statusFilter"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
+                        >
+                            <option v-for="option in statusOptions" :key="option.value" :value="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro por fecha -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Fecha de registro</label>
+                        <select
+                            v-model="dateFilter"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
+                        >
+                            <option v-for="option in dateOptions" :key="option.value" :value="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de usuarios -->
+        <div class="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Usuario
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Rol
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Estado
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Portafolios
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Registro
+                            </th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr v-for="user in filteredUsers" :key="user.id" class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#005aeb] text-white font-medium">
+                                        {{ user.first_name?.charAt(0) }}{{ user.last_name?.charAt(0) }}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ user.name }}</div>
+                                        <div class="text-sm text-gray-500">{{ user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span :class="[getRoleBadgeClass(user.role), 'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium capitalize']">
+                                    {{ user.role }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span :class="[getStatusBadgeClass(user.status), 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium']">
+                                    <UserCheck v-if="user.status === 'active'" class="mr-1 h-3 w-3" />
+                                    <UserX v-else class="mr-1 h-3 w-3" />
+                                    {{ user.status === 'active' ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ user.portfolios_count }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ user.created_at }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex items-center justify-end space-x-2">
+                                    <Link
+                                        :href="`/admin/users/${user.id}`"
+                                        class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
+                                        title="Ver detalles"
+                                    >
+                                        <Eye class="h-4 w-4" />
+                                    </Link>
+                                    <button
+                                        @click="confirmDelete(user.id)"
+                                        class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                                        title="Eliminar"
+                                    >
+                                        <Trash2 class="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty state -->
+            <div v-if="filteredUsers.length === 0" class="px-6 py-12 text-center">
+                <Search class="mx-auto h-12 w-12 text-gray-300" />
+                <p class="mt-4 text-gray-500">No se encontraron usuarios</p>
+            </div>
+        </div>
+
+        <!-- Modal de confirmación de eliminación -->
+        <Teleport to="body">
+            <div v-if="deleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                    <h3 class="text-lg font-semibold text-gray-900">¿Eliminar usuario?</h3>
+                    <p class="mt-2 text-sm text-gray-600">
+                        Esta acción eliminará permanentemente al usuario y todos sus portafolios. No se puede deshacer.
+                    </p>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button
+                            @click="cancelDelete"
+                            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            @click="deleteUser(deleteConfirm)"
+                            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+                        >
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Teleport>
+    </AdminLayout>
+</template>

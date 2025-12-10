@@ -11,7 +11,8 @@ import {
     Bell,
     LogOut,
     Settings2,
-    ChevronRight
+    ChevronRight,
+    Shield
 } from 'lucide-vue-next';
 import {
     DropdownMenu,
@@ -31,6 +32,12 @@ const emit = defineEmits(['close']);
 
 const page = usePage();
 const authUser = page.props.auth.user;
+
+// Detectar si el usuario es admin
+const isAdmin = computed(() => {
+    const roles = (page.props.auth as any).roles || [];
+    return roles.includes('admin');
+});
 
 const user = computed(() => {
     const firstName = authUser.first_name || '';
@@ -125,6 +132,20 @@ const settingsItems = computed(() => [
             <div class="space-y-4">
                 <div class="pt-4 border-t border-gray-100">
                     <div class="space-y-1">
+                        <!-- Panel Admin (solo para admins) -->
+                        <Link v-if="isAdmin" href="/admin"
+                            :class="[
+                                'group flex items-center space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-300 hover:translate-x-1',
+                                $page.url.startsWith('/admin')
+                                    ? 'bg-purple-50 text-purple-700'
+                                    : 'text-gray-600 hover:bg-purple-50 hover:text-purple-700'
+                            ]">
+                            <Shield class="h-5 w-5 transition-transform duration-300 group-hover:scale-110" :class="[
+                                $page.url.startsWith('/admin') ? 'text-purple-600' : 'text-gray-400 group-hover:text-purple-600'
+                            ]" />
+                            <span>Panel Admin</span>
+                        </Link>
+
                         <!-- Notificaciones -->
                         <Link href="#"
                             class="group flex items-center space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition-all duration-300 hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1">
