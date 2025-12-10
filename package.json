@@ -38,6 +38,7 @@
         "clsx": "^2.1.1",
         "laravel-vite-plugin": "^2.0.0",
         "lucide-vue-next": "^0.468.0",
+        "puppeteer": "^24.32.1",
         "reka-ui": "^2.6.0",
         "tailwind-merge": "^3.2.0",
         "tw-animate-css": "^1.2.5",
