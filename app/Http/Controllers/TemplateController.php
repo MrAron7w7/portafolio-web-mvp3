@@ -113,7 +113,7 @@ class TemplateController extends Controller
             abort(403);
         }
 
-        return Inertia::render('Dashboard/Porfolios/Editor', [
+        return Inertia::render('Dashboard/Porfolios/Editor/Editor', [
             'portfolio' => $portfolio,
             'templateData' => $portfolio->template_data,
             'sections' => $portfolio->sections
