@@ -42,3 +42,4 @@ Route::get('/portfolio/{id}/download-pdf', [PortfolioPdfController::class, 'down
 
 require __DIR__.'/settings.php';
 require __DIR__.'/google_auth.php';
+require __DIR__.'/admin.php';
