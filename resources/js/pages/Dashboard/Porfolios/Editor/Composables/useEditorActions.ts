@@ -142,7 +142,7 @@ export function useEditorActions(
                             completionMessage.value = '¡Formulario completado exitosamente!';
 
                             setTimeout(() => {
-                                router.visit('/dashboard/portfolio');
+                                router.visit('/dashboard');
                                 resolve(true);
                             }, 2000);
                         },
