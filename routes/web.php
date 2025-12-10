@@ -23,9 +23,7 @@ Route::middleware(['auth', 'verified'])
     ->name('dashboard.')
     ->group(function () {
         
-        Route::get('/', function () {
-            return Inertia::render('Dashboard/Dashboard');
-        })->name('index'); // Cambiado a 'index'
+        Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])->name('index');
 
         // Incluir otras rutas del dashboard
         require __DIR__.'/template.php';

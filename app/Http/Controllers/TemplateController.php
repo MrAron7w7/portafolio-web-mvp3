@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use App\Models\Portfolio;
 use App\Models\PortfolioSection;
@@ -86,7 +88,7 @@ class TemplateController extends Controller
 
         // Crear el portfolio con la plantilla seleccionada
         $portfolio = Portfolio::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'title' => 'Mi Portafolio - ' . ucfirst($request->template_type),
             'slug' => 'mi-portafolio-' . uniqid(),
             'description' => 'Mi portafolio profesional creado con PortafolioAI',
@@ -109,7 +111,7 @@ class TemplateController extends Controller
         $portfolio = Portfolio::with('sections')->findOrFail($portfolioId);
 
         // Verificar que el usuario sea el propietario
-        if ($portfolio->user_id !== auth()->id()) {
+        if ($portfolio->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -124,10 +126,10 @@ class TemplateController extends Controller
     {
         $defaultData = [
             'personal' => [
-                'firstName' => auth()->user()->name,
+                'firstName' => Auth::user()->first_name,
                 'lastName' => '',
                 'title' => '',
-                'email' => auth()->user()->email,
+                'email' => Auth::user()->email,
                 'phone' => '',
                 'location' => '',
                 'website' => '',
@@ -236,7 +238,7 @@ class TemplateController extends Controller
 
     public function updatePortfolio(Request $request, Portfolio $portfolio)
     {
-        if ($portfolio->user_id !== auth()->id()) {
+        if ($portfolio->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -310,7 +312,7 @@ class TemplateController extends Controller
 
             // Validar que la decodificación fue exitosa
             if ($imageData === false) {
-                \Log::error('Error decodificando imagen base64 para portfolio ' . $portfolioId);
+                Log::error('Error decodificando imagen base64 para portfolio ' . $portfolioId);
                 return $photoData;  // ✅ CAMBIO: Retorna el original en caso de error
             }
 
@@ -327,7 +329,7 @@ class TemplateController extends Controller
 
             return '/storage/' . $folderPath . '/' . $filename;
         } catch (\Exception $e) {
-            \Log::error('Error guardando foto de perfil: ' . $e->getMessage());
+            Log::error('Error guardando foto de perfil: ' . $e->getMessage());
             return $photoData;  // ✅ CAMBIO: Retorna el original en caso de excepción
         }
     }
@@ -423,7 +425,7 @@ class TemplateController extends Controller
      */
     public function deletePortfolio(Portfolio $portfolio)
     {
-        if ($portfolio->user_id !== auth()->id()) {
+        if ($portfolio->user_id !== Auth::id()) {
             abort(403);
         }
 
