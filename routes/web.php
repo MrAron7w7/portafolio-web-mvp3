@@ -31,6 +31,12 @@ Route::middleware(['auth', 'verified'])
         require __DIR__.'/editor.php';
     });
 
+// ruta pública pero protegida por firma (signed)
+Route::get('/print/portfolio/{id}', [PortfolioPdfController::class, 'renderForPdf'])
+    ->name('portfolio.print.view')
+    ->middleware('signed'); 
+
+// ruta de descarga
 Route::get('/portfolio/{id}/download-pdf', [PortfolioPdfController::class, 'download'])
     ->name('portfolio.download.pdf');
 

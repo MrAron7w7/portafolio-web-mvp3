@@ -4,43 +4,85 @@ namespace App\Http\Controllers;
 
 use App\Models\Portfolio;
 use Spatie\Browsershot\Browsershot;
-use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
+use Inertia\Inertia;
 
 class PortfolioPdfController extends Controller
 {
-    public function download($id)
+    public function renderForPdf($id)
     {
-        // 1. Buscamos el portafolio
         $portfolio = Portfolio::findOrFail($id);
 
-        // 2. Determinamos qué vista Blade usar según el tipo de template
-        // Ejemplo: si template_type es 'moderna', buscará 'pdf.moderna'
-        $viewName = 'pdf.' . $portfolio->template_type;
+        return Inertia::render('Print/PortfolioPrint', [
+            'portfolio' => $portfolio
+        ]);
+    }
 
-        // Fallback: Si no has creado la vista todavía, usa una por defecto para que no falle
-        if (!View::exists($viewName)) {
-            $viewName = 'pdf.moderna'; // Asegúrate de crear al menos esta primero
+    public function download($id)
+    {
+        $portfolio = Portfolio::findOrFail($id);
+
+        if (env('APP_URL_PDF')) {
+            URL::forceRootUrl(env('APP_URL_PDF'));
         }
 
-        // 3. Renderizar HTML
-        // Pasamos $data directamente para no escribir $portfolio->template_data['personal']... a cada rato
-        $data = $portfolio->template_data;
-        
-        $html = view($viewName, compact('portfolio', 'data'))->render();
+        $targetUrl = URL::temporarySignedRoute(
+            'portfolio.print.view',
+            now()->addMinutes(2),
+            ['id' => $id]
+        );
 
-        // 4. Generar PDF con Browsershot
-        $pdf = Browsershot::html($html)
-            ->setNodeBinary(config('services.browsershot.node_path')) 
+        if (env('APP_URL_PDF')) {
+            URL::forceRootUrl(null);
+        }
+
+        // Primero crea un screenshot temporal para obtener dimensiones
+        $tempBrowsershot = Browsershot::url($targetUrl)
+            ->setNodeBinary(config('services.browsershot.node_path'))
             ->setNpmBinary(config('services.browsershot.npm_path'))
-            ->format('A4')
-            ->margins(0, 0, 0, 0) // Márgenes a 0 porque los manejamos en el CSS (@page)
+            ->windowSize(1200, 800)
+            ->waitUntilNetworkIdle();
+
+        // Obtén las dimensiones usando bodyHtml como truco
+        $bodyScript = <<<'JS'
+            (() => {
+                const width = Math.max(
+                    document.documentElement.scrollWidth,
+                    document.body.scrollWidth
+                );
+                const height = Math.max(
+                    document.documentElement.scrollHeight,
+                    document.body.scrollHeight
+                );
+                return JSON.stringify({width, height});
+            })();
+        JS;
+
+        try {
+            $dimensionsJson = $tempBrowsershot->evaluate($bodyScript);
+            $dimensions = json_decode($dimensionsJson, true);
+        } catch (\Exception $e) {
+            // Si falla, usa dimensiones por defecto
+            $dimensions = ['width' => 1200, 'height' => 3000];
+        }
+
+        // Convierte píxeles a milímetros (96 DPI)
+        $widthMm = max(317, ceil($dimensions['width'] * 0.2645833333)); // Mínimo A4 ancho
+        $heightMm = max(500, ceil($dimensions['height'] * 0.2645833333)); // Mínimo 500mm
+
+        // Genera el PDF con las dimensiones personalizadas
+        $pdf = Browsershot::url($targetUrl)
+            ->setNodeBinary(config('services.browsershot.node_path'))
+            ->setNpmBinary(config('services.browsershot.npm_path'))
+            ->paperSize($widthMm, $heightMm, 'mm')
+            ->margins(0, 0, 0, 0)
             ->showBackground()
-            ->windowSize(1280, 1024)
             ->waitUntilNetworkIdle()
+            ->emulateMediaType('screen')
             ->pdf();
 
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="portafolio-'.$portfolio->slug.'.pdf"');
+            ->header('Content-Disposition', 'attachment; filename="portafolio-' . $portfolio->slug . '.pdf"');
     }
 }
