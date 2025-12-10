@@ -122,6 +122,30 @@ class TemplateController extends Controller
         ]);
     }
 
+    /**
+     * Vista del portafolio terminado
+     */
+    public function viewPortfolio(Portfolio $portfolio)
+    {
+        // Verificar acceso: dueño o portafolio público
+        $isOwner = Auth::check() && $portfolio->user_id === Auth::id();
+        
+        if (!$portfolio->is_public && !$isOwner) {
+            abort(404);
+        }
+
+        // URL pública del portafolio
+        $publicUrl = $portfolio->is_public 
+            ? url("/p/{$portfolio->slug}") 
+            : null;
+
+        return Inertia::render('Dashboard/Porfolios/View_Template/Final', [
+            'portfolio' => $portfolio,
+            'isOwner' => $isOwner,
+            'publicUrl' => $publicUrl,
+        ]);
+    }
+
     private function getTemplateDefaultData($templateType)
     {
         $defaultData = [
