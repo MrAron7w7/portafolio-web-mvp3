@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\TemplateController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/plantillas', [TemplateController::class, 'Template'])
     ->name('template');
@@ -13,3 +14,6 @@ Route::get('/portfolio/{portfolio}/editor', [TemplateController::class, 'EditorT
 
 Route::put('/portfolio/{portfolio}', [TemplateController::class, 'updatePortfolio'])
     ->name('portfolio.update');
+
+Route::delete('/portfolio/{portfolio}', [TemplateController::class, 'deletePortfolio'])
+    ->name('portfolio.delete');
