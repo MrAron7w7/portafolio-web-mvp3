@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Portfolio;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $portfolios = Portfolio::where('user_id', auth()->id())
+        $portfolios = Portfolio::where('user_id', Auth::id())
             ->latest()
             ->get(['id', 'title', 'description', 'template_type', 'is_public', 'is_completed', 'created_at'])
             ->map(fn ($p) => [
