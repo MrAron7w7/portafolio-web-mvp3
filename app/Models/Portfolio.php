@@ -8,6 +8,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $title
+ * @property string $slug
+ * @property string|null $description
+ * @property string $template_type
+ * @property array|null $template_data
+ * @property bool $is_public
+ * @property bool $is_active
+ * @property bool $is_completed
+ * @property string|null $custom_domain
+ * @property array|null $theme_settings
+ * @property array|null $seo_metadata
+ * @property \Carbon\Carbon|null $published_at
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon|null $deleted_at
+ * @property-read \App\Models\User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PortfolioSection[] $sections
+ */
 class Portfolio extends Model
 {
     use HasFactory, SoftDeletes;
