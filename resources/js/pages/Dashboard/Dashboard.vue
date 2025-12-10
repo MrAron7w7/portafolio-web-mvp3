@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import dashboard from '@/routes/dashboard';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import {
+    Calendar,
+    Download,
+    Edit,
+    Eye,
     Folder,
     Menu,
     Plus,
@@ -9,9 +13,22 @@ import {
     Trash2,
 } from 'lucide-vue-next';
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 
-// Datos del usuario
+// Props que vienen del backend
+const props = defineProps<{
+    portfolios: Array<{
+        id: number;
+        title: string;
+        description: string;
+        template_type: string;
+        createdAt: string;
+        status: string;
+        statusColor: string;
+        is_public: boolean;
+        is_completed: boolean;
+    }>;
+}>();
 
 // Datos del usuario
 const page = usePage();
@@ -26,58 +43,33 @@ const user = computed(() => ({
 }));
 
 // Métricas del dashboard
-const metrics = ref([
+const metrics = computed(() => [
     {
         title: 'Portafolios creados',
-        value: '3',
+        value: props.portfolios.length.toString(),
         icon: Folder,
         color: 'bg-blue-500',
     },
 ]);
 
-// Portafolios del usuario
-const portfolios = ref([
-    {
-        id: 1,
-        title: 'Portafolio Personal',
-        description: 'Mi portafolio profesional como diseñador UX/UI',
-        image: 'Design',
-        createdAt: '15 Ene 2024',
-        status: 'publicado',
-        statusColor: 'bg-green-100 text-green-800',
-        views: 124,
-        progress: 100,
-    },
-    {
-        id: 2,
-        title: 'Proyecto Freelance',
-        description: 'Trabajos de diseño para clientes independientes',
-        image: 'Work',
-        createdAt: '10 Ene 2024',
-        status: 'finalizado',
-        statusColor: 'bg-blue-100 text-blue-800',
-        views: 67,
-        progress: 100,
-    },
-    {
-        id: 3,
-        title: 'Portafolio Académico',
-        description: 'Proyectos universitarios y de investigación',
-        image: 'Book',
-        createdAt: '05 Ene 2024',
-        status: 'borrador',
-        statusColor: 'bg-gray-100 text-gray-800',
-        views: 0,
-        progress: 65,
-    },
-]);
+// Portafolios del usuario (desde props)
+const portfolios = computed(() => props.portfolios);
 
-// Estado vacío para probar
-const hasPortfolios = ref(true);
+// Estado vacío - mostrar cuando no hay portafolios
+const hasPortfolios = computed(() => portfolios.value.length > 0);
 
 // Función para eliminar portafolio
 const deletePortfolio = (portfolioId: number) => {
-    portfolios.value = portfolios.value.filter((p) => p.id !== portfolioId);
+    if (confirm('¿Estás seguro de eliminar este portafolio?')) {
+        router.delete(`/dashboard/portfolio/${portfolioId}`, {
+            preserveScroll: true,
+        });
+    }
+};
+
+// Función para editar portafolio
+const editPortfolio = (portfolioId: number) => {
+    router.visit(`/dashboard/portfolio/${portfolioId}/editor`);
 };
 </script>
 
@@ -227,7 +219,7 @@ const deletePortfolio = (portfolioId: number) => {
                                     <div
                                         class="text-4xl font-semibold text-white opacity-90"
                                     >
-                                        {{ portfolio.image.charAt(0) }}
+                                        {{ portfolio.template_type?.charAt(0)?.toUpperCase() || 'P' }}
                                     </div>
                                 </div>
                                 <!-- Badge de estado -->
@@ -241,16 +233,13 @@ const deletePortfolio = (portfolioId: number) => {
                                         {{ portfolio.status }}
                                     </span>
                                 </div>
-                                <!-- Progress bar para borradores -->
+                                <!-- Indicador de borrador -->
                                 <div
                                     v-if="portfolio.status === 'borrador'"
                                     class="absolute right-0 bottom-0 left-0 h-1.5 bg-gray-200/50"
                                 >
                                     <div
-                                        class="h-1.5 bg-white transition-all duration-500"
-                                        :style="{
-                                            width: portfolio.progress + '%',
-                                        }"
+                                        class="h-1.5 bg-white w-1/2 transition-all duration-500"
                                     ></div>
                                 </div>
                             </div>
@@ -290,6 +279,7 @@ const deletePortfolio = (portfolioId: number) => {
                                 >
                                     <div class="flex space-x-1">
                                         <button
+                                            @click="editPortfolio(portfolio.id)"
                                             class="rounded-lg p-2 text-gray-400 transition-colors duration-200 hover:bg-blue-50 hover:text-[#005aeb]"
                                             title="Editar"
                                         >
