@@ -32,6 +32,7 @@ class HandleInertiaRequests extends Middleware
                     'email' => $request->user()->email,
                     'avatar_url' => $this->getUserAvatar($request->user()),
                 ] : null,
+                'roles' => $request->user() ? $request->user()->getRoleNames()->toArray() : [],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
