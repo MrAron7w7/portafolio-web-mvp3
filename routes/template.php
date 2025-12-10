@@ -15,5 +15,8 @@ Route::get('/portfolio/{portfolio}/editor', [TemplateController::class, 'EditorT
 Route::put('/portfolio/{portfolio}', [TemplateController::class, 'updatePortfolio'])
     ->name('portfolio.update');
 
+Route::get('/portfolio/{portfolio}/view', [TemplateController::class, 'viewPortfolio'])
+    ->name('portfolio.view');
+
 Route::delete('/portfolio/{portfolio}', [TemplateController::class, 'deletePortfolio'])
     ->name('portfolio.delete');
