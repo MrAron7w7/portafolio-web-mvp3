@@ -217,7 +217,7 @@ const removePhoto = () => {
                 <p v-if="personalErrors.phone" class="mt-2 text-sm text-red-500">
                     {{ personalErrors.phone }}
                 </p>
-                <p class="mt-2 text-sm text-gray-500">Opcional - Te contactaremos a este número si lo deseas</p>
+                <p class="mt-2 text-sm text-gray-500">Opcional - Número al que puedes ser llamado</p>
             </div>
 
 
