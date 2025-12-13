@@ -1,115 +1,144 @@
-<script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+<script setup>
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-// Estado para el menú móvil
-const mobileMenuOpen = ref(false);
+const page = usePage();
 
-// Mouse tracking para efectos parallax y magnetic
+// Acceder a settings globales (simplificado como "s")
+const s = computed(() => page.props.app_settings || {});
+
+// Función para convertir HEX a RGB
+const hexToRgb = (hex) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : { r: 0, g: 90, b: 235 };
+};
+
+// Colores RGB computados para transparencias
+const primaryRgb = computed(() => hexToRgb(s.value.primary_color || '#005aeb'));
+const secondaryRgb = computed(() => hexToRgb(s.value.secondary_color || '#7B2FF7'));
+
+// Estilos CSS dinámicos inyectados
+const dynamicStyles = computed(() => ({
+    '--primary': s.value.primary_color || '#005aeb',
+    '--primary-dark': s.value.primary_color ? `color-mix(in srgb, ${s.value.primary_color} 80%, black)` : '#0048c4',
+    '--secondary': s.value.secondary_color || '#7B2FF7',
+    '--primary-rgb': `${primaryRgb.value.r}, ${primaryRgb.value.g}, ${primaryRgb.value.b}`,
+    '--secondary-rgb': `${secondaryRgb.value.r}, ${secondaryRgb.value.g}, ${secondaryRgb.value.b}`,
+}));
+
+// Estados del componente
+const mobileMenuOpen = ref(false);
 const mouseX = ref(0);
 const mouseY = ref(0);
-
-// Carousel de testimonios
 const currentTestimonial = ref(0);
-const autoPlayInterval = ref<number | null>(null);
+const autoPlayInterval = ref(null);
 
-// Stats counters
+// Stats con valores dinámicos desde BD
 const stats = ref([
-    { value: 0, target: 15000, label: 'Usuarios Activos', suffix: '+' },
-    { value: 0, target: 50000, label: 'Portafolios Creados', suffix: '+' },
-    { value: 0, target: 98, label: 'Satisfacción', suffix: '%' },
-]);
-
-// Datos de beneficios con stats
-const benefits = ref([
-    {
-        icon: '🤖',
-        title: 'Diseño Automático con IA',
-        description:
-            'Nuestra inteligencia artificial crea diseños únicos y profesionales basados en tu perfil.',
-        stat: '2min',
-        statLabel: 'Creación promedio',
+    { 
+        value: 0, 
+        target: parseInt(s.value.stats_users_count) || 15000, 
+        label: s.value.stats_users_label || 'Usuarios Activos', 
+        suffix: '+' 
     },
-    {
-        icon: '🎨',
-        title: 'Plantillas Profesionales',
-        description:
-            'Elige entre múltiples plantillas modernas y adaptables a cualquier industria.',
-        stat: '50+',
-        statLabel: 'Plantillas disponibles',
+    { 
+        value: 0, 
+        target: parseInt(s.value.stats_portfolios_count) || 50000, 
+        label: s.value.stats_portfolios_label || 'Portafolios Creados', 
+        suffix: '+' 
     },
-    {
-        icon: '🚀',
-        title: 'Exportación y Hosting',
-        description:
-            'Publica tu portafolio al instante con hosting incluido y dominio personalizable.',
-        stat: '99.9%',
-        statLabel: 'Uptime garantizado',
-    },
-    {
-        icon: '⚙️',
-        title: 'Personalización Total',
-        description:
-            'Ajusta colores, fuentes y disposición para que refleje tu estilo personal.',
-        stat: '∞',
-        statLabel: 'Posibilidades',
+    { 
+        value: 0, 
+        target: parseInt(s.value.stats_satisfaction_count) || 98, 
+        label: s.value.stats_satisfaction_label || 'Satisfacción', 
+        suffix: '%' 
     },
 ]);
 
-// Datos de cómo funciona
-const steps = ref([
+// Beneficios dinámicos desde BD
+const benefits = computed(() => [
+    {
+        icon: s.value.feature_1_icon || '🤖',
+        title: s.value.feature_1_title || 'Diseño Automático con IA',
+        description: s.value.feature_1_description || 'IA crea diseños únicos.',
+        stat: s.value.feature_1_stat || '2min',
+        statLabel: s.value.feature_1_stat_label || 'Creación promedio',
+    },
+    {
+        icon: s.value.feature_2_icon || '🎨',
+        title: s.value.feature_2_title || 'Plantillas Profesionales',
+        description: s.value.feature_2_description || 'Múltiples plantillas modernas.',
+        stat: s.value.feature_2_stat || '50+',
+        statLabel: s.value.feature_2_stat_label || 'Plantillas disponibles',
+    },
+    {
+        icon: s.value.feature_3_icon || '🚀',
+        title: s.value.feature_3_title || 'Exportación y Hosting',
+        description: s.value.feature_3_description || 'Hosting incluido.',
+        stat: s.value.feature_3_stat || '99.9%',
+        statLabel: s.value.feature_3_stat_label || 'Uptime garantizado',
+    },
+    {
+        icon: s.value.feature_4_icon || '⚙️',
+        title: s.value.feature_4_title || 'Personalización Total',
+        description: s.value.feature_4_description || 'Ajusta todo a tu estilo.',
+        stat: s.value.feature_4_stat || '∞',
+        statLabel: s.value.feature_4_stat_label || 'Posibilidades',
+    },
+]);
+
+// Steps dinámicos desde BD
+const steps = computed(() => [
     {
         step: '1',
-        title: 'Cuéntanos sobre ti',
-        description:
-            'Completa tu información profesional, experiencia y proyectos destacados.',
+        title: s.value.step_1_title || 'Cuéntanos sobre ti',
+        description: s.value.step_1_description || 'Completa tu información profesional.',
         image: '📝',
     },
     {
         step: '2',
-        title: 'IA genera tu portafolio',
-        description:
-            'Nuestra inteligencia artificial diseña automáticamente tu portafolio perfecto.',
+        title: s.value.step_2_title || 'IA genera tu portafolio',
+        description: s.value.step_2_description || 'IA diseña automáticamente.',
         image: '✨',
     },
     {
         step: '3',
-        title: 'Publica y comparte',
-        description:
-            'Comparte tu portafolio profesional con el mundo en minutos.',
+        title: s.value.step_3_title || 'Publica y comparte',
+        description: s.value.step_3_description || 'Comparte con el mundo.',
         image: '🌐',
     },
 ]);
 
-// Datos de testimonios
+// Testimonios (hardcoded por ahora, futura expansión)
 const testimonials = ref([
     {
         name: 'María González',
         role: 'Diseñadora UX/UI',
-        content:
-            'Increíble cómo la IA entendió exactamente lo que necesitaba. Mi portafolio nunca se había visto tan profesional.',
+        content: 'Increíble cómo la IA entendió exactamente lo que necesitaba. Mi portafolio nunca se había visto tan profesional.',
         avatar: '👩‍💼',
         rating: 5,
     },
     {
         name: 'Carlos Rodríguez',
         role: 'Desarrollador Full Stack',
-        content:
-            'En 15 minutos tenía un portafolio que normalmente me hubiera tomado días diseñar. Totalmente recomendado.',
+        content: 'En 15 minutos tenía un portafolio que normalmente me hubiera tomado días diseñar. Totalmente recomendado.',
         avatar: '👨‍💻',
         rating: 5,
     },
     {
         name: 'Ana Martínez',
         role: 'Marketing Digital',
-        content:
-            'El proceso fue tan sencillo y el resultado superó mis expectativas. He conseguido 3 entrevistas gracias a mi nuevo portafolio.',
+        content: 'El proceso fue tan sencillo y el resultado superó mis expectativas. He conseguido 3 entrevistas gracias a mi nuevo portafolio.',
         avatar: '👩‍🎓',
         rating: 5,
     },
 ]);
 
-// Planes de precios
+// Planes (hardcoded por ahora)
 const plans = ref([
     {
         name: 'Gratis',
@@ -156,25 +185,19 @@ const plans = ref([
     },
 ]);
 
-// Computed para parallax
 const parallaxStyle = computed(() => ({
     transform: `translate(${mouseX.value * 0.02}px, ${mouseY.value * 0.02}px)`,
 }));
 
-// Funciones de carousel
 const nextTestimonial = () => {
-    currentTestimonial.value =
-        (currentTestimonial.value + 1) % testimonials.value.length;
+    currentTestimonial.value = (currentTestimonial.value + 1) % testimonials.value.length;
 };
 
 const prevTestimonial = () => {
-    currentTestimonial.value =
-        currentTestimonial.value === 0
-            ? testimonials.value.length - 1
-            : currentTestimonial.value - 1;
+    currentTestimonial.value = currentTestimonial.value === 0 ? testimonials.value.length - 1 : currentTestimonial.value - 1;
 };
 
-const goToTestimonial = (index: number) => {
+const goToTestimonial = (index) => {
     currentTestimonial.value = index;
 };
 
@@ -189,8 +212,7 @@ const stopAutoPlay = () => {
     }
 };
 
-// Animación de stats counter
-const animateCounter = (stat: any) => {
+const animateCounter = (stat) => {
     const duration = 2000;
     const steps = 60;
     const increment = stat.target / steps;
@@ -207,33 +229,27 @@ const animateCounter = (stat: any) => {
     }, duration / steps);
 };
 
-// Mouse tracking
-const handleMouseMove = (e: MouseEvent) => {
+const handleMouseMove = (e) => {
     mouseX.value = (e.clientX / window.innerWidth - 0.5) * 20;
     mouseY.value = (e.clientY / window.innerHeight - 0.5) * 20;
 };
 
-// 3D Tilt effect para cards
-const handleCardTilt = (e: MouseEvent, card: HTMLElement) => {
+const handleCardTilt = (e, card) => {
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-
     const rotateX = ((y - centerY) / centerY) * -10;
     const rotateY = ((x - centerX) / centerX) * 10;
-
     card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
 };
 
-const resetCardTilt = (card: HTMLElement) => {
+const resetCardTilt = (card) => {
     card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
 };
 
 onMounted(() => {
-    // Scroll animations
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -100px 0px',
@@ -244,8 +260,6 @@ onMounted(() => {
             if (entry.isIntersecting) {
                 setTimeout(() => {
                     entry.target.classList.add('animate-fade-in');
-                    
-                    // Trigger stats counter si es la sección de stats
                     if (entry.target.classList.contains('stats-section')) {
                         stats.value.forEach(stat => animateCounter(stat));
                     }
@@ -254,26 +268,16 @@ onMounted(() => {
         });
     }, observerOptions);
 
-    document.querySelectorAll('.scroll-animate').forEach((el) => {
-        observer.observe(el);
-    });
-
-    // Mouse tracking
+    document.querySelectorAll('.scroll-animate').forEach((el) => observer.observe(el));
     window.addEventListener('mousemove', handleMouseMove);
-
-    // Auto-play carousel
     startAutoPlay();
 
-    // 3D Tilt setup
     document.querySelectorAll('.tilt-card').forEach((card) => {
-        const element = card as HTMLElement;
-        element.addEventListener('mousemove', (e) =>
-            handleCardTilt(e as MouseEvent, element),
-        );
+        const element = card;
+        element.addEventListener('mousemove', (e) => handleCardTilt(e, element));
         element.addEventListener('mouseleave', () => resetCardTilt(element));
     });
 
-    // Smooth scroll con offset para header fixed
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
         anchor.addEventListener('click', function (e) {
             const href = this.getAttribute('href');
@@ -282,14 +286,10 @@ onMounted(() => {
                 const targetId = href.substring(1);
                 const targetElement = document.getElementById(targetId);
                 if (targetElement) {
-                    const headerOffset = 80; // altura del header
+                    const headerOffset = 80;
                     const elementPosition = targetElement.getBoundingClientRect().top;
                     const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                    window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'smooth'
-                    });
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
                 }
             }
         });
@@ -303,372 +303,190 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Head title="Inicio" />
-    <div class="min-h-screen bg-white font-sans">
-        <!-- Header -->
-        <header
-            class="fixed z-50 w-full bg-white/95 shadow-sm backdrop-blur-md transition-all duration-300"
-        >
+    <Head :title="s.hero_title_1 || 'Inicio'" />
+    
+    <!-- ROOT DIV CON INYECCIÓN DE COLORES DINÁMICOS -->
+    <div class="min-h-screen bg-white font-sans" :style="dynamicStyles">
+        
+        <!-- ========== HEADER ========== -->
+        <header class="fixed z-50 w-full bg-white/95 shadow-sm backdrop-blur-md transition-all duration-300">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between py-4">
                     <!-- Logo -->
                     <div class="flex items-center space-x-2">
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#005aeb] to-[#0048c4] shadow-lg"
-                        >
-                            <span class="text-sm font-bold text-white">P</span>
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] shadow-lg">
+                            <span class="text-sm font-bold text-white">{{ (s.app_name || 'P')[0] }}</span>
                         </div>
-                        <span class="text-xl font-bold text-gray-900"
-                            >PortafolioAI</span
-                        >
+                        <span class="text-xl font-bold text-gray-900">{{ s.app_name || 'PortafolioAI' }}</span>
                     </div>
 
-                    <!-- Menú Desktop -->
+                    <!-- Desktop Nav -->
                     <nav class="hidden items-center space-x-8 md:flex">
-                        <a
-                            href="#inicio"
-                            class="font-medium text-gray-700 transition-all duration-200 hover:text-[#005aeb] hover:scale-105"
-                            >Inicio</a
-                        >
-                        <a
-                            href="#beneficios"
-                            class="font-medium text-gray-700 transition-all duration-200 hover:text-[#005aeb] hover:scale-105"
-                            >Funciones</a
-                        >
-                        <a
-                            href="#planes"
-                            class="font-medium text-gray-700 transition-all duration-200 hover:text-[#005aeb] hover:scale-105"
-                            >Planes</a
-                        >
-                        <a
-                            href="#testimonios"
-                            class="font-medium text-gray-700 transition-all duration-200 hover:text-[#005aeb] hover:scale-105"
-                            >Testimonios</a
-                        >
-                        <a
-                            href="#contacto"
-                            class="font-medium text-gray-700 transition-all duration-200 hover:text-[#005aeb] hover:scale-105"
-                            >Contacto</a
-                        >
+                        <a href="#inicio" class="font-medium text-gray-700 transition-all duration-200 hover:text-[var(--primary)] hover:scale-105">Inicio</a>
+                        <a href="#beneficios" class="font-medium text-gray-700 transition-all duration-200 hover:text-[var(--primary)] hover:scale-105">Funciones</a>
+                        <a href="#planes" class="font-medium text-gray-700 transition-all duration-200 hover:text-[var(--primary)] hover:scale-105">Planes</a>
+                        <a href="#testimonios" class="font-medium text-gray-700 transition-all duration-200 hover:text-[var(--primary)] hover:scale-105">Testimonios</a>
+                        <a href="#contacto" class="font-medium text-gray-700 transition-all duration-200 hover:text-[var(--primary)] hover:scale-105">Contacto</a>
                     </nav>
 
                     <!-- Botones Desktop -->
                     <div class="hidden items-center space-x-4 md:flex">
-                        <a
-                            href="/login"
-                            class="font-medium text-gray-700 transition-all duration-200 hover:text-[#005aeb] hover:scale-105"
-                            >Iniciar Sesión</a
-                        >
-                        <a
-                            href="/register"
-                            class="group relative overflow-hidden rounded-lg bg-[#005aeb] px-6 py-2 font-medium text-white shadow-lg transition-all duration-300 hover:bg-[#0048c4] hover:shadow-xl hover:scale-105"
-                        >
+                        <a href="/login" class="font-medium text-gray-700 transition-all duration-200 hover:text-[var(--primary)] hover:scale-105">Iniciar Sesión</a>
+                        <a href="/register" class="group relative overflow-hidden rounded-lg bg-[var(--primary)] px-6 py-2 font-medium text-white shadow-lg transition-all duration-300 hover:bg-[var(--primary-dark)] hover:shadow-xl hover:scale-105">
                             <span class="relative z-10">Crear Portafolio</span>
-                            <div
-                                class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-                            ></div>
+                            <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"></div>
                         </a>
                     </div>
 
-                    <!-- Menú Móvil -->
-                    <button
-                        @click="mobileMenuOpen = !mobileMenuOpen"
-                        class="rounded-lg p-2 transition-all duration-200 hover:bg-gray-100 md:hidden"
-                    >
+                    <!-- Mobile Menu Button -->
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="rounded-lg p-2 transition-all duration-200 hover:bg-gray-100 md:hidden">
                         <span class="text-2xl">☰</span>
                     </button>
                 </div>
 
-                <!-- Menú Móvil Desplegable -->
-                <div
-                    v-if="mobileMenuOpen"
-                    class="animate-fade-in border-t border-gray-200 py-4 md:hidden"
-                >
+                <!-- Mobile Menu -->
+                <div v-if="mobileMenuOpen" class="animate-fade-in border-t border-gray-200 py-4 md:hidden">
                     <div class="flex flex-col space-y-4">
-                        <a
-                            href="#inicio"
-                            class="font-medium text-gray-700 transition-colors duration-200 hover:text-[#005aeb]"
-                            >Inicio</a
-                        >
-                        <a
-                            href="#beneficios"
-                            class="font-medium text-gray-700 transition-colors duration-200 hover:text-[#005aeb]"
-                            >Funciones</a
-                        >
-                        <a
-                            href="#planes"
-                            class="font-medium text-gray-700 transition-colors duration-200 hover:text-[#005aeb]"
-                            >Planes</a
-                        >
-                        <a
-                            href="#testimonios"
-                            class="font-medium text-gray-700 transition-colors duration-200 hover:text-[#005aeb]"
-                            >Testimonios</a
-                        >
-                        <a
-                            href="#contacto"
-                            class="font-medium text-gray-700 transition-colors duration-200 hover:text-[#005aeb]"
-                            >Contacto</a
-                        >
+                        <a href="#inicio" class="font-medium text-gray-700">Inicio</a>
+                        <a href="#beneficios" class="font-medium text-gray-700">Funciones</a>
+                        <a href="#planes" class="font-medium text-gray-700">Planes</a>
+                        <a href="#testimonios" class="font-medium text-gray-700">Testimonios</a>
+                        <a href="#contacto" class="font-medium text-gray-700">Contacto</a>
                         <div class="space-y-3 border-t border-gray-200 pt-4">
-                            <a
-                                href="/login"
-                                class="block font-medium text-gray-700 transition-colors duration-200 hover:text-[#005aeb]"
-                                >Iniciar Sesión</a
-                            >
-                            <a
-                                href="/register"
-                                class="block rounded-lg bg-[#005aeb] px-6 py-3 text-center font-medium text-white transition-colors duration-200 hover:bg-[#0048c4]"
-                            >
+                            <a href="/login" class="block font-medium text-gray-700">Iniciar Sesión</a>
+                            <a href="/register" class="block rounded-lg bg-[var(--primary)] px-6 py-3 text-center font-medium text-white">
                                 Crear Portafolio
                             </a>
                         </div>
-```
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Hero Section con Mesh Gradient -->
-        <section
-            id="inicio"
-            class="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#005aeb]/10 via-white to-[#7B2FF7]/10 pt-32 pb-20"
-        >
-            <!-- Mesh gradient animado de fondo -->
+        <!-- ========== HERO SECTION ========== -->
+        <section id="inicio" class="relative min-h-screen overflow-hidden pt-32 pb-20" style="background: linear-gradient(to bottom right, rgba(var(--primary-rgb), 0.1), white, rgba(var(--secondary-rgb), 0.1))">
+            <!-- Mesh gradient animado -->
             <div class="absolute inset-0 opacity-40">
                 <div class="mesh-gradient"></div>
             </div>
 
-            <!-- Partículas orb con parallax -->
-            <div
-                :style="parallaxStyle"
-                class="pointer-events-none absolute top-20 left-10 h-96 w-96 animate-float rounded-full bg-gradient-to-br from-[#005aeb]/30 to-[#7B2FF7]/20 blur-3xl"
-            ></div>
-            <div
-                :style="parallaxStyle"
-                class="pointer-events-none absolute bottom-20 right-10 h-96 w-96 animate-float-delayed rounded-full bg-gradient-to-br from-[#7B2FF7]/30 to-[#005aeb]/20 blur-3xl"
-            ></div>
+            <!-- Orbs parallax -->
+            <div :style="parallaxStyle" class="pointer-events-none absolute top-20 left-10 h-96 w-96 animate-float rounded-full blur-3xl" style="background: linear-gradient(to bottom right, rgba(var(--primary-rgb), 0.3), rgba(var(--secondary-rgb), 0.2))"></div>
+            <div :style="parallaxStyle" class="pointer-events-none absolute bottom-20 right-10 h-96 w-96 animate-float-delayed rounded-full blur-3xl" style="background: linear-gradient(to bottom right, rgba(var(--secondary-rgb), 0.3), rgba(var(--primary-rgb), 0.2))"></div>
 
             <div class="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid items-center gap-12 lg:grid-cols-2 min-h-[80vh]">
-                    <!-- Texto con animaciones -->
+                    <!-- Texto Hero -->
                     <div class="scroll-animate">
-                        <h1
-                            class="mb-6 text-5xl font-extrabold leading-tight text-gray-900 sm:text-6xl lg:text-7xl"
-                        >
-                            Crea tu Portafolio
+                        <h1 class="mb-6 text-5xl font-extrabold leading-tight text-gray-900 sm:text-6xl lg:text-7xl">
+                            {{ s.hero_title_1 || 'Crea tu Portafolio' }}
                             <br />
-                            Profesional en
-                            <span
-                                class="relative inline-block">
-                                <span
-                                    class="bg-gradient-to-r from-[#005aeb] via-[#7B2FF7] to-[#005aeb] bg-clip-text text-transparent animate-gradient-x"
-                                    >Minutos con IA</span
-                                >
-                                <div
-                                    class="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-[#005aeb] via-[#7B2FF7] to-[#005aeb] animate-gradient-x"
-                                ></div>
+                            {{ s.hero_title_2 || 'Profesional en' }}
+                            <span class="relative inline-block">
+                                <span class="bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--primary)] bg-clip-text text-transparent animate-gradient-x" style="background-size: 200%">
+                                    {{ s.hero_title_highlight || 'Minutos con IA' }}
+                                </span>
+                                <div class="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--primary)] animate-gradient-x" style="background-size: 200%"></div>
                             </span>
                         </h1>
-                        <p
-                            class="mb-8 text-xl leading-relaxed text-gray-700 max-w-xl"
-                        >
-                            Genera un portafolio moderno, personalizable y listo
-                            para compartir, sin conocimientos de diseño. Destaca
-                            entre la multitud con ayuda de inteligencia
-                            artificial.
+                        <p class="mb-8 text-xl leading-relaxed text-gray-700 max-w-xl">
+                            {{ s.hero_description || 'Genera un portafolio moderno y personalizable.' }}
                         </p>
 
                         <!-- Stats inline -->
-        <div class="mb-8 flex flex-wrap gap-6">
-                            <div
-                                v-for="(stat, index) in stats"
-                                :key="index"
-                                class="stats-section scroll-animate"
-                            >
-                                <div
-                                    class="text-3xl font-bold bg-gradient-to-r from-[#005aeb] to-[#7B2FF7] bg-clip-text text-transparent"
-                                >
-                                    {{ stat.value.toLocaleString()
-                                    }}{{ stat.suffix }}
+                        <div class="mb-8 flex flex-wrap gap-6">
+                            <div v-for="(stat, index) in stats" :key="index" class="stats-section scroll-animate">
+                                <div class="text-3xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+                                    {{ stat.value.toLocaleString() }}{{ stat.suffix }}
                                 </div>
-                                <div class="text-sm text-gray-600">
-                                    {{ stat.label }}
-                                </div>
+                                <div class="text-sm text-gray-600">{{ stat.label }}</div>
                             </div>
                         </div>
 
                         <div class="flex flex-col gap-4 sm:flex-row">
-                            <a
-                                href="/register"
-                                class="magnetic-button group relative overflow-hidden rounded-xl bg-gradient-to-r from-[#005aeb] to-[#0048c4] px-8 py-4 text-center font-bold text-white shadow-2xl transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,90,235,0.4)] hover:scale-105"
-                            >
-                                <span class="relative z-10"
-                                    >Crear mi Portafolio Ahora</span
-                                >
-                                <div
-                                    class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-                                ></div>
+                            <a href="/register" class="group relative overflow-hidden rounded-xl px-8 py-4 text-center font-bold text-white shadow-2xl transition-all duration-300 hover:scale-105" style="background: linear-gradient(to right, var(--primary), var(--primary-dark))">
+                                <span class="relative z-10">{{ s.hero_cta_main || 'Crear mi Portafolio Ahora' }}</span>
+                                <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full"></div>
                             </a>
-                            <a
-                                href="#ejemplos"
-                                class="group rounded-xl border-2 border-gray-300 bg-white/50 backdrop-blur-sm px-8 py-4 text-center font-bold text-gray-900 transition-all duration-300 hover:border-[#005aeb] hover:bg-[#005aeb]/5 hover:scale-105"
-                            >
-                                Ver Ejemplos
+                            <a href="#ejemplos" class="group rounded-xl border-2 border-gray-300 bg-white/50 backdrop-blur-sm px-8 py-4 text-center font-bold text-gray-900 transition-all duration-300 hover:border-[var(--primary)] hover:scale-105" style="hover:background: rgba(var(--primary-rgb), 0.05)">
+                                {{ s.hero_cta_secondary || 'Ver Ejemplos' }}
                             </a>
                         </div>
                     </div>
 
-                    <!-- Hero Card con Glassmorphism Premium -->
+                    <!-- Hero Card -->
                     <div class="scroll-animate">
                         <div class="relative">
-                            <div
-                                class="group transform rounded-3xl bg-white/60 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl border border-white/20 transition-all duration-700 hover:scale-105 hover:shadow-[0_20px_60px_rgba(0,90,235,0.3)]"
-                            >
-                                <div
-                                    class="rounded-2xl bg-gradient-to-br from-[#005aeb] via-[#0048c4] to-[#7B2FF7] p-8 text-white shadow-2xl relative overflow-hidden"
-                                >
-                                    <!-- Pattern overlay -->
-                                    <div
-                                        class="absolute inset-0 opacity-10"
-                                        style="
-                                            background-image: radial-gradient(
-                                                circle,
-                                                white 1px,
-                                                transparent 1px
-                                            );
-                                            background-size: 20px 20px;
-                                        "
-                                    ></div>
-
-                                    <div
-                                        class="relative z-10 mb-6 flex items-start justify-between"
-                                    >
+                            <div class="group transform rounded-3xl bg-white/60 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-2xl border border-white/20 transition-all duration-700 hover:scale-105">
+                                <div class="rounded-2xl p-8 text-white shadow-2xl relative overflow-hidden" style="background: linear-gradient(to bottom right, var(--primary), var(--primary-dark), var(--secondary))">
+                                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;"></div>
+                                    
+                                    <div class="relative z-10 mb-6 flex items-start justify-between">
                                         <div>
-                                            <h3
-                                                class="text-3xl font-bold mb-2"
-                                            >
-                                                María González
-                                            </h3>
-                                            <p class="text-blue-100">
-                                                Diseñadora UX/UI & Product
-                                                Designer
-                                            </p>
+                                            <h3 class="text-3xl font-bold mb-2">María González</h3>
+                                            <p class="text-blue-100">Diseñadora UX/UI & Product Designer</p>
                                         </div>
-                                        <div
-                                            class="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/30 backdrop-blur-md border border-white/20 shadow-lg"
-                                        >
+                                        <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/30 backdrop-blur-md border border-white/20 shadow-lg">
                                             <span class="text-3xl">👩‍💻</span>
                                         </div>
                                     </div>
-                                    <div
-                                        class="relative z-10 mb-6 grid grid-cols-2 gap-4"
-                                    >
-                                        <div
-                                            class="rounded-xl bg-white/20 p-4 text-center backdrop-blur-sm border border-white/20 transition-all duration-300 hover:bg-white/30 hover:scale-105"
-                                        >
-                                            <p class="text-sm mb-1">
-                                                Proyectos
-                                            </p>
-                                            <p class="text-2xl font-bold">
-                                                24+
-                                            </p>
+                                    
+                                    <div class="relative z-10 mb-6 grid grid-cols-2 gap-4">
+                                        <div class="rounded-xl bg-white/20 p-4 text-center backdrop-blur-sm border border-white/20 transition-all duration-300 hover:bg-white/30 hover:scale-105">
+                                            <p class="text-sm mb-1">Proyectos</p>
+                                            <p class="text-2xl font-bold">24+</p>
                                         </div>
-                                        <div
-                                            class="rounded-xl bg-white/20 p-4 text-center backdrop-blur-sm border border-white/20 transition-all duration-300 hover:bg-white/30 hover:scale-105"
-                                        >
-                                            <p class="text-sm mb-1">
-                                                Experiencia
-                                            </p>
-                                            <p class="text-2xl font-bold">
-                                                5 años
-                                            </p>
+                                        <div class="rounded-xl bg-white/20 p-4 text-center backdrop-blur-sm border border-white/20 transition-all duration-300 hover:bg-white/30 hover:scale-105">
+                                            <p class="text-sm mb-1">Experiencia</p>
+                                            <p class="text-2xl font-bold">5 años</p>
                                         </div>
                                     </div>
-                                    <div
-                                        class="relative z-10 flex flex-wrap gap-2"
-                                    >
-                                        <span
-                                            class="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-sm border border-white/20 transition-all duration-300 hover:bg-white/30"
-                                            >UX Design</span
-                                        >
-                                        <span
-                                            class="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-sm border border-white/20 transition-all duration-300 hover:bg-white/30"
-                                            >Figma</span
-                                        >
-                                        <span
-                                            class="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-sm border border-white/20 transition-all duration-300 hover:bg-white/30"
-                                            >UI/UX</span
-                                        >
+                                    
+                                    <div class="relative z-10 flex flex-wrap gap-2">
+                                        <span class="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-sm border border-white/20">UX Design</span>
+                                        <span class="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-sm border border-white/20">Figma</span>
+                                        <span class="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-sm border border-white/20">UI/UX</span>
                                     </div>
                                 </div>
                             </div>
+                            
                             <!-- Orbs decorativos -->
-                            <div
-                                class="pointer-events-none absolute -top-6 -right-6 h-32 w-32 animate-pulse rounded-full bg-[#005aeb]/30 blur-2xl"
-                            ></div>
-                            <div
-                                class="pointer-events-none absolute -bottom-6 -left-6 h-32 w-32 animate-pulse rounded-full bg-[#7B2FF7]/30 blur-2xl"
-                                style="animation-delay: 1s"
-                            ></div>
+                            <div class="pointer-events-none absolute -top-6 -right-6 h-32 w-32 animate-pulse rounded-full blur-2xl" style="background: rgba(var(--primary-rgb), 0.3)"></div>
+                            <div class="pointer-events-none absolute -bottom-6 -left-6 h-32 w-32 animate-pulse rounded-full blur-2xl" style="background: rgba(var(--secondary-rgb), 0.3); animation-delay: 1s"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Sección Beneficios con 3D Tilt -->
+        <!-- ========== BENEFICIOS ========== -->
         <section id="beneficios" class="relative bg-gray-50 py-24">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="scroll-animate mb-20 text-center">
-                    <h2
-                        class="mb-6 text-4xl font-extrabold text-gray-900 sm:text-5xl"
-                    >
-                        Por qué
-                        <span
-                            class="bg-gradient-to-r from-[#005aeb] to-[#7B2FF7] bg-clip-text text-transparent"
-                            >elegir PortafolioAI</span
-                        >
+                    <h2 class="mb-6 text-4xl font-extrabold text-gray-900 sm:text-5xl">
+                        Por qué <span class="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">{{ s.features_title?.replace('Por qué elegir PortafolioAI', 'elegir ' + (s.app_name || 'PortafolioAI')) || 'elegir PortafolioAI' }}</span>
                     </h2>
                     <p class="mx-auto max-w-3xl text-xl text-gray-600">
-                        Combinamos la potencia de la inteligencia artificial con
-                        diseño profesional para crear tu portafolio perfecto.
+                        {{ s.features_subtitle || 'Combinamos IA con diseño profesional' }}
                     </p>
                 </div>
 
-                <!-- Grid 2x2 uniforme -->
                 <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-                    <div
-                        v-for="(benefit, index) in benefits"
-                        :key="index"
-                        class="tilt-card group scroll-animate relative cursor-pointer rounded-3xl bg-white/80 p-8 shadow-lg backdrop-blur-sm border border-gray-100 transition-all duration-500 hover:shadow-2xl"
-                    >
-                        <!-- Gradient border animado -->
-                        <div
-                            class="absolute inset-0 rounded-3xl bg-gradient-to-r from-[#005aeb] via-[#7B2FF7] to-[#005aeb] opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-20 -z-10 animate-gradient-x"
-                        ></div>
+                    <div v-for="(benefit, index) in benefits" :key="index" class="tilt-card group scroll-animate relative cursor-pointer rounded-3xl bg-white/80 p-8 shadow-lg backdrop-blur-sm border border-gray-100 transition-all duration-500 hover:shadow-2xl">
+                        <div class="absolute inset-0 rounded-3xl opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-20 -z-10 animate-gradient-x" style="background: linear-gradient(to right, var(--primary), var(--secondary), var(--primary)); background-size: 200%"></div>
 
-                        <div
-                            class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#005aeb]/20 to-[#7B2FF7]/20 text-4xl backdrop-blur-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-xl"
-                        >
+                        <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl text-4xl backdrop-blur-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-xl" style="background: linear-gradient(to bottom right, rgba(var(--primary-rgb), 0.2), rgba(var(--secondary-rgb), 0.2))">
                             {{ benefit.icon }}
                         </div>
-                        <h3
-                            class="mb-4 text-2xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-[#005aeb]"
-                        >
+                        <h3 class="mb-4 text-2xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-[var(--primary)]">
                             {{ benefit.title }}
                         </h3>
                         <p class="mb-6 leading-relaxed text-gray-600">
                             {{ benefit.description }}
                         </p>
 
-                        <!-- Mini stat -->
-                        <div
-                            class="mt-auto pt-4 border-t border-gray-200/50"
-                        >
-                            <div
-                                class="text-3xl font-bold bg-gradient-to-r from-[#005aeb] to-[#7B2FF7] bg-clip-text text-transparent"
-                            >
+                        <div class="mt-auto pt-4 border-t border-gray-200/50">
+                            <div class="text-3xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
                                 {{ benefit.stat }}
                             </div>
                             <div class="text-sm text-gray-500">
@@ -680,198 +498,96 @@ onUnmounted(() => {
             </div>
         </section>
 
-        <!-- Sección Cómo Funciona -->
+        <!-- ========== CÓMO FUNCIONA ========== -->
         <section class="relative bg-white py-20">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="scroll-animate mb-16 text-center">
-                    <h2
-                        class="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl"
-                    >
-                        Cómo funciona
+                    <h2 class="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">
+                        {{ s.how_it_works_title || 'Cómo funciona' }}
                     </h2>
                     <p class="mx-auto max-w-2xl text-xl text-gray-600">
-                        Crea tu portafolio profesional en solo 3 sencillos pasos
+                        {{ s.how_it_works_subtitle || 'Crea tu portafolio en 3 pasos' }}
                     </p>
                 </div>
 
                 <div class="relative grid gap-8 md:grid-cols-3">
-                    <!-- Línea conectora (solo en desktop) -->
-                    <div
-                        class="pointer-events-none absolute top-10 left-0 hidden h-1 w-full md:block"
-                    >
-                        <div
-                            class="h-full w-2/3 bg-gradient-to-r from-[#005aeb] via-[#7B2FF7] to-transparent opacity-20"
-                            style="margin-left: 16.66%"
-                        ></div>
+                    <div class="pointer-events-none absolute top-10 left-0 hidden h-1 w-full md:block">
+                        <div class="h-full w-2/3 opacity-20" style="background: linear-gradient(to right, var(--primary), var(--secondary), transparent); margin-left: 16.66%"></div>
                     </div>
 
-                    <div
-                        v-for="(step, index) in steps"
-                        :key="index"
-                        class="scroll-animate relative text-center"
-                    >
+                    <div v-for="(step, index) in steps" :key="index" class="scroll-animate relative text-center">
                         <div class="relative mb-6">
-                            <!-- Badge con número -->
-                            <div
-                                class="relative mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#0048c4] text-2xl font-bold text-white shadow-lg"
-                            >
-                                <span class="relative z-10">{{
-                                    step.step
-                                }}</span>
-                                <!-- Pulse effect -->
-                                <div
-                                    class="absolute inset-0 animate-ping rounded-full bg-[#005aeb] opacity-20"
-                                ></div>
+                            <div class="relative mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold text-white shadow-lg" style="background: linear-gradient(to bottom right, var(--primary), var(--primary-dark))">
+                                <span class="relative z-10">{{ step.step }}</span>
+                                <div class="absolute inset-0 animate-ping rounded-full opacity-20" style="background: var(--primary)"></div>
                             </div>
                             <div class="mb-4 text-6xl">{{ step.image }}</div>
                         </div>
-                        <h3 class="mb-3 text-xl font-semibold text-gray-900">
-                            {{ step.title }}
-                        </h3>
-                        <p class="leading-relaxed text-gray-600">
-                            {{ step.description }}
-                        </p>
+                        <h3 class="mb-3 text-xl font-semibold text-gray-900">{{ step.title }}</h3>
+                        <p class="leading-relaxed text-gray-600">{{ step.description }}</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Sección Testimonios con Carousel -->
+        <!-- ========== TESTIMONIOS ========== -->
         <section id="testimonios" class="relative bg-white py-24 overflow-hidden">
-            <!-- Background decoration -->
-            <div class="absolute inset-0 bg-gradient-to-br from-[#005aeb]/5 to-[#7B2FF7]/5 opacity-50"></div>
+            <div class="absolute inset-0 opacity-50" style="background: linear-gradient(to bottom right, rgba(var(--primary-rgb), 0.05), rgba(var(--secondary-rgb), 0.05))"></div>
             
             <div class="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="scroll-animate mb-20 text-center">
-                    <h2
-                        class="mb-6 text-4xl font-extrabold text-gray-900 sm:text-5xl"
-                    >
-                        Lo que dicen
-                        <span class="bg-gradient-to-r from-[#005aeb] to-[#7B2FF7] bg-clip-text text-transparent">nuestros usuarios</span>
+                    <h2 class="mb-6 text-4xl font-extrabold text-gray-900 sm:text-5xl">
+                        {{ s.testimonials_title || 'Lo que dicen' }} 
+                        <span class="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">nuestros usuarios</span>
                     </h2>
                     <p class="mx-auto max-w-3xl text-xl text-gray-600">
-                        Miles de profesionales ya han transformado su presencia
-                        digital con PortafolioAI
+                        {{ s.testimonials_subtitle || 'Miles de profesionales transformados' }}
                     </p>
                 </div>
 
-                <!-- Carousel Container -->
                 <div class="relative max-w-4xl mx-auto">
-                    <!-- Card Container -->
                     <div class="relative min-h-[400px] flex items-center justify-center">
                         <TransitionGroup name="carousel">
-                            <div
-                                v-for="(testimonial, index) in testimonials"
-                                v-show="index === currentTestimonial"
-                                :key="index"
-                                class="absolute w-full"
-                            >
-                                <div
-                                    @mouseenter="stopAutoPlay"
-                                    @mouseleave="startAutoPlay"
-                                    class="group transform rounded-3xl bg-white/90 backdrop-blur-xl p-10 shadow-[0_20px_70px_rgba(0,90,235,0.15)] border-2 border-gray-100 hover:border-[#005aeb]/30 transition-all duration-500 hover:shadow-[0_30px_90px_rgba(0,90,235,0.25)] hover:scale-105"
-                                >
-                                    <!-- Quote decorativo grande -->
-                                    <div
-                                        class="absolute -top-6 -left-6 text-9xl text-[#005aeb]/10 font-serif leading-none transition-all duration-500 group-hover:text-[#005aeb]/20 group-hover:scale-110"
-                                    >
-                                        "
-                                    </div>
+                            <div v-for="(testimonial, index) in testimonials" v-show="index === currentTestimonial" :key="index" class="absolute w-full">
+                                <div @mouseenter="stopAutoPlay" @mouseleave="startAutoPlay" class="group transform rounded-3xl bg-white/90 backdrop-blur-xl p-10 shadow-[0_20px_70px_rgba(0,0,0,0.15)] border-2 border-gray-100 transition-all duration-500 hover:scale-105" style="hover:border-color: rgba(var(--primary-rgb), 0.3); hover:box-shadow: 0 30px 90px rgba(var(--primary-rgb), 0.25)">
+                                    <div class="absolute -top-6 -left-6 text-9xl opacity-10 font-serif leading-none transition-all duration-500 group-hover:opacity-20 group-hover:scale-110" style="color: var(--primary)">"</div>
 
                                     <div class="relative z-10">
-                                        <!-- Avatar y info -->
                                         <div class="mb-6 flex items-center gap-4">
-                                            <div
-                                                class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#005aeb]/20 to-[#7B2FF7]/20 text-4xl shadow-lg ring-4 ring-white transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6"
-                                            >
+                                            <div class="flex h-20 w-20 items-center justify-center rounded-2xl text-4xl shadow-lg ring-4 ring-white transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6" style="background: linear-gradient(to bottom right, rgba(var(--primary-rgb), 0.2), rgba(var(--secondary-rgb), 0.2))">
                                                 {{ testimonial.avatar }}
                                             </div>
                                             <div>
-                                                <h4
-                                                    class="text-2xl font-bold text-gray-900"
-                                                >
-                                                    {{ testimonial.name }}
-                                                </h4>
-                                                <p class="text-gray-600">
-                                                    {{ testimonial.role }}
-                                                </p>
+                                                <h4 class="text-2xl font-bold text-gray-900">{{ testimonial.name }}</h4>
+                                                <p class="text-gray-600">{{ testimonial.role }}</p>
                                             </div>
                                         </div>
 
-                                        <!-- Rating con estrellas -->
                                         <div class="mb-6 flex gap-1">
-                                            <span
-                                                v-for="star in testimonial.rating"
-                                                :key="star"
-                                                class="text-2xl text-yellow-400 transition-transform duration-300 hover:scale-125"
-                                                >★</span
-                                            >
+                                            <span v-for="star in testimonial.rating" :key="star" class="text-2xl text-yellow-400 transition-transform duration-300 hover:scale-125">★</span>
                                         </div>
 
-                                        <!-- Contenido -->
-                                        <p
-                                            class="text-xl leading-relaxed text-gray-700 italic"
-                                        >
-                                            "{{ testimonial.content }}"
-                                        </p>
+                                        <p class="text-xl leading-relaxed text-gray-700 italic">"{{ testimonial.content }}"</p>
                                     </div>
                                 </div>
                             </div>
                         </TransitionGroup>
                     </div>
 
-                    <!-- Navigation Controls -->
                     <div class="mt-12 flex items-center justify-center gap-6">
-                        <button
-                            @click="prevTestimonial"
-                            class="group flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg border-2 border-gray-200 transition-all duration-300 hover:shadow-xl hover:scale-110 hover:border-[#005aeb] hover:bg-[#005aeb]/5"
-                        >
-                            <svg
-                                class="h-6 w-6 text-gray-700 transition-colors group-hover:text-[#005aeb]"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 19l-7-7 7-7"
-                                ></path>
+                        <button @click="prevTestimonial" class="group flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg border-2 border-gray-200 transition-all duration-300 hover:shadow-xl hover:scale-110 hover:border-[var(--primary)]" style="hover:background: rgba(var(--primary-rgb), 0.05)">
+                            <svg class="h-6 w-6 text-gray-700 transition-colors" style="group-hover:color: var(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                             </svg>
                         </button>
 
-                        <!-- Indicators -->
                         <div class="flex gap-3">
-                            <button
-                                v-for="(testimonial, index) in testimonials"
-                                :key="index"
-                                @click="goToTestimonial(index)"
-                                class="h-3 rounded-full transition-all duration-300"
-                                :class="
-                                    index === currentTestimonial
-                                        ? 'w-12 bg-gradient-to-r from-[#005aeb] to-[#7B2FF7]'
-                                        : 'w-3 bg-gray-300 hover:bg-gray-400'
-                                "
-                            ></button>
+                            <button v-for="(testimonial, index) in testimonials" :key="index" @click="goToTestimonial(index)" class="h-3 rounded-full transition-all duration-300" :class="index === currentTestimonial ? 'w-12' : 'w-3 bg-gray-300 hover:bg-gray-400'" :style="index === currentTestimonial ? `background: linear-gradient(to right, var(--primary), var(--secondary)); width: 3rem` : ''"></button>
                         </div>
 
-                        <button
-                            @click="nextTestimonial"
-                            class="group flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg border-2 border-gray-200 transition-all duration-300 hover:shadow-xl hover:scale-110 hover:border-[#005aeb] hover:bg-[#005aeb]/5"
-                        >
-                            <svg
-                                class="h-6 w-6 text-gray-700 transition-colors group-hover:text-[#005aeb]"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M9 5l7 7-7 7"
-                                ></path>
+                        <button @click="nextTestimonial" class="group flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg border-2 border-gray-200 transition-all duration-300 hover:shadow-xl hover:scale-110 hover:border-[var(--primary)]" style="hover:background: rgba(var(--primary-rgb), 0.05)">
+                            <svg class="h-6 w-6 text-gray-700 transition-colors" style="group-hover:color: var(--primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                             </svg>
                         </button>
                     </div>
@@ -879,188 +595,92 @@ onUnmounted(() => {
             </div>
         </section>
 
-        <!-- Sección Planes -->
+        <!-- ========== PLANES ========== -->
         <section id="planes" class="bg-white py-20">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="scroll-animate mb-16 text-center">
-                    <h2
-                        class="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl"
-                    >
-                        Elige tu plan perfecto
+                    <h2 class="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl">
+                        {{ s.pricing_title || 'Elige tu plan perfecto' }}
                     </h2>
                     <p class="mx-auto max-w-2xl text-xl text-gray-600">
-                        Desde un portafolio básico hasta soluciones
-                        empresariales completas
+                        {{ s.pricing_subtitle || 'Desde básico hasta empresarial' }}
                     </p>
                 </div>
 
                 <div class="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
-                    <div
-                        v-for="(plan, index) in plans"
-                        :key="index"
-                        class="scroll-animate group relative rounded-2xl border-2 bg-white p-8 shadow-md transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
-                        :class="
-                            plan.popular
-                                ? 'scale-105 border-[#005aeb] ring-4 ring-[#005aeb]/10'
-                                : 'border-gray-100'
-                        "
-                    >
-                        <!-- Glow effect para plan popular -->
-                        <div
-                            v-if="plan.popular"
-                            class="pointer-events-none absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-[#005aeb]/20 to-[#7B2FF7]/20 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100"
-                        ></div>
+                    <div v-for="(plan, index) in plans" :key="index" class="scroll-animate group relative rounded-2xl border-2 bg-white p-8 shadow-md transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl" :class="plan.popular ? 'scale-105 ring-4' : 'border-gray-100'" :style="plan.popular ? `border-color: var(--primary); ring-color: rgba(var(--primary-rgb), 0.1)` : ''">
+                        
+                        <div v-if="plan.popular" class="pointer-events-none absolute inset-0 -z-10 rounded-2xl opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100" style="background: linear-gradient(to bottom right, rgba(var(--primary-rgb), 0.2), rgba(var(--secondary-rgb), 0.2))"></div>
 
-                        <!-- Badge Popular mejorado -->
-                        <div
-                            v-if="plan.popular"
-                            class="absolute -top-3 left-1/2 -translate-x-1/2 transform rounded-full bg-gradient-to-r from-[#005aeb] to-[#7B2FF7] px-4 py-1 text-sm font-medium text-white shadow-lg animate-pulse-glow"
-                        >
+                        <div v-if="plan.popular" class="absolute -top-3 left-1/2 -translate-x-1/2 transform rounded-full px-4 py-1 text-sm font-medium text-white shadow-lg animate-pulse-glow" style="background: linear-gradient(to right, var(--primary), var(--secondary))">
                             Más Popular
                         </div>
 
                         <div class="mb-6 text-center">
-                            <h3 class="mb-2 text-2xl font-bold text-gray-900">
-                                {{ plan.name }}
-                            </h3>
-                            <div
-                                class="mb-4 flex items-baseline justify-center"
-                            >
-                                <span
-                                    class="bg-gradient-to-r from-[#005aeb] to-[#7B2FF7] bg-clip-text text-4xl font-bold text-transparent"
-                                    >{{ plan.price }}</span
-                                >
-                                <span class="ml-2 text-gray-600"
-                                    >/{{ plan.period }}</span
-                                >
+                            <h3 class="mb-2 text-2xl font-bold text-gray-900">{{ plan.name }}</h3>
+                            <div class="mb-4 flex items-baseline justify-center">
+                                <span class="text-4xl font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">{{ plan.price }}</span>
+                                <span class="ml-2 text-gray-600">/{{ plan.period }}</span>
                             </div>
                         </div>
 
                         <ul class="mb-8 space-y-4">
-                            <li
-                                v-for="(feature, featureIndex) in plan.features"
-                                :key="featureIndex"
-                                class="flex items-center text-gray-600"
-                            >
-                                <!-- Checkmark SVG moderno -->
-                                <svg
-                                    class="mr-3 h-5 w-5 flex-shrink-0 text-green-500"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M5 13l4 4L19 7"
-                                    ></path>
+                            <li v-for="(feature, featureIndex) in plan.features" :key="featureIndex" class="flex items-center text-gray-600">
+                                <svg class="mr-3 h-5 w-5 flex-shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
                                 {{ feature }}
                             </li>
                         </ul>
 
-                        <button
-                            class="group/btn relative w-full overflow-hidden rounded-lg px-6 py-3 font-semibold transition-all duration-300"
-                            :class="
-                                plan.popular
-                                    ? 'bg-[#005aeb] text-white shadow-lg hover:bg-[#0048c4] hover:shadow-xl hover:scale-105'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
-                            "
-                        >
+                        <button class="group/btn relative w-full overflow-hidden rounded-lg px-6 py-3 font-semibold transition-all duration-300" :class="plan.popular ? 'text-white shadow-lg hover:shadow-xl hover:scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'" :style="plan.popular ? `background: var(--primary)` : ''">
                             <span class="relative z-10">{{ plan.cta }}</span>
-                            <div
-                                v-if="plan.popular"
-                                class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full"
-                            ></div>
+                            <div v-if="plan.popular" class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full"></div>
                         </button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- CTA Final -->
-        <section
-            class="relative overflow-hidden bg-gradient-to-br from-[#005aeb] to-[#0048c4] py-20"
-        >
-            <!-- Pattern decorativo -->
-            <div
-                class="pointer-events-none absolute inset-0 opacity-10"
-                style="
-                    background-image: radial-gradient(
-                        circle,
-                        white 1px,
-                        transparent 1px
-                    );
-                    background-size: 30px 30px;
-                "
-            ></div>
+        <!-- ========== CTA FINAL ========== -->
+        <section class="relative overflow-hidden py-20" style="background: linear-gradient(to bottom right, var(--primary), var(--primary-dark))">
+            <div class="pointer-events-none absolute inset-0 opacity-10" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 30px 30px;"></div>
 
-            <div
-                class="container relative z-10 mx-auto px-4 text-center sm:px-6 lg:px-8"
-            >
+            <div class="container relative z-10 mx-auto px-4 text-center sm:px-6 lg:px-8">
                 <div class="scroll-animate mx-auto max-w-3xl">
                     <h2 class="mb-6 text-3xl font-bold text-white sm:text-4xl">
-                        Empieza a construir tu marca personal hoy
+                        {{ s.cta_title || 'Empieza a construir tu marca personal hoy' }}
                     </h2>
                     <p class="mb-8 text-xl text-blue-100">
-                        Únete a miles de profesionales que ya están mostrando su
-                        trabajo al mundo
+                        {{ s.cta_subtitle || 'Únete a miles de profesionales' }}
                     </p>
-                    <a
-                        href="/register"
-                        class="group inline-block overflow-hidden rounded-lg bg-white px-8 py-4 font-semibold text-[#005aeb] shadow-2xl transition-all duration-300 hover:bg-gray-100 hover:shadow-2xl hover:scale-110"
-                    >
-                        <span class="relative z-10"
-                            >Crear Portafolio con IA</span
-                        >
+                    <a href="/register" class="group inline-block overflow-hidden rounded-lg bg-white px-8 py-4 font-semibold shadow-2xl transition-all duration-300 hover:bg-gray-100 hover:shadow-2xl hover:scale-110" style="color: var(--primary)">
+                        <span class="relative z-10">{{ s.cta_button || 'Crear Portafolio con IA' }}</span>
                     </a>
                 </div>
             </div>
         </section>
 
-        <!-- Footer -->
+        <!-- ========== FOOTER ========== -->
         <footer id="contacto" class="bg-gray-900 py-12 text-white">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid gap-8 md:grid-cols-4">
                     <!-- Logo y descripción -->
                     <div class="md:col-span-2">
                         <div class="mb-4 flex items-center space-x-2">
-                            <div
-                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#005aeb] to-[#0048c4]"
-                            >
-                                <span class="text-sm font-bold text-white"
-                                    >P</span
-                                >
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg" style="background: linear-gradient(to bottom right, var(--primary), var(--primary-dark))">
+                                <span class="text-sm font-bold text-white">{{ (s.app_name || 'P')[0] }}</span>
                             </div>
-                            <span class="text-xl font-bold">PortafolioAI</span>
+                            <span class="text-xl font-bold">{{ s.app_name || 'PortafolioAI' }}</span>
                         </div>
                         <p class="mb-4 max-w-md text-gray-400">
-                            Creamos portafolios profesionales con inteligencia
-                            artificial para que destaquen tu talento y consigas
-                            las mejores oportunidades.
+                            {{ s.footer_description || 'Creamos portafolios profesionales con IA' }}
                         </p>
                         <div class="flex space-x-4">
-                            <a
-                                href="#"
-                                class="text-2xl text-gray-400 transition-all duration-200 hover:scale-125 hover:text-white"
-                                >📘</a
-                            >
-                            <a
-                                href="#"
-                                class="text-2xl text-gray-400 transition-all duration-200 hover:scale-125 hover:text-white"
-                                >🐦</a
-                            >
-                            <a
-                                href="#"
-                                class="text-2xl text-gray-400 transition-all duration-200 hover:scale-125 hover:text-white"
-                                >📷</a
-                            >
-                            <a
-                                href="#"
-                                class="text-2xl text-gray-400 transition-all duration-200 hover:scale-125 hover:text-white"
-                                >💼</a
-                            >
+                            <a :href="s.social_facebook || '#'" class="text-2xl text-gray-400 transition-all duration-200 hover:scale-125 hover:text-white">📘</a>
+                            <a :href="s.social_twitter || '#'" class="text-2xl text-gray-400 transition-all duration-200 hover:scale-125 hover:text-white">🐦</a>
+                            <a :href="s.social_instagram || '#'" class="text-2xl text-gray-400 transition-all duration-200 hover:scale-125 hover:text-white">📷</a>
+                            <a :href="s.social_linkedin || '#'" class="text-2xl text-gray-400 transition-all duration-200 hover:scale-125 hover:text-white">💼</a>
                         </div>
                     </div>
 
@@ -1068,34 +688,10 @@ onUnmounted(() => {
                     <div>
                         <h3 class="mb-4 font-semibold">Enlaces Rápidos</h3>
                         <ul class="space-y-2">
-                            <li>
-                                <a
-                                    href="#inicio"
-                                    class="text-gray-400 transition-colors duration-200 hover:text-white"
-                                    >Inicio</a
-                                >
-                            </li>
-                            <li>
-                                <a
-                                    href="#beneficios"
-                                    class="text-gray-400 transition-colors duration-200 hover:text-white"
-                                    >Funciones</a
-                                >
-                            </li>
-                            <li>
-                                <a
-                                    href="#planes"
-                                    class="text-gray-400 transition-colors duration-200 hover:text-white"
-                                    >Planes</a
-                                >
-                            </li>
-                            <li>
-                                <a
-                                    href="#testimonios"
-                                    class="text-gray-400 transition-colors duration-200 hover:text-white"
-                                    >Testimonios</a
-                                >
-                            </li>
+                            <li><a href="#inicio" class="text-gray-400 transition-colors duration-200 hover:text-white">Inicio</a></li>
+                            <li><a href="#beneficios" class="text-gray-400 transition-colors duration-200 hover:text-white">Funciones</a></li>
+                            <li><a href="#planes" class="text-gray-400 transition-colors duration-200 hover:text-white">Planes</a></li>
+                            <li><a href="#testimonios" class="text-gray-400 transition-colors duration-200 hover:text-white">Testimonios</a></li>
                         </ul>
                     </div>
 
@@ -1103,19 +699,15 @@ onUnmounted(() => {
                     <div>
                         <h3 class="mb-4 font-semibold">Contacto</h3>
                         <ul class="space-y-2 text-gray-400">
-                            <li>📧 hola@portafolioai.com</li>
-                            <li>📞 +1 (555) 123-4567</li>
-                            <li>📍 Ciudad, País</li>
+                            <li>📧 {{ s.footer_email || 'hola@portafolioai.com' }}</li>
+                            <li>📞 {{ s.footer_phone || '+1 (555) 123-4567' }}</li>
+                            <li>📍 {{ s.footer_location || 'Ciudad, País' }}</li>
                         </ul>
                     </div>
                 </div>
 
-                <div
-                    class="mt-8 border-t border-gray-800 pt-8 text-center text-gray-400"
-                >
-                    <p>
-                        &copy; 2024 PortafolioAI. Todos los derechos reservados.
-                    </p>
+                <div class="mt-8 border-t border-gray-800 pt-8 text-center text-gray-400">
+                    <p>{{ s.footer_copyright || '© 2024 PortafolioAI. Todos los derechos reservados.' }}</p>
                 </div>
             </div>
         </footer>
@@ -1123,15 +715,12 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* ========== ULTRA-PREMIUM ANIMATIONS ========== */
+/* ========== ANIMACIONES Y ESTILOS DINÁMICOS ========== */
 
-/* Scroll Fade Animations */
 .scroll-animate {
     opacity: 0;
     transform: translateY(40px);
-    transition:
-        opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
-        transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .scroll-animate.animate-fade-in {
@@ -1139,34 +728,24 @@ onUnmounted(() => {
     transform: translateY(0);
 }
 
-/* Mesh Gradient Background */
 .mesh-gradient {
     width: 100%;
     height: 100%;
     background:
-        radial-gradient(at 0% 0%, rgba(0, 90, 235, 0.3) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(123, 47, 247, 0.2) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(0, 90, 235, 0.25) 0px, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(var(--primary-rgb), 0.3) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(var(--secondary-rgb), 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(var(--primary-rgb), 0.25) 0px, transparent 50%);
     animation: mesh-move 15s ease-in-out infinite;
 }
 
 @keyframes mesh-move {
-    0%, 100% {
-        transform: scale(1) translateY(0);
-    }
-    50% {
-        transform: scale(1.05) translateY(-10px);
-    }
+    0%, 100% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.05) translateY(-10px); }
 }
 
-/* Gradient Animation Horizontal */
 @keyframes gradient-x {
-    0%, 100% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
 }
 
 .animate-gradient-x {
@@ -1174,17 +753,10 @@ onUnmounted(() => {
     animation: gradient-x 3s ease infinite;
 }
 
-/* Floating Particles */
 @keyframes float {
-    0%, 100% {
-        transform: translateY(0px) rotate(0deg);
-    }
-    33% {
-        transform: translateY(-30px) rotate(5deg);
-    }
-    66% {
-        transform: translateY(-15px) rotate(-5deg);
-    }
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-30px) rotate(5deg); }
+    66% { transform: translateY(-15px) rotate(-5deg); }
 }
 
 .animate-float {
@@ -1195,17 +767,12 @@ onUnmounted(() => {
     animation: float 10s ease-in-out infinite 2s;
 }
 
-/* Pulse Glow Effect */
 @keyframes pulse-glow {
     0%, 100% {
-        box-shadow:
-            0 0 15px rgba(0, 90, 235, 0.4),
-            0 0 30px rgba(123, 47, 247, 0.2);
+        box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.4), 0 0 30px rgba(var(--secondary-rgb), 0.2);
     }
     50% {
-        box-shadow:
-            0 0 25px rgba(0, 90, 235, 0.6),
-            0 0 50px rgba(123, 47, 247, 0.4);
+        box-shadow: 0 0 25px rgba(var(--primary-rgb), 0.6), 0 0 50px rgba(var(--secondary-rgb), 0.4);
     }
 }
 
@@ -1213,9 +780,7 @@ onUnmounted(() => {
     animation: pulse-glow 2s ease-in-out infinite;
 }
 
-/* Carousel Transitions */
-.carousel-enter-active,
-.carousel-leave-active {
+.carousel-enter-active, .carousel-leave-active {
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1229,103 +794,27 @@ onUnmounted(() => {
     transform: translateX(-100px) scale(0.95);
 }
 
-/* 3D Tilt Cards */
 .tilt-card {
     transform-style: preserve-3d;
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Magnetic Button Effect (preparar para JS) */
-.magnetic-button {
-    position: relative;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Levitation Effect */
-@keyframes levitate {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-8px);
-    }
-}
-
-.animate-levitate {
-    animation: levitate 3s ease-in-out infinite;
-}
-
-/* Shimmer Effect */
-@keyframes shimmer {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(100%);
-    }
-}
-
-/* ========== UTILITY CLASSES ========== */
-
-/* Smooth Scrolling */
 html {
     scroll-behavior: smooth;
 }
 
-/* Container */
 .container {
     max-width: 1200px;
 }
 
-/* Cursor */
-button,
-a {
-    cursor: pointer;
-}
-
-/* Backdrop Blur Support */
 @supports (backdrop-filter: blur(10px)) {
-    .backdrop-blur-2xl {
-        backdrop-filter: blur(40px);
-    }
-    .backdrop-blur-xl {
-        backdrop-filter: blur(24px);
-    }
-    .backdrop-blur-md {
-        backdrop-filter: blur(12px);
-    }
-    .backdrop-blur-sm {
-        backdrop-filter: blur(6px);
-    }
+    .backdrop-blur-2xl { backdrop-filter: blur(40px); }
+    .backdrop-blur-xl { backdrop-filter: blur(24px); }
+    .backdrop-blur-md { backdrop-filter: blur(12px); }
+    .backdrop-blur-sm { backdrop-filter: blur(6px); }
 }
 
-/* Prevent Layout Shift */
-.min-h-\[400px\] {
-    min-height: 400px;
-}
-
-.min-h-\[80vh\] {
-    min-height: 80vh;
-}
-
-/* Premium Shadow Levels */
-.shadow-premium {
-    box-shadow:
-        0 10px 40px -10px rgba(0, 90, 235, 0.2),
-        0 0 0 1px rgba(0, 90, 235, 0.05);
-}
-
-.shadow-premium-lg {
-    box-shadow:
-        0 20px 60px -15px rgba(0, 90, 235, 0.3),
-        0 0 0 1px rgba(0, 90, 235, 0.1);
-}
-
-/* Performance Optimizations */
-.tilt-card,
-.animate-float,
-.carousel-enter-active,
-.carousel-leave-active {
+.tilt-card, .animate-float, .carousel-enter-active, .carousel-leave-active {
     will-change: transform;
 }
 

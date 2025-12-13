@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminSettingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -29,9 +30,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         // Reportes
         Route::get('/reports', [AdminDashboardController::class, 'reports'])->name('reports');
         
-        // Configuración del sistema (solo frontend por ahora)
-        Route::get('/settings', function () {
-            return Inertia::render('Admin/Settings');
-        })->name('settings');
+        // Configuración del Sistema
+        Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings/reset', [AdminSettingController::class, 'reset'])->name('settings.reset');
     });
 

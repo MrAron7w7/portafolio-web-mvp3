@@ -5,24 +5,27 @@ namespace App\Http\Middleware;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\SystemSetting; //
 
 class HandleInertiaRequests extends Middleware
 {
     protected $rootView = 'app';
 
-    public function version(Request $request): ?string
-    {
-        return parent::version($request);
-    }
-
     public function share(Request $request): array
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
+
+        // Cachear esto en producción es recomendable
+        $settings = SystemSetting::all()->pluck('value', 'key'); 
 
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
+            
+            //
+            'app_settings' => $settings, 
+
             'auth' => [
                 'user' => $request->user() ? [
                     'id' => $request->user()->id,
@@ -55,3 +58,5 @@ class HandleInertiaRequests extends Middleware
         return asset($user->avatar_url);
     }
 }
+
+
