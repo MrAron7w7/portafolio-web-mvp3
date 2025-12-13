@@ -149,7 +149,7 @@ const activeTab = ref('general');
                             <input
                                 v-model="form.settings.app_name"
                                 type="text"
-                                class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                                class="w-full rounded-lg border border-gray-400 px-2 py-1 focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="PortafolioAI"
                             />
                             <p class="mt-1 text-sm text-gray-500">Este nombre aparece en el header y footer</p>
@@ -253,32 +253,32 @@ const activeTab = ref('general');
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Título Principal (Línea 1)</label>
-                                <input v-model="form.settings.hero_title_1" type="text" class="w-full rounded-lg border-gray-300" placeholder="Crea tu Portafolio" />
+                                <input v-model="form.settings.hero_title_1" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" placeholder="Crea tu Portafolio" />
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Título Principal (Línea 2)</label>
-                                <input v-model="form.settings.hero_title_2" type="text" class="w-full rounded-lg border-gray-300" placeholder="Profesional en" />
+                                <input v-model="form.settings.hero_title_2" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" placeholder="Profesional en" />
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Texto Destacado (con gradiente)</label>
-                                <input v-model="form.settings.hero_title_highlight" type="text" class="w-full rounded-lg border-gray-300" placeholder="Minutos con IA" />
+                                <input v-model="form.settings.hero_title_highlight" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" placeholder="Minutos con IA" />
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-                                <textarea v-model="form.settings.hero_description" rows="3" class="w-full rounded-lg border-gray-300" placeholder="Genera un portafolio moderno..."></textarea>
+                                <textarea v-model="form.settings.hero_description" rows="3" class="w-full rounded-lg border border-gray-400 px-2 py-1" placeholder="Genera un portafolio moderno..."></textarea>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Texto del Botón Principal</label>
-                                <input v-model="form.settings.hero_cta_main" type="text" class="w-full rounded-lg border-gray-300" placeholder="Crear mi Portafolio Ahora" />
+                                <input v-model="form.settings.hero_cta_main" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" placeholder="Crear mi Portafolio Ahora" />
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Texto del Botón Secundario</label>
-                                <input v-model="form.settings.hero_cta_secondary" type="text" class="w-full rounded-lg border-gray-300" placeholder="Ver Ejemplos" />
+                                <input v-model="form.settings.hero_cta_secondary" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" placeholder="Ver Ejemplos" />
                             </div>
                         </div>
                     </div>
@@ -290,19 +290,19 @@ const activeTab = ref('general');
                         <div class="grid gap-6 md:grid-cols-3">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Usuarios Activos</label>
-                                <input v-model.number="form.settings.stats_users_count" type="number" class="w-full rounded-lg border-gray-300 mb-2" />
+                                <input v-model.number="form.settings.stats_users_count" type="number" class="w-full rounded-lg border border-gray-400 px-2 py-1 mb-2" />
                                 <input v-model="form.settings.stats_users_label" type="text" class="w-full rounded-lg border-gray-300" placeholder="Usuarios Activos" />
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Portafolios Creados</label>
-                                <input v-model.number="form.settings.stats_portfolios_count" type="number" class="w-full rounded-lg border-gray-300 mb-2" />
+                                <input v-model.number="form.settings.stats_portfolios_count" type="number" class="w-full rounded-lg border border-gray-400 px-2 py-1 mb-2" />
                                 <input v-model="form.settings.stats_portfolios_label" type="text" class="w-full rounded-lg border-gray-300" placeholder="Portafolios Creados" />
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">% Satisfacción</label>
-                                <input v-model.number="form.settings.stats_satisfaction_count" type="number" class="w-full rounded-lg border-gray-300 mb-2" />
+                                <input v-model.number="form.settings.stats_satisfaction_count" type="number" class="w-full rounded-lg border border-gray-400 px-2 py-1 mb-2" />
                                 <input v-model="form.settings.stats_satisfaction_label" type="text" class="w-full rounded-lg border-gray-300" placeholder="Satisfacción" />
                             </div>
                         </div>
@@ -315,11 +315,11 @@ const activeTab = ref('general');
                         <div class="space-y-4 mb-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Título de la Sección</label>
-                                <input v-model="form.settings.features_title" type="text" class="w-full rounded-lg border-gray-300" />
+                                <input v-model="form.settings.features_title" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Subtítulo</label>
-                                <textarea v-model="form.settings.features_subtitle" rows="2" class="w-full rounded-lg border-gray-300"></textarea>
+                                <textarea v-model="form.settings.features_subtitle" rows="2" class="w-full rounded-lg border border-gray-400 px-2 py-1"></textarea>
                             </div>
                         </div>
 
@@ -333,23 +333,23 @@ const activeTab = ref('general');
                                 <div class="grid gap-4 md:grid-cols-2">
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Título</label>
-                                        <input v-model="form.settings.feature_1_title" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_1_title" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Icono (emoji)</label>
-                                        <input v-model="form.settings.feature_1_icon" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_1_icon" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm text-gray-700 mb-1">Descripción</label>
-                                        <textarea v-model="form.settings.feature_1_description" rows="2" class="w-full rounded border-gray-300"></textarea>
+                                        <textarea v-model="form.settings.feature_1_description" rows="2" class="w-full rounded border border-gray-400 px-2 py-1"></textarea>
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Estadística</label>
-                                        <input v-model="form.settings.feature_1_stat" type="text" class="w-full rounded border-gray-300" placeholder="2min" />
+                                        <input v-model="form.settings.feature_1_stat" type="text" class="w-full rounded border border-gray-400 px-2 py-1" placeholder="2min" />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Etiqueta</label>
-                                        <input v-model="form.settings.feature_1_stat_label" type="text" class="w-full rounded border-gray-300" placeholder="Creación promedio" />
+                                        <input v-model="form.settings.feature_1_stat_label" type="text" class="w-full rounded border border-gray-400 px-2 py-1" placeholder="Creación promedio" />
                                     </div>
                                 </div>
                             </div>
@@ -363,23 +363,23 @@ const activeTab = ref('general');
                                 <div class="grid gap-4 md:grid-cols-2">
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Título</label>
-                                        <input v-model="form.settings.feature_2_title" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_2_title" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Icono (emoji)</label>
-                                        <input v-model="form.settings.feature_2_icon" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_2_icon" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm text-gray-700 mb-1">Descripción</label>
-                                        <textarea v-model="form.settings.feature_2_description" rows="2" class="w-full rounded border-gray-300"></textarea>
+                                        <textarea v-model="form.settings.feature_2_description" rows="2" class="w-full rounded border border-gray-400 px-2 py-1"></textarea>
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Estadística</label>
-                                        <input v-model="form.settings.feature_2_stat" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_2_stat" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Etiqueta</label>
-                                        <input v-model="form.settings.feature_2_stat_label" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_2_stat_label" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                 </div>
                             </div>
@@ -393,23 +393,23 @@ const activeTab = ref('general');
                                 <div class="grid gap-4 md:grid-cols-2">
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Título</label>
-                                        <input v-model="form.settings.feature_3_title" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_3_title" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Icono (emoji)</label>
-                                        <input v-model="form.settings.feature_3_icon" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_3_icon" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm text-gray-700 mb-1">Descripción</label>
-                                        <textarea v-model="form.settings.feature_3_description" rows="2" class="w-full rounded border-gray-300"></textarea>
+                                        <textarea v-model="form.settings.feature_3_description" rows="2" class="w-full rounded border border-gray-400 px-2 py-1"></textarea>
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Estadística</label>
-                                        <input v-model="form.settings.feature_3_stat" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_3_stat" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Etiqueta</label>
-                                        <input v-model="form.settings.feature_3_stat_label" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_3_stat_label" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                 </div>
                             </div>
@@ -423,23 +423,23 @@ const activeTab = ref('general');
                                 <div class="grid gap-4 md:grid-cols-2">
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Título</label>
-                                        <input v-model="form.settings.feature_4_title" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_4_title" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Icono (emoji)</label>
-                                        <input v-model="form.settings.feature_4_icon" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_4_icon" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm text-gray-700 mb-1">Descripción</label>
-                                        <textarea v-model="form.settings.feature_4_description" rows="2" class="w-full rounded border-gray-300"></textarea>
+                                        <textarea v-model="form.settings.feature_4_description" rows="2" class="w-full rounded border border-gray-400 px-2 py-1"></textarea>
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Estadística</label>
-                                        <input v-model="form.settings.feature_4_stat" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_4_stat" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Etiqueta</label>
-                                        <input v-model="form.settings.feature_4_stat_label" type="text" class="w-full rounded border-gray-300" />
+                                        <input v-model="form.settings.feature_4_stat_label" type="text" class="w-full rounded border border-gray-400 px-2 py-1" />
                                     </div>
                                 </div>
                             </div>
@@ -453,11 +453,11 @@ const activeTab = ref('general');
                         <div class="space-y-4 mb-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Título</label>
-                                <input v-model="form.settings.how_it_works_title" type="text" class="w-full rounded-lg border-gray-300" />
+                                <input v-model="form.settings.how_it_works_title" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Subtítulo</label>
-                                <input v-model="form.settings.how_it_works_subtitle" type="text" class="w-full rounded-lg border-gray-300" />
+                                <input v-model="form.settings.how_it_works_subtitle" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                             </div>
                         </div>
 
@@ -465,17 +465,17 @@ const activeTab = ref('general');
                             <div>
                                 <h3 class="mb-2 font-medium">Paso 1</h3>
                                 <input v-model="form.settings.step_1_title" type="text" class="w-full rounded border-gray-300 mb-2" placeholder="Título" />
-                                <textarea v-model="form.settings.step_1_description" rows="2" class="w-full rounded border-gray-300" placeholder="Descripción"></textarea>
+                                <textarea v-model="form.settings.step_1_description" rows="2" class="w-full rounded border border-gray-400 px-2 py-1" placeholder="Descripción"></textarea>
                             </div>
                             <div>
                                 <h3 class="mb-2 font-medium">Paso 2</h3>
                                 <input v-model="form.settings.step_2_title" type="text" class="w-full rounded border-gray-300 mb-2" placeholder="Título" />
-                                <textarea v-model="form.settings.step_2_description" rows="2" class="w-full rounded border-gray-300" placeholder="Descripción"></textarea>
+                                <textarea v-model="form.settings.step_2_description" rows="2" class="w-full rounded border border-gray-400 px-2 py-1" placeholder="Descripción"></textarea>
                             </div>
                             <div>
                                 <h3 class="mb-2 font-medium">Paso 3</h3>
                                 <input v-model="form.settings.step_3_title" type="text" class="w-full rounded border-gray-300 mb-2" placeholder="Título" />
-                                <textarea v-model="form.settings.step_3_description" rows="2" class="w-full rounded border-gray-300" placeholder="Descripción"></textarea>
+                                <textarea v-model="form.settings.step_3_description" rows="2" class="w-full rounded border border-gray-400 px-2 py-1" placeholder="Descripción"></textarea>
                             </div>
                         </div>
                     </div>
@@ -486,11 +486,11 @@ const activeTab = ref('general');
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Título</label>
-                                <input v-model="form.settings.testimonials_title" type="text" class="w-full rounded-lg border-gray-300" />
+                                <input v-model="form.settings.testimonials_title" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Subtítulo</label>
-                                <input v-model="form.settings.testimonials_subtitle" type="text" class="w-full rounded-lg border-gray-300" />
+                                <input v-model="form.settings.testimonials_subtitle" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                             </div>
                         </div>
                     </div>
@@ -501,11 +501,11 @@ const activeTab = ref('general');
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Título</label>
-                                <input v-model="form.settings.pricing_title" type="text" class="w-full rounded-lg border-gray-300" />
+                                <input v-model="form.settings.pricing_title" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Subtítulo</label>
-                                <input v-model="form.settings.pricing_subtitle" type="text" class="w-full rounded-lg border-gray-300" />
+                                <input v-model="form.settings.pricing_subtitle" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                             </div>
                         </div>
                     </div>
@@ -516,15 +516,15 @@ const activeTab = ref('general');
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Título</label>
-                                <input v-model="form.settings.cta_title" type="text" class="w-full rounded-lg border-gray-300" />
+                                <input v-model="form.settings.cta_title" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Subtítulo</label>
-                                <input v-model="form.settings.cta_subtitle" type="text" class="w-full rounded-lg border-gray-300" />
+                                <input v-model="form.settings.cta_subtitle" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Texto del Botón</label>
-                                <input v-model="form.settings.cta_button" type="text" class="w-full rounded-lg border-gray-300" />
+                                <input v-model="form.settings.cta_button" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                             </div>
                         </div>
                     </div>
@@ -536,25 +536,25 @@ const activeTab = ref('general');
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-                                <textarea v-model="form.settings.footer_description" rows="2" class="w-full rounded-lg border-gray-300"></textarea>
+                                <textarea v-model="form.settings.footer_description" rows="2" class="w-full rounded-lg border border-gray-400 px-2 py-1"></textarea>
                             </div>
                             
                             <div class="grid gap-4 md:grid-cols-2">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                    <input v-model="form.settings.footer_email" type="email" class="w-full rounded-lg border-gray-300" />
+                                    <input v-model="form.settings.footer_email" type="email" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
-                                    <input v-model="form.settings.footer_phone" type="text" class="w-full rounded-lg border-gray-300" />
+                                    <input v-model="form.settings.footer_phone" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Ubicación</label>
-                                    <input v-model="form.settings.footer_location" type="text" class="w-full rounded-lg border-gray-300" />
+                                    <input v-model="form.settings.footer_location" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Copyright</label>
-                                    <input v-model="form.settings.footer_copyright" type="text" class="w-full rounded-lg border-gray-300" />
+                                    <input v-model="form.settings.footer_copyright" type="text" class="w-full rounded-lg border border-gray-400 px-2 py-1" />
                                 </div>
                             </div>
 
@@ -563,19 +563,19 @@ const activeTab = ref('general');
                                 <div class="grid gap-4 md:grid-cols-2">
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Facebook URL</label>
-                                        <input v-model="form.settings.social_facebook" type="text" class="w-full rounded border-gray-300" placeholder="https://facebook.com/..." />
+                                        <input v-model="form.settings.social_facebook" type="text" class="w-full rounded border border-gray-400 px-2 py-1" placeholder="https://facebook.com/..." />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Twitter URL</label>
-                                        <input v-model="form.settings.social_twitter" type="text" class="w-full rounded border-gray-300" placeholder="https://twitter.com/..." />
+                                        <input v-model="form.settings.social_twitter" type="text" class="w-full rounded border border-gray-400 px-2 py-1" placeholder="https://twitter.com/..." />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">Instagram URL</label>
-                                        <input v-model="form.settings.social_instagram" type="text" class="w-full rounded border-gray-300" placeholder="https://instagram.com/..." />
+                                        <input v-model="form.settings.social_instagram" type="text" class="w-full rounded border border-gray-400 px-2 py-1" placeholder="https://instagram.com/..." />
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700 mb-1">LinkedIn URL</label>
-                                        <input v-model="form.settings.social_linkedin" type="text" class="w-full rounded border-gray-300" placeholder="https://linkedin.com/..." />
+                                        <input v-model="form.settings.social_linkedin" type="text" class="w-full rounded border border-gray-400 px-2 py-1" placeholder="https://linkedin.com/..." />
                                     </div>
                                 </div>
                             </div>
