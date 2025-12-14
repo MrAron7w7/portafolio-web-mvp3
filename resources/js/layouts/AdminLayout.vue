@@ -8,6 +8,7 @@ import {
     Settings,
     Users,
     X,
+    BellRing
 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
@@ -23,6 +24,7 @@ const navigation = [
     { name: 'Usuarios', href: '/admin/users', icon: Users },
     { name: 'Reportes', href: '/admin/reports', icon: BarChart3 },
     { name: 'Contenido del sitio', href: '/admin/settings', icon: Settings },
+    { name: 'Notificaciones', href: '/admin/notifications', icon: BellRing },
 ];
 
 const sidebarOpen = ref(true);

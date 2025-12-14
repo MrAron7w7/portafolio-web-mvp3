@@ -16,15 +16,19 @@ class HandleInertiaRequests extends Middleware
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
         // Cachear esto en producción es recomendable
-        $settings = SystemSetting::all()->pluck('value', 'key'); 
+        $settings = SystemSetting::all()->pluck('value', 'key');
 
         return [
             ...parent::share($request),
+            //notificacion
+            'flash' => [
+                'notification' => fn() => $request->session()->get('notification'),
+            ],
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
-            
+
             //
-            'app_settings' => $settings, 
+            'app_settings' => $settings,
 
             'auth' => [
                 'user' => $request->user() ? [
@@ -37,7 +41,7 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
                 'roles' => $request->user() ? $request->user()->getRoleNames()->toArray() : [],
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
 

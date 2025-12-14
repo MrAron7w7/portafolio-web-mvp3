@@ -4,6 +4,7 @@ use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\GeneralController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
+use App\Http\Controllers\Admin\NotificationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -20,6 +21,11 @@ Route::middleware('auth')->group(function () {
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    //Notifications
+    Route::get('/api/notifications', [NotificationController::class, 'getUserNotifications']);
+    Route::post('/api/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/api/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 
     // Password
     Route::get('settings/password', [PasswordController::class, 'edit'])->name('user-password.edit');
