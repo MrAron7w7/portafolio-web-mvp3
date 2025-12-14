@@ -38,6 +38,7 @@
         next: [];
         complete: [];
         'update:showValidationError': [value: boolean];
+        'load-ia-data': [data: any] 
     }>();
     </script>
     
@@ -84,7 +85,8 @@
                         <AboutSection v-if="currentStep === 2"
                             :model-value="formData.personal"
                             @update:model-value="formData.personal = $event"
-                            :validation="aboutValidation" />
+                            :validation="aboutValidation"
+                            @load-ia-data="$emit('load-ia-data', $event)"  />
     
                         <EducationSection v-if="currentStep === 3"
                             :model-value="formData.education"

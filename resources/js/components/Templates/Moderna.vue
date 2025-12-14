@@ -24,7 +24,7 @@ const props = defineProps<{
             github?: string;
             photo: string;
             summary: string;
-            description?: string;
+
         };
         experience: Array<{
             company: string;
@@ -194,9 +194,7 @@ const calculateDuration = (
                     <p class="summary-text">
                         {{ data.personal.summary }}
                     </p>
-                    <p v-if="data.personal.description" class="summary-text">
-                        {{ data.personal.description }}
-                    </p>
+          
                 </div>
             </section>
 
