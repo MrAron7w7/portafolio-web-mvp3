@@ -1,0 +1,202 @@
+<script setup lang="ts">
+import { Head, Link } from '@inertiajs/vue3';
+import { ref, onMounted, computed, onUnmounted } from 'vue';
+import { Star, MessageCircle, Quote, ArrowLeft } from 'lucide-vue-next';
+
+// Props desde el controlador
+const props = defineProps<{
+    comments: Array<{
+        id: number;
+        content: string;
+        rating: number;
+        is_featured: boolean;
+        created_at: string;
+        user: {
+            first_name: string;
+            last_name: string;
+            profile_photo_path?: string;
+        }
+    }>
+}>();
+
+// Mouse tracking para efecto parallax
+const mouseX = ref(0);
+const mouseY = ref(0);
+
+const handleMouseMove = (e: MouseEvent) => {
+    mouseX.value = (e.clientX / window.innerWidth - 0.5) * 20;
+    mouseY.value = (e.clientY / window.innerHeight - 0.5) * 20;
+};
+
+// Computed para parallax
+const parallaxStyle = computed(() => ({
+    transform: `translate(${mouseX.value * 0.05}px, ${mouseY.value * 0.05}px)`,
+}));
+
+// Formateo de fecha
+const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long', 
+        day: 'numeric'
+    });
+};
+
+onMounted(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('mousemove', handleMouseMove);
+});
+</script>
+
+<template>
+    <Head title="Comunidad" />
+    
+    <div class="min-h-screen bg-white font-sans selection:bg-[#005aeb] selection:text-white overflow-hidden relative">
+        
+        <!-- Botón Flotante Regresar (Standalone Navigation) -->
+        <div class="fixed top-6 left-6 z-50">
+            <a href="/" class="group flex items-center gap-2 rounded-full bg-white/80 backdrop-blur-md px-5 py-3 shadow-lg ring-1 ring-gray-900/5 transition-all duration-300 hover:bg-white hover:scale-105 hover:shadow-xl hover:ring-[#005aeb]/30">
+                <ArrowLeft class="w-5 h-5 text-gray-600 group-hover:text-[#005aeb] transition-colors" />
+                <span class="font-medium text-gray-700 group-hover:text-[#005aeb] transition-colors">Volver al Inicio</span>
+            </a>
+        </div>
+
+        <!-- Hero Section (Standalone Context) -->
+        <section class="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#005aeb]/5 via-white to-[#7B2FF7]/5 pt-20 pb-10">
+             <!-- Partículas orb con parallax -->
+             <div :style="parallaxStyle" class="pointer-events-none absolute top-20 left-10 h-96 w-96 animate-float rounded-full bg-gradient-to-br from-[#005aeb]/30 to-[#7B2FF7]/20 blur-3xl opacity-50"></div>
+             <div :style="parallaxStyle" class="pointer-events-none absolute bottom-20 right-10 h-96 w-96 animate-float-delayed rounded-full bg-gradient-to-br from-[#7B2FF7]/30 to-[#005aeb]/20 blur-3xl opacity-50"></div>
+
+            <div class="container relative z-10 mx-auto px-4 text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-blue-100 shadow-sm mb-8 animate-fade-in-up">
+                    <span class="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-sm font-medium text-gray-600">Comunidad Oficial</span>
+                </div>
+
+                <h1 class="mb-6 text-5xl md:text-7xl font-extrabold leading-tight text-gray-900">
+                    Voces de la <br />
+                    <span class="bg-gradient-to-r from-[#005aeb] via-[#7B2FF7] to-[#005aeb] bg-clip-text text-transparent animate-gradient-x">Comunidad</span>
+                </h1>
+                
+                <p class="mx-auto mb-10 max-w-2xl text-xl leading-relaxed text-gray-600">
+                    Un espacio dedicado a quienes están construyendo el futuro con PortafolioAI.
+                </p>
+
+                <!-- Mini Stats (Minimalist) -->
+                <div class="flex flex-wrap justify-center gap-8 text-sm font-medium text-gray-500">
+                    <div class="flex items-center gap-2">
+                        <Star class="w-4 h-4 text-yellow-400 fill-current" />
+                        <span>4.9 Valoración</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <MessageCircle class="w-4 h-4 text-[#005aeb]" />
+                        <span>{{ comments.length }}+ Historias</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comments Grid Section -->
+        <section class="py-20 bg-white relative">
+             <div class="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/20 to-transparent pointer-events-none"></div>
+
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div v-for="comment in comments" :key="comment.id" 
+                        class="scroll-animate group relative flex flex-col rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:ring-[#005aeb]/20"
+                    >
+                        <!-- Rating Stars -->
+                        <div class="flex gap-0.5 mb-4">
+                            <Star v-for="i in 5" :key="i" class="w-4 h-4"
+                                :class="i <= comment.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'" />
+                        </div>
+
+                        <!-- Content -->
+                        <div class="relative mb-6 flex-grow">
+                            <Quote class="absolute -top-1 -left-1 w-6 h-6 text-[#005aeb]/10 rotate-180" />
+                            <p class="text-gray-700 leading-relaxed relative z-10 pl-3 text-[15px]">
+                                "{{ comment.content }}"
+                            </p>
+                        </div>
+
+                        <!-- User Info -->
+                        <div class="flex items-center gap-3 mt-auto pt-4 border-t border-gray-50">
+                             <div class="relative flex-shrink-0">
+                                <div v-if="comment.user.profile_photo_path" class="w-10 h-10 rounded-full overflow-hidden ring-1 ring-gray-200">
+                                    <img :src="comment.user.profile_photo_path" :alt="comment.user.first_name" class="w-full h-full object-cover">
+                                </div>
+                                <div v-else class="w-10 h-10 rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                                    {{ comment.user.first_name.charAt(0) }}
+                                </div>
+                                <div v-if="comment.is_featured" class="absolute -bottom-1 -right-1 bg-yellow-400 text-white p-0.5 rounded-full ring-1 ring-white" title="Destacado">
+                                    <Star class="w-2.5 h-2.5 fill-current" />
+                                </div>
+                            </div>
+                            
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-gray-900 text-sm truncate">
+                                    {{ comment.user.first_name }} {{ comment.user.last_name }}
+                                </h4>
+                                <div class="text-xs text-gray-500 font-medium">
+                                    {{ formatDate(comment.created_at) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div v-if="comments.length === 0" class="flex flex-col items-center justify-center py-20 text-center">
+                    <div class="bg-gray-50 p-6 rounded-full mb-4">
+                        <MessageCircle class="w-10 h-10 text-gray-400" />
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Aún no hay comentarios</h3>
+                    <p class="text-gray-500 mb-6">Sé el primero en compartir tu experiencia.</p>
+                    <a href="/register" class="text-[#005aeb] font-medium hover:underline">Unirse a la comunidad &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simple Footer -->
+        <footer class="py-10 bg-white border-t border-gray-100 text-center">
+             <p class="text-gray-400 text-sm">
+                &copy; {{ new Date().getFullYear() }} PortafolioAI. Todos los derechos reservados.
+            </p>
+        </footer>
+    </div>
+</template>
+
+<style scoped>
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+@keyframes float-delayed {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+.animate-float-delayed { animation: float-delayed 8s ease-in-out infinite 2s; }
+
+@keyframes gradient-x {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 15s ease infinite;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>

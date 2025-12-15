@@ -354,6 +354,13 @@ onUnmounted(() => {
 
                     <!-- Botones Desktop -->
                     <div class="hidden items-center space-x-4 md:flex">
+                         <a
+                            href="/comunidad"
+                            class="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[#005aeb] hover:text-[#005aeb]"
+                        >
+                            <span class="text-lg">💬</span>
+                            Comunidad
+                        </a>
                         <a
                             href="/login"
                             class="font-medium text-gray-700 transition-all duration-200 hover:text-[#005aeb] hover:scale-105"
