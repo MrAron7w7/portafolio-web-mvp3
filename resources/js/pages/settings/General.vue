@@ -63,9 +63,9 @@ const handleAvatarChange = (event: Event) => {
     const file = target.files?.[0];
     
     if (file) {
-        // Validar tamaño (2MB)
-        if (file.size > 2 * 1024 * 1024) {
-            alert('La imagen no debe superar los 2MB');
+        // Validar tamaño (8MB)
+        if (file.size > 8 * 1024 * 1024) {
+            alert('La imagen no debe superar los 8MB');
             return;
         }
 
@@ -156,6 +156,18 @@ const deleteAccount = () => {
         onSuccess: () => closeDeleteModal(),
     });
 };
+
+const removeAvatar = () => {
+    if (confirm('¿Estás seguro de eliminar tu foto de perfil?')) {
+        profileForm.post('/settings/general/remove-avatar', {
+            preserveScroll: true,
+            onSuccess: () => {
+                avatarPreview.value = null;
+                window.location.reload();
+            },
+        });
+    }
+};
 </script>
 
 <template>
@@ -240,8 +252,21 @@ const deleteAccount = () => {
                             </div>
                             <div class="flex-1">
                                 <h4 class="font-medium text-gray-900">Foto de perfil</h4>
-                                <p class="text-sm text-gray-500">JPG, PNG o GIF. Máx 2MB</p>
+                                <p class="text-sm text-gray-500">JPG, PNG o GIF. Máx 8MB</p>
                                 <p v-if="avatarPreview" class="text-xs text-green-600 mt-1">✓ Nueva imagen seleccionada</p>
+                                
+                                <!-- Botón para eliminar imagen -->
+                                <button 
+                                    v-if="editingProfile && user.avatar_url && !user.avatar_url.includes('ui-avatars.com')"
+                                    @click="removeAvatar"
+                                    type="button"
+                                    class="mt-2 text-xs text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
+                                >
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Eliminar foto de perfil
+                                </button>
                             </div>
                         </div>
 

@@ -58,7 +58,7 @@ class GeneralController extends Controller
             'language' => ['nullable', 'string', 'max:5'],
             'email_notifications' => ['nullable', 'boolean'],
             'marketing_emails' => ['nullable', 'boolean'],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif', 'max:2048'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif', 'max:8192'],
         ]);
 
         // Handle avatar upload
@@ -104,6 +104,26 @@ class GeneralController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/')->with('status', 'account-deleted');
+    }
+
+    /**
+     * Remove the user's avatar.
+     */
+    public function removeAvatar(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        // Delete avatar file if exists and is not from UI Avatars
+        if ($user->avatar_url && !str_contains($user->avatar_url, 'ui-avatars.com')) {
+            $oldPath = str_replace('/storage/', '', $user->avatar_url);
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        // Reset to default avatar
+        $user->avatar_url = null;
+        $user->save();
+
+        return back()->with('status', 'avatar-removed');
     }
 
     /**
