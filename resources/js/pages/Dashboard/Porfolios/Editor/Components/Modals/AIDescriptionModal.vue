@@ -1,5 +1,5 @@
 <!-- ============================================
-   AIDescriptionModal.vue - FIXES CIERRE + PROPS
+   AIDescriptionModal.vue - CON SCROLL INTERNO
    ============================================ -->
 
    <script setup lang="ts">
@@ -82,32 +82,23 @@
         errorMessage.value = '';
     };
     
-    
-    const exampleDescription = () => {
-        description.value = `Soy un desarrollador full-stack con 5 años de experiencia en Laravel, Vue.js y React. 
-He trabajado en proyectos de e-commerce, dashboards administrativos y aplicaciones web responsivas. 
-Tengo certificaciones en AWS y experiencia con bases de datos SQL y NoSQL. 
-Hablo español, inglés y francés con fluidez. Mis habilidades incluyen desarrollo frontend, backend, 
-diseño de APIs REST y gestión de servidores. He liderado equipos de 3-5 personas y tengo experiencia 
-en metodologías ágiles.`;
-    };
+
 </script>
 
-
 <template>
-    <!-- Modal Container - SIN BACKDROP (compartido desde Edito.vue) -->
+    <!-- Modal Container -->
     <Transition name="scale">
         <div 
             v-if="isOpen" 
-            class="fixed inset-0 flex items-center justify-center z-50 px-4 pointer-events-none"
+            class="fixed inset-0 flex items-center justify-center z-50 px-4 py-4 pointer-events-none"
         >
-            <!-- Modal Card - CON pointer-events-auto -->
+            <!-- Modal Card - CON SCROLL ✨ -->
             <div 
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden pointer-events-auto"
+                class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden pointer-events-auto flex flex-col"
                 @click.stop
             >
-                <!-- Header -->
-                <div class="relative overflow-hidden bg-gradient-to-r from-purple-500 to-purple-600 px-8 py-12 text-white">
+                <!-- Header - STICKY ✨ -->
+                <div class="sticky top-0 z-10 relative overflow-hidden bg-gradient-to-r from-purple-500 to-purple-600 px-8 py-12 text-white flex-shrink-0">
                     <!-- Decorative elements -->
                     <div class="absolute top-0 right-0 w-40 h-40 bg-purple-400 rounded-full -mr-20 -mt-20 opacity-20" />
                     
@@ -115,7 +106,7 @@ en metodologías ágiles.`;
                     <button
                         @click="handleClose"
                         :disabled="isAnalyzing"
-                        class="absolute top-4 right-4 p-2 hover:bg-purple-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="absolute top-4 right-4 p-2 hover:bg-purple-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed z-20"
                     >
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -129,8 +120,8 @@ en metodologías ágiles.`;
                     </div>
                 </div>
 
-                <!-- Body -->
-                <div class="p-8">
+                <!-- Body - CON SCROLL ✨ -->
+                <div class="overflow-y-auto flex-1 px-8 pt-8 pb-8">
                     <!-- Error Message -->
                     <Transition name="fade">
                         <div 
@@ -180,7 +171,7 @@ en metodologías ágiles.`;
                     </div>
 
                     <!-- Buttons -->
-                    <div class="flex gap-3 mb-4">
+                    <div class="flex gap-3">
                         <button
                             @click="handleClear"
                             :disabled="isAnalyzing || charCount === 0"
@@ -189,16 +180,17 @@ en metodologías ágiles.`;
                             Limpiar
                         </button>
                         
-                        <button
-                            @click="exampleDescription"
-                            :disabled="isAnalyzing"
-                            class="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                        >
-                            Ver Ejemplo
-                        </button>
+                 
                     </div>
 
-                    <!-- Action Button -->
+                    <!-- Info text -->
+                    <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-6">
+                        Usaremos IA para extraer información de tu descripción
+                    </p>
+                </div>
+
+                <!-- Action Button - STICKY ✨ -->
+                <div class="sticky bottom-0 z-10 p-8 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 flex-shrink-0">
                     <button
                         @click="handleAnalyze"
                         :disabled="!isValid || isAnalyzing"
@@ -234,19 +226,37 @@ en metodologías ágiles.`;
                             {{ isAnalyzing ? 'Analizando...' : 'Analizar con IA' }}
                         </span>
                     </button>
-
-                    <!-- Info text -->
-                    <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
-                        Usaremos IA para extraer información de tu descripción
-                    </p>
                 </div>
             </div>
         </div>
     </Transition>
 </template>
 
-
 <style scoped>
+/* Custom scrollbar */
+.overflow-y-auto {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(107, 114, 128, 0.5) transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: rgba(107, 114, 128, 0.5);
+    border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(107, 114, 128, 0.7);
+}
+
+/* Transiciones */
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.3s ease;

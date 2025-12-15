@@ -47,17 +47,23 @@ export function useEditorState(props: any) {
     // PASOS DEL WIZARD
     // ============================================
     const currentStep = ref(1);
-    const steps = ref([
-        { id: 1, title: 'Información personal', completed: false, hasError: false, icon: 'User' },
-        { id: 2, title: 'Sobre mí', completed: false, hasError: false, icon: 'FileText' },
-        { id: 3, title: 'Formación Académica', completed: false, hasError: false, icon: 'Palette' },
-        { id: 4, title: 'Idiomas', completed: false, hasError: false, icon: 'Globe' },
-        { id: 5, title: 'Experiencia', completed: false, hasError: false, icon: 'Briefcase' },
-        { id: 6, title: 'Habilidades', completed: false, hasError: false, icon: 'Star' },
-        { id: 7, title: 'Proyectos', completed: false, hasError: false, icon: 'Zap' },
-        { id: 8, title: 'Redes sociales', completed: false, hasError: false, icon: 'Link' },
-        { id: 9, title: 'Configuración', completed: false, hasError: false, icon: 'Settings' },
-    ]);
+
+
+const steps = ref([
+    { id: 1, title: 'Información personal', completed: false, enabled: true, hasError: false, icon: 'User' },
+    // El resto debe iniciar en FALSE (o calcularse dinámicamente según datos previos)
+    { id: 2, title: 'Sobre mí', completed: false, enabled: false, hasError: false, icon: 'FileText' },
+    { id: 3, title: 'Formación Académica', completed: false, enabled: false, hasError: false, icon: 'Palette' },
+    { id: 4, title: 'Idiomas', completed: false, enabled: false, hasError: false, icon: 'Globe' },
+    { id: 5, title: 'Experiencia', completed: false, enabled: false, hasError: false, icon: 'Briefcase' },
+    { id: 6, title: 'Habilidades', completed: false, enabled: false, hasError: false, icon: 'Star' },
+    { id: 7, title: 'Proyectos', completed: false, enabled: false, hasError: false, icon: 'Zap' },
+    { id: 8, title: 'Redes sociales', completed: false, enabled: false, hasError: false, icon: 'Link' },
+    { id: 9, title: 'Configuración', completed: false, enabled: false, hasError: false, icon: 'Settings' },
+]);
+
+
+    
 
     // ============================================
     // TEMPLATES

@@ -48,9 +48,23 @@ export const useAboutValidation = () => {
     };
 
     // NUEVO: Marcar todos los campos como tocados
-    const markAllAsTouched = (formData: AboutData) => {
+    const markAllAsTouched = (formData: AboutData | undefined | null) => {
+        if (!formData) {
+            console.warn('⚠️ markAllAsTouched: Sin formData');
+            return;
+        }
+        
+        console.log('🔴 markAllAsTouched: Validando About');
+        
+        // 1. Marcar como touched
         touched.summary = true;
+        
+        // 2. ✨ VALIDAR INMEDIATAMENTE ← ESTO TE FALTA
+        validateField('summary', formData.summary, false);
+        
+        console.log('   ✅ About validado:', errors.summary ? `❌ ${errors.summary}` : '✓');
     };
+    
 
     // MODIFICADO: Validar todos los campos con forceShow
     const validateAll = (formData: AboutData, forceShow: boolean = false): boolean => {

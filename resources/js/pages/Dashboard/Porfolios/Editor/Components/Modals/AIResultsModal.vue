@@ -198,67 +198,69 @@
                         <div class="text-center group hover:bg-indigo-50 dark:hover:bg-slate-600 rounded-lg p-2 transition-colors">
                             <div class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{{ experienceCount }}</div>
                             <div class="text-xs text-gray-600 dark:text-gray-400 flex justify-center items-center gap-1">
-                                <Briefcase class="w-3 h-3" /> Exp
+                                <Briefcase class="w-3 h-3" /> Experiencias
                             </div>
                         </div>
                         <div class="text-center group hover:bg-purple-50 dark:hover:bg-slate-600 rounded-lg p-2 transition-colors">
                             <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ educationCount }}</div>
                             <div class="text-xs text-gray-600 dark:text-gray-400 flex justify-center items-center gap-1">
-                                <GraduationCap class="w-3 h-3" /> Edu
+                                <GraduationCap class="w-3 h-3" /> Académico
                             </div>
                         </div>
                         <div class="text-center group hover:bg-pink-50 dark:hover:bg-slate-600 rounded-lg p-2 transition-colors">
                             <div class="text-3xl font-bold text-pink-600 dark:text-pink-400">{{ projectsCount }}</div>
                             <div class="text-xs text-gray-600 dark:text-gray-400 flex justify-center items-center gap-1">
-                                <Code2 class="w-3 h-3" /> Proj
+                                <Code2 class="w-3 h-3" /> Proyectos
                             </div>
                         </div>
                         <div class="text-center group hover:bg-cyan-50 dark:hover:bg-slate-600 rounded-lg p-2 transition-colors">
                             <div class="text-3xl font-bold text-cyan-600 dark:text-cyan-400">{{ languageCount }}</div>
                             <div class="text-xs text-gray-600 dark:text-gray-400 flex justify-center items-center gap-1">
-                                <Globe class="w-3 h-3" /> Lang
+                                <Globe class="w-3 h-3" /> Idiomas
                             </div>
                         </div>
                         <div class="text-center group hover:bg-blue-50 dark:hover:bg-slate-600 rounded-lg p-2 transition-colors">
                             <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ totalSkills }}</div>
                             <div class="text-xs text-gray-600 dark:text-gray-400 flex justify-center items-center gap-1">
-                                <Wrench class="w-3 h-3" /> Skills
+                                <Wrench class="w-3 h-3" /> Habilidades
                             </div>
                         </div>
                     </div>
     
                     <!-- Tabs -->
-                    <div class="flex gap-2 px-8 py-4 border-b border-gray-200 dark:border-gray-700 overflow-x-auto flex-shrink-0">
-                        <button
-                            v-for="tab in ['overview', 'experience', 'education', 'projects', 'languages', 'skills']"
-                            :key="tab"
-                            @click="selectedTab = tab as any"
-                            :class="[
-                                'px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all flex items-center gap-2',
-                                selectedTab === tab
-                                    ? 'bg-indigo-500 text-white shadow-md'
-                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                            ]"
-                        >
-                            <ClipboardList v-if="tab === 'overview'" class="w-4 h-4" />
-                            <Briefcase v-else-if="tab === 'experience'" class="w-4 h-4" />
-                            <GraduationCap v-else-if="tab === 'education'" class="w-4 h-4" />
-                            <Code2 v-else-if="tab === 'projects'" class="w-4 h-4" />
-                            <Globe v-else-if="tab === 'languages'" class="w-4 h-4" />
-                            <Wrench v-else-if="tab === 'skills'" class="w-4 h-4" />
-                            
-                            <span>
-                                {{ 
-                                    tab === 'overview' ? 'Resumen' : 
-                                    tab === 'experience' ? 'Experiencia' : 
-                                    tab === 'education' ? 'Educación' :
-                                    tab === 'projects' ? 'Proyectos' :
-                                    tab === 'languages' ? 'Idiomas' : 'Habilidades' 
-                                }}
-                            </span>
-                        </button>
-                    </div>
+               <!-- Tabs -->
+<div class="flex gap-0 px-8 py-4 border-b border-gray-200 dark:border-gray-700 overflow-x-auto flex-shrink-0">
+  <button
+    v-for="tab in ['overview', 'experience', 'education', 'projects', 'languages', 'skills']"
+    :key="tab"
+    @click="selectedTab = tab as any"
+    :class="[
+      'px-4 py-3 font-medium whitespace-nowrap transition-all duration-300 flex items-center gap-2 relative',
+      'text-sm border-b-2',
+      selectedTab === tab
+        ? 'text-indigo-600 dark:text-indigo-400 border-indigo-600 dark:border-indigo-400'
+        : 'text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-gray-200'
+    ]"
+  >
+    <ClipboardList v-if="tab === 'overview'" class="w-4 h-4" />
+    <Briefcase v-else-if="tab === 'experience'" class="w-4 h-4" />
+    <GraduationCap v-else-if="tab === 'education'" class="w-4 h-4" />
+    <Code2 v-else-if="tab === 'projects'" class="w-4 h-4" />
+    <Globe v-else-if="tab === 'languages'" class="w-4 h-4" />
+    <Wrench v-else-if="tab === 'skills'" class="w-4 h-4" />
     
+    <span class="hidden sm:inline">
+      {{ 
+        tab === 'overview' ? 'Resumen' : 
+        tab === 'experience' ? 'Experiencia' : 
+        tab === 'education' ? 'Educación' :
+        tab === 'projects' ? 'Proyectos' :
+        tab === 'languages' ? 'Idiomas' : 'Habilidades' 
+      }}
+    </span>
+  </button>
+</div>
+
                     <!-- Content -->
                     <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
                         <!-- Loading State -->
