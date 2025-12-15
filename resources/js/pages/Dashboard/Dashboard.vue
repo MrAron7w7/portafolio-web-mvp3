@@ -1,3 +1,4 @@
+```
 <script setup lang="ts">
 import dashboard from '@/routes/dashboard';
 import { Link, router, usePage } from '@inertiajs/vue3';
@@ -7,6 +8,7 @@ import {
     Edit,
     Eye,
     Folder,
+    Home,
     Menu,
     Plus,
     Search,
@@ -99,6 +101,26 @@ const viewPortfolio = (portfolioId: number) => {
                             class="w-full rounded-lg border border-gray-300 bg-white/50 py-2.5 pr-4 pl-10 transition-colors duration-200 focus:border-[#005aeb] focus:ring-2 focus:ring-[#005aeb]" />
                     </div>
                 </div>
+
+                <!-- Botón Ir a Inicio (alineado a la derecha) -->
+                <Link href="/">
+                    <button
+                        class="group relative overflow-hidden rounded-lg bg-gradient-to-r from-[#005aeb] to-[#7B2FF7] px-6 py-2.5 font-semibold text-white shadow-md transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center space-x-2">
+                        <!-- Efecto de brillo -->
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700">
+                        </div>
+
+                        <!-- Contenido del botón -->
+                        <Home class="h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
+                        <span class="relative z-10">Ir a Inicio</span>
+
+                        <!-- Efecto de partículas -->
+                        <div
+                            class="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-ping">
+                        </div>
+                    </button>
+                </Link>
 
             </div>
         </header>
