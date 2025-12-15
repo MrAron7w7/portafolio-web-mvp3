@@ -12,7 +12,8 @@ import {
     LogOut,
     Settings2,
     ChevronRight,
-    Shield
+    Shield,
+    MessageCircle 
 } from 'lucide-vue-next';
 import {
     DropdownMenu,
@@ -73,6 +74,12 @@ const menuItems = computed(() => [
         icon: Wrench,
         href: '#',
         active: false
+    },
+    {
+        name: 'Comunidad',
+        icon: MessageCircle,
+        href: '/dashboard/comunidad',
+        active: page.url === '/dashboard/comunidad'
     }
 ]);
 
