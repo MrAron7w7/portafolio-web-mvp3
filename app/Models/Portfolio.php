@@ -98,4 +98,9 @@ class Portfolio extends Model
     {
         return $this->hasMany(PortfolioExport::class);
     }
+
+    public function communityPost()
+    {
+        return $this->hasOne(CommunityPost::class);
+    }
 }

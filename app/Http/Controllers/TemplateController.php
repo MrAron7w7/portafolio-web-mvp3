@@ -147,6 +147,16 @@ class TemplateController extends Controller
         ]);
     }
 
+    /**
+     * Vista pública por slug (lectura)
+     */
+    public function viewPublicBySlug(string $slug)
+    {
+        $portfolio = Portfolio::where('slug', $slug)->firstOrFail();
+
+        return $this->viewPortfolio($portfolio);
+    }
+
     private function getTemplateDefaultData($templateType)
     {
         $defaultData = [
@@ -465,4 +475,3 @@ class TemplateController extends Controller
         return back()->with('success', 'Portfolio eliminado correctamente');
     }
 }
-
