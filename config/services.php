@@ -46,4 +46,11 @@ return [
         'npm_path'  => env('BROWSERSHOT_NPM_PATH', 'npm'),
     ],
 
+
+    'stack_ai' => [
+    'key' => env('STACK_AI_KEY'),
+    'flow_id' => env('STACK_AI_FLOW_ID'),
+    'node_id' => env('STACK_AI_NODE_ID'),
+],
+
 ];

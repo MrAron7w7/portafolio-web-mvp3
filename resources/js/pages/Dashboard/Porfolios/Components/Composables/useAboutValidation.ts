@@ -2,12 +2,10 @@ import { reactive } from 'vue';
 
 export interface AboutData {
     summary: string;
-    description: string;
 }
 
 export interface AboutErrors {
     summary?: string;
-    description?: string;
 }
 
 export const useAboutValidation = () => {
@@ -16,7 +14,6 @@ export const useAboutValidation = () => {
     // NUEVO: Estado de campos tocados
     const touched = reactive<{
         summary?: boolean;
-        description?: boolean;
     }>({});
 
     // Reglas de validación
@@ -24,12 +21,7 @@ export const useAboutValidation = () => {
         summary: [
             (value: string) => value?.trim() ? null : 'El resumen es requerido',
             (value: string) => value?.trim().length >= 20 ? null : 'Mínimo 20 caracteres',
-            (value: string) => value?.length <= 300 ? null : 'Máximo 300 caracteres',
-        ],
-        description: [
-            (value: string) => value?.trim() ? null : 'La descripción es requerida',
-            (value: string) => value?.trim().length >= 20 ? null : 'Mínimo 20 caracteres',
-            (value: string) => value?.length <= 2000 ? null : 'Máximo 2000 caracteres',
+            (value: string) => value?.length <= 500 ? null : 'Máximo 500 caracteres',
         ],
     };
 
@@ -56,10 +48,23 @@ export const useAboutValidation = () => {
     };
 
     // NUEVO: Marcar todos los campos como tocados
-    const markAllAsTouched = (formData: AboutData) => {
+    const markAllAsTouched = (formData: AboutData | undefined | null) => {
+        if (!formData) {
+            console.warn('⚠️ markAllAsTouched: Sin formData');
+            return;
+        }
+        
+        console.log('🔴 markAllAsTouched: Validando About');
+        
+        // 1. Marcar como touched
         touched.summary = true;
-        touched.description = true;
+        
+        // 2. ✨ VALIDAR INMEDIATAMENTE ← ESTO TE FALTA
+        validateField('summary', formData.summary, false);
+        
+        console.log('   ✅ About validado:', errors.summary ? `❌ ${errors.summary}` : '✓');
     };
+    
 
     // MODIFICADO: Validar todos los campos con forceShow
     const validateAll = (formData: AboutData, forceShow: boolean = false): boolean => {
@@ -84,8 +89,8 @@ export const useAboutValidation = () => {
     };
 
     // Contador de caracteres
-    const getCharCount = (value: string, field: keyof AboutErrors) => {
-        const maxChars = field === 'summary' ? 300 : 2000;
+    const getCharCount = (value: string) => {
+        const maxChars = 500;
         const currentLength = value?.length || 0;
         return {
             current: currentLength,
