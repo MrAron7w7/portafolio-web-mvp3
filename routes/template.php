@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\IaAutoCompleteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/plantillas', [TemplateController::class, 'Template'])
@@ -20,3 +21,6 @@ Route::get('/portfolio/{portfolio}/view', [TemplateController::class, 'viewPortf
 
 Route::delete('/portfolio/{portfolio}', [TemplateController::class, 'deletePortfolio'])
     ->name('portfolio.delete');
+
+
+    Route::post('/ia/auto-complete', [IaAutoCompleteController::class, 'generateSummary'])->name('ia.auto-complete');;

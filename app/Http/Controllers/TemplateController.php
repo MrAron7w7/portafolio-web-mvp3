@@ -97,6 +97,7 @@ class TemplateController extends Controller
             'is_public' => false,
             'is_active' => true,
             'is_completed' => false,
+            'is_new' => true,
             'theme_settings' => $this->getDefaultThemeSettings($request->template_type),
         ]);
 

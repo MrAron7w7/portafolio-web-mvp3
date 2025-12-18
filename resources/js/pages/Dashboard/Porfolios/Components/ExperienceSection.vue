@@ -2,6 +2,8 @@
 import { Plus, Trash2, ChevronDown, AlertCircle, Sparkles } from 'lucide-vue-next';
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useExperienceValidation, type Experience } from './Composables/useExperienceValidation';
+import { getDetailedDescriptionSuggestions } from './Composables/experienceSuggestions';
+
 
 const props = defineProps<{
     modelValue: Experience[];
@@ -290,6 +292,112 @@ const hasExperienceError = (index: number) => {
 const getErrorClassForInput = (index: number, field: keyof Experience) => {
     return props.validation.getErrorClass(index, field, false);
 };
+
+
+
+// ==========================================
+// LÓGICA DE AYUDA PARA LA DESCRIPCIÓN
+// ==========================================
+
+// 1. Calcular el color del badge de calidad según la longitud
+const getQualityBadge = (text: string | undefined) => {
+    const length = (text || '').trim().length;
+    if (length === 0) return 'hidden'; // No mostrar si está vacío
+    if (length < 30) return 'bg-gray-100 text-gray-600 border-gray-200';
+    if (length < 80) return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+    if (length < 150) return 'bg-blue-50 text-blue-700 border-blue-200';
+    return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+};
+
+// 2. Calcular el texto del badge de calidad
+const getQualityText = (text: string | undefined) => {
+    const length = (text || '').trim().length;
+    if (length === 0) return '';
+    if (length < 30) return 'Muy corta';
+    if (length < 80) return 'Podría expandirse';
+    if (length < 150) return 'Buena descripción';
+    return 'Excelente detalle';
+};
+
+
+// 4. Generar sugerencias de autocompletado basadas en el cargo (VERSIÓN EXPANDIDA)
+const getDescriptionSuggestions = (experience: Experience) => {
+    return getDetailedDescriptionSuggestions(experience);
+};
+
+// 5. Función para aplicar una sugerencia
+const applySuggestion = (index: number, text: string) => {
+    const current = props.modelValue[index].description;
+    const combined = current ? current + ' ' + text : text;
+    updateExperience(index, 'description', combined);
+};
+
+// 6. Mostrar sugerencias solo si está vacío o casi vacío
+const shouldShowSuggestions = (description: string, position: string) => {
+    return (!description || description.trim().length < 15) && position.trim().length > 3;
+};
+
+
+
+// ==========================================
+// ESTADO PARA PANEL DE SUGERENCIAS
+// ==========================================
+
+// Track si el panel de sugerencias está expandido por index
+const expandedSuggestions = ref<{ [key: number]: boolean }>({});
+
+// Track la última sugerencia aplicada (solo para mostrar label visual)
+const lastAppliedSuggestion = ref<{ [key: number]: string }>({});
+
+
+// ==========================================
+// FUNCIONES PARA MANEJAR SUGERENCIAS
+// ==========================================
+
+// Toggle el panel de sugerencias
+const toggleSuggestionsPanel = (index: number) => {
+    expandedSuggestions.value[index] = !expandedSuggestions.value[index];
+};
+
+// Cerrar panel de sugerencias
+const closeSuggestionsPanel = (index: number) => {
+    expandedSuggestions.value[index] = false;
+};
+
+// Aplicar sugerencia CON tracking del label (visual only)
+const applySuggestionWithLabel = (index: number, text: string, label: string) => {
+    const current = props.modelValue[index].description;
+    const combined = current ? current + ' ' + text : text;
+    
+    // Actualizar descripción
+    updateExperience(index, 'description', combined);
+    
+    // Guardar el label (solo visual, NO se envía en form)
+    lastAppliedSuggestion.value[index] = label;
+    
+    // Cerrar panel después de seleccionar
+    setTimeout(() => {
+        closeSuggestionsPanel(index);
+    }, 300);
+};
+
+// Limpiar el label visual
+const clearLastSuggestion = (index: number) => {
+    delete lastAppliedSuggestion.value[index];
+};
+
+// Limpiar label cuando el usuario borra la descripción
+watch(
+    () => props.modelValue.map((e, i) => e.description),
+    (descriptions) => {
+        descriptions.forEach((desc, i) => {
+            if (!desc || desc.trim().length === 0) {
+                delete lastAppliedSuggestion.value[i];
+            }
+        });
+    },
+    { deep: true }
+);
 </script>
 
 <template>
@@ -305,100 +413,70 @@ const getErrorClassForInput = (index: number, field: keyof Experience) => {
 
         <div class="space-y-3">
             <!-- Items del acordeón -->
-            <div
-                v-for="(exp, index) in modelValue"
-                :key="exp.id"
+            <div v-for="(exp, index) in modelValue" :key="exp.id"
                 class="overflow-hidden rounded-lg border transition-all duration-500 ease-in-out"
-                :class="getContainerClass(index, exp.id)"
-            >
+                :class="getContainerClass(index, exp.id)">
                 <!-- Header del acordeón -->
-                <button
-                    @click="toggleExperience(exp.id)"
+                <button @click="toggleExperience(exp.id)"
                     class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
-                    type="button"
-                >
+                    type="button">
                     <div class="flex flex-1 items-center gap-3 text-left">
                         <ChevronDown
                             class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
-                            :class="{ 'rotate-180 transform': expandedIndex === exp.id }"
-                        />
+                            :class="{ 'rotate-180 transform': expandedIndex === exp.id }" />
 
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2">
-                                <span
-                                    class="text-base font-medium transition-colors duration-300"
-                                    :class="{
-                                        'text-red-700': hasExperienceError(index),
-                                        'text-emerald-700': newItems.has(exp.id),
-                                        'text-gray-900': !hasExperienceError(index) && !newItems.has(exp.id)
-                                    }"
-                                >
+                                <span class="text-base font-medium transition-colors duration-300" :class="{
+                                    'text-red-700': hasExperienceError(index),
+                                    'text-emerald-700': newItems.has(exp.id),
+                                    'text-gray-900': !hasExperienceError(index) && !newItems.has(exp.id)
+                                }">
                                     {{ exp.position || exp.company || 'Nueva experiencia' }}
                                 </span>
 
                                 <!-- ICONO DE ERROR -->
-                                <AlertCircle
-                                    v-if="hasExperienceError(index)"
-                                    class="h-4 w-4 text-red-500 animate-pulse"
-                                />
+                                <AlertCircle v-if="hasExperienceError(index)"
+                                    class="h-4 w-4 text-red-500 animate-pulse" />
 
                                 <!-- ICONO DE NUEVO -->
-                                <Sparkles
-                                    v-if="newItems.has(exp.id) && !hasExperienceError(index)"
-                                    class="h-4 w-4 text-emerald-500 animate-bounce"
-                                />
+                                <Sparkles v-if="newItems.has(exp.id) && !hasExperienceError(index)"
+                                    class="h-4 w-4 text-emerald-500 animate-bounce" />
                             </div>
                             <span v-if="exp.company" class="text-sm text-gray-500">{{ exp.company }}</span>
                         </div>
                     </div>
 
-                    <button
-                        @click.stop="openDeleteConfirm(index, $event)"
-                        type="button"
-                        class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
-                    >
+                    <button @click.stop="openDeleteConfirm(index, $event)" type="button"
+                        class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500">
                         <Trash2 class="h-4 w-4" />
                     </button>
                 </button>
 
                 <!-- Contenido del acordeón -->
-                <transition
-                    enter-active-class="transition-all duration-300 ease-out"
+                <transition enter-active-class="transition-all duration-300 ease-out"
                     leave-active-class="transition-all duration-300 ease-in"
-                    enter-from-class="max-h-0 opacity-0 overflow-hidden"
-                    enter-to-class="max-h-[900px] opacity-100"
-                    leave-from-class="max-h-[900px] opacity-100"
-                    leave-to-class="max-h-0 opacity-0 overflow-hidden"
-                >
-                    <div
-                        v-if="expandedIndex === exp.id"
-                        class="border-t px-4 py-4 bg-white/50"
-                        :class="hasExperienceError(index) ? 'border-red-200' : 'border-gray-200'"
-                    >
+                    enter-from-class="max-h-0 opacity-0 overflow-hidden" enter-to-class="max-h-[900px] opacity-100"
+                    leave-from-class="max-h-[900px] opacity-100" leave-to-class="max-h-0 opacity-0 overflow-hidden">
+                    <div v-if="expandedIndex === exp.id" class="border-t px-4 py-4 bg-white/50"
+                        :class="hasExperienceError(index) ? 'border-red-200' : 'border-gray-200'">
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <!-- Empresa -->
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700">
                                     Empresa *
                                 </label>
-                                <input
-                                    :value="exp.company"
-                                    @input="
-                                        updateExperience(
-                                            index,
-                                            'company',
-                                            ($event.target as HTMLInputElement).value
-                                        )
-                                    "
-                                    type="text"
+                                <input :value="exp.company" @input="
+                                    updateExperience(
+                                        index,
+                                        'company',
+                                        ($event.target as HTMLInputElement).value
+                                    )
+                                    " type="text"
                                     class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                                     :class="getErrorClassForInput(index, 'company')"
-                                    placeholder="Nombre de la empresa"
-                                />
-                                <p
-                                    v-if="experienceErrors[index]?.company"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                    placeholder="Nombre de la empresa" />
+                                <p v-if="experienceErrors[index]?.company" class="mt-1 text-sm text-red-500">
                                     {{ experienceErrors[index].company }}
                                 </p>
                             </div>
@@ -408,24 +486,16 @@ const getErrorClassForInput = (index: number, field: keyof Experience) => {
                                 <label class="mb-2 block text-sm font-medium text-gray-700">
                                     Cargo *
                                 </label>
-                                <input
-                                    :value="exp.position"
-                                    @input="
-                                        updateExperience(
-                                            index,
-                                            'position',
-                                            ($event.target as HTMLInputElement).value
-                                        )
-                                    "
-                                    type="text"
+                                <input :value="exp.position" @input="
+                                    updateExperience(
+                                        index,
+                                        'position',
+                                        ($event.target as HTMLInputElement).value
+                                    )
+                                    " type="text"
                                     class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
-                                    :class="getErrorClassForInput(index, 'position')"
-                                    placeholder="Tu posición"
-                                />
-                                <p
-                                    v-if="experienceErrors[index]?.position"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                    :class="getErrorClassForInput(index, 'position')" placeholder="Tu posición" />
+                                <p v-if="experienceErrors[index]?.position" class="mt-1 text-sm text-red-500">
                                     {{ experienceErrors[index].position }}
                                 </p>
                             </div>
@@ -435,23 +505,16 @@ const getErrorClassForInput = (index: number, field: keyof Experience) => {
                                 <label class="mb-2 block text-sm font-medium text-gray-700">
                                     Fecha de inicio *
                                 </label>
-                                <input
-                                    :value="exp.startDate"
-                                    @input="
-                                        updateExperience(
-                                            index,
-                                            'startDate',
-                                            ($event.target as HTMLInputElement).value
-                                        )
-                                    "
-                                    type="month"
+                                <input :value="exp.startDate" @input="
+                                    updateExperience(
+                                        index,
+                                        'startDate',
+                                        ($event.target as HTMLInputElement).value
+                                    )
+                                    " type="month"
                                     class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
-                                    :class="getErrorClassForInput(index, 'startDate')"
-                                />
-                                <p
-                                    v-if="experienceErrors[index]?.startDate"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                    :class="getErrorClassForInput(index, 'startDate')" />
+                                <p v-if="experienceErrors[index]?.startDate" class="mt-1 text-sm text-red-500">
                                     {{ experienceErrors[index].startDate }}
                                 </p>
                             </div>
@@ -461,24 +524,16 @@ const getErrorClassForInput = (index: number, field: keyof Experience) => {
                                 <label class="mb-2 block text-sm font-medium text-gray-700">
                                     Fecha de fin
                                 </label>
-                                <input
-                                    :value="exp.endDate"
-                                    @input="
-                                        updateExperience(
-                                            index,
-                                            'endDate',
-                                            ($event.target as HTMLInputElement).value
-                                        )
-                                    "
-                                    type="month"
-                                    :disabled="exp.current"
+                                <input :value="exp.endDate" @input="
+                                    updateExperience(
+                                        index,
+                                        'endDate',
+                                        ($event.target as HTMLInputElement).value
+                                    )
+                                    " type="month" :disabled="exp.current"
                                     class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20 disabled:cursor-not-allowed disabled:opacity-50"
-                                    :class="getErrorClassForInput(index, 'endDate')"
-                                />
-                                <p
-                                    v-if="experienceErrors[index]?.endDate"
-                                    class="mt-1 text-sm text-red-500"
-                                >
+                                    :class="getErrorClassForInput(index, 'endDate')" />
+                                <p v-if="experienceErrors[index]?.endDate" class="mt-1 text-sm text-red-500">
                                     {{ experienceErrors[index].endDate }}
                                 </p>
                             </div>
@@ -486,17 +541,13 @@ const getErrorClassForInput = (index: number, field: keyof Experience) => {
                             <!-- Checkbox trabajo actual -->
                             <div class="md:col-span-2">
                                 <label class="flex cursor-pointer items-center space-x-3">
-                                    <input
-                                        :checked="exp.current"
-                                        @change="
-                                            handleCurrentChange(
-                                                index,
-                                                ($event.target as HTMLInputElement).checked
-                                            )
-                                        "
-                                        type="checkbox"
-                                        class="h-4 w-4 cursor-pointer rounded border-gray-300 text-[#005aeb] focus:ring-[#005aeb]"
-                                    />
+                                    <input :checked="exp.current" @change="
+                                        handleCurrentChange(
+                                            index,
+                                            ($event.target as HTMLInputElement).checked
+                                        )
+                                        " type="checkbox"
+                                        class="h-4 w-4 cursor-pointer rounded border-gray-300 text-[#005aeb] focus:ring-[#005aeb]" />
                                     <span class="text-sm font-medium text-gray-700">
                                         Trabajo actual
                                     </span>
@@ -504,108 +555,177 @@ const getErrorClassForInput = (index: number, field: keyof Experience) => {
                             </div>
 
                             <!-- Descripción -->
-                            <div class="md:col-span-2">
-                                <label class="mb-2 block text-sm font-medium text-gray-700">
-                                    Descripción *
-                                </label>
-                                <p class="mb-2 text-xs text-gray-500">
-                                    Describe tus responsabilidades, logros y tecnologías utilizadas.
-                                </p>
-                                <textarea
-                                    :value="exp.description"
-                                    @input="
-                                        updateExperience(
-                                            index,
-                                            'description',
-                                            ($event.target as HTMLTextAreaElement).value
-                                        )
-                                    "
-                                    rows="4"
-                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
-                                    :class="getErrorClassForInput(index, 'description')"
-                                    placeholder="Describe tus responsabilidades, logros principales..."
-                                ></textarea>
-                                <div class="mt-1 flex items-center justify-between">
-                                    <span
-                                        v-if="experienceErrors[index]?.description"
-                                        class="text-sm text-red-500"
-                                    >
-                                        {{ experienceErrors[index].description }}
-                                    </span>
-                                    <span v-else class="text-sm text-transparent">placeholder</span>
-                                    <span
-                                        class="text-xs"
-                                        :class="[
-                                            getCharCount(exp.description).isOverLimit
-                                                ? 'font-medium text-red-500'
-                                                : getCharCount(exp.description).isNearLimit
-                                                  ? 'text-amber-500'
-                                                  : 'text-gray-400',
-                                        ]"
-                                    >
-                                        {{ getCharCount(exp.description).current }}/{{
-                                            getCharCount(exp.description).max
-                                        }}
-                                    </span>
-                                </div>
-                            </div>
+
+                        <!-- Descripción MEJORADA con Autocompletado y Botón -->
+<div class="md:col-span-2">
+    <div class="flex items-center justify-between mb-2">
+        <label class="block text-sm font-medium text-gray-700">
+            Descripción *
+        </label>
+        
+        <!-- Badge de calidad -->
+        <span 
+            v-if="exp.description"
+            class="text-xs px-2 py-0.5 rounded-full border font-medium transition-all duration-300"
+            :class="getQualityBadge(exp.description)"
+        >
+            {{ getQualityText(exp.description) }}
+        </span>
+    </div>
+
+    <!-- Ayuda contextual pequeña -->
+    <p class="mb-3 text-xs text-gray-500">
+        Describe responsabilidades, logros, tecnologías y métricas.
+    </p>
+
+    <!-- Container del textarea con botón -->
+    <div class="relative">
+        <textarea 
+            :value="exp.description" 
+            @input="updateExperience(index, 'description', ($event.target as HTMLTextAreaElement).value)"
+            placeholder="Describe tus responsabilidades, logros principales..." 
+            rows="8"
+            class="w-full rounded-lg border bg-gray-50 px-3 py-2 pr-10 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+            :class="getErrorClassForInput(index, 'description')"
+        ></textarea>
+
+        <!-- Botón flotante de autocompletar (Sparkles) -->
+        <button
+            v-if="exp.position.trim().length > 0"
+            @click="toggleSuggestionsPanel(index)"
+            type="button"
+            class="absolute bottom-3 right-3 p-2 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 transition-all text-blue-600"
+            title="Abrir sugerencias de autocompletado"
+        >
+            <Sparkles class="h-4 w-4" />
+        </button>
+    </div>
+
+    <!-- Etiqueta del último suggestion aplicado (Visual indicator, NO se envía) -->
+    <div 
+        v-if="lastAppliedSuggestion[index]" 
+        class="mt-2 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs text-emerald-700"
+    >
+        <span class="font-medium">✓</span>
+        <span>{{ lastAppliedSuggestion[index] }}</span>
+        <button
+            @click="clearLastSuggestion(index)"
+            type="button"
+            class="ml-1 hover:text-emerald-900"
+        >
+            ✕
+        </button>
+    </div>
+
+    <!-- Error o contador -->
+    <div class="mt-2 flex items-center justify-between">
+        <span 
+            v-if="experienceErrors[index]?.description" 
+            class="text-sm text-red-500"
+        >
+            {{ experienceErrors[index].description }}
+        </span>
+        <span v-else class="text-sm text-transparent">placeholder</span>
+        <span 
+            class="text-xs"
+            :class="[
+                getCharCount(exp.description).isOverLimit
+                    ? 'font-medium text-red-500'
+                    : getCharCount(exp.description).isNearLimit
+                      ? 'text-amber-500'
+                      : 'text-gray-400',
+            ]"
+        >
+            {{ getCharCount(exp.description).current }}/{{ getCharCount(exp.description).max }}
+        </span>
+    </div>
+
+    <!-- Panel de Sugerencias (Dropdown estilo modal) -->
+    <transition
+        enter-active-class="transition-all duration-200 ease-out"
+        leave-active-class="transition-all duration-200 ease-in"
+        enter-from-class="opacity-0 scale-95 max-h-0"
+        enter-to-class="opacity-100 scale-100 max-h-96"
+        leave-from-class="opacity-100 scale-100 max-h-96"
+        leave-to-class="opacity-0 scale-95 max-h-0"
+    >
+        <div 
+            v-if="expandedSuggestions[index]"
+            class="mt-3 space-y-3 p-3 rounded-lg bg-gradient-to-b from-blue-50 to-blue-25 border border-blue-200 shadow-lg overflow-hidden"
+        >
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-semibold text-gray-700 flex items-center gap-1">
+                    <Sparkles class="h-3.5 w-3.5 text-blue-500" />
+                    Sugerencias inteligentes
+                </p>
+                <button
+                    @click="toggleSuggestionsPanel(index)"
+                    type="button"
+                    class="text-gray-400 hover:text-gray-600 text-lg leading-none"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <!-- Grid de sugerencias -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button 
+                    v-for="(suggestion, i) in getDescriptionSuggestions(exp)" 
+                    :key="i"
+                    @click="applySuggestionWithLabel(index, suggestion.text, suggestion.label)"
+                    type="button"
+                    class="text-left px-3 py-2.5 rounded-lg bg-white border border-blue-100 hover:border-blue-400 hover:bg-blue-50 transition-all text-xs text-gray-700 font-medium flex flex-col gap-1 group"
+                >
+                    <span class="text-blue-600 group-hover:text-blue-700">{{ suggestion.label }}</span>
+                    <span class="text-gray-500 text-xs leading-snug line-clamp-2">{{ suggestion.text }}</span>
+                </button>
+            </div>
+
+ 
+        </div>
+    </transition>
+</div>
+
+
                         </div>
                     </div>
                 </transition>
             </div>
 
             <!-- Botón agregar experiencia -->
-            <button
-                @click="addExperience"
-                class="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-4 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]"
-            >
+            <button @click="addExperience"
+                class="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-4 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]">
                 <Plus class="h-5 w-5" />
                 <span>Agregar nueva experiencia</span>
             </button>
         </div>
 
         <!-- Backdrop para cerrar popover -->
-        <div
-            v-if="deleteConfirmIndex !== null"
-            @click="closeDeleteConfirm"
-            class="fixed inset-0 z-40"
-        ></div>
+        <div v-if="deleteConfirmIndex !== null" @click="closeDeleteConfirm" class="fixed inset-0 z-40"></div>
 
         <!-- Popover de confirmación -->
-        <transition
-            enter-active-class="transition-all duration-200 ease-out"
-            leave-active-class="transition-all duration-200 ease-in"
-            enter-from-class="opacity-0 scale-95 translate-y-2"
-            enter-to-class="opacity-100 scale-100 translate-y-0"
-            leave-from-class="opacity-100 scale-100 translate-y-0"
-            leave-to-class="opacity-0 scale-95 translate-y-2"
-        >
-            <div
-                v-if="deleteConfirmIndex !== null"
+        <transition enter-active-class="transition-all duration-200 ease-out"
+            leave-active-class="transition-all duration-200 ease-in" enter-from-class="opacity-0 scale-95 translate-y-2"
+            enter-to-class="opacity-100 scale-100 translate-y-0" leave-from-class="opacity-100 scale-100 translate-y-0"
+            leave-to-class="opacity-0 scale-95 translate-y-2">
+            <div v-if="deleteConfirmIndex !== null"
                 class="pointer-events-auto fixed z-50 w-56 rounded-lg border border-gray-200 bg-white p-4 shadow-2xl"
                 :style="{
                     top: popoverPosition.top + 'px',
                     left: popoverPosition.left + 'px',
-                }"
-            >
+                }">
                 <!-- Flecha arriba -->
-                <div
-                    v-if="popoverPosition.positionY === 'below'"
+                <div v-if="popoverPosition.positionY === 'below'"
                     class="absolute -top-2 h-4 w-4 rotate-45 border-l border-t border-gray-200 bg-white"
-                    :style="{ left: popoverPosition.arrowLeft + 'px' }"
-                ></div>
+                    :style="{ left: popoverPosition.arrowLeft + 'px' }"></div>
 
                 <!-- Flecha abajo -->
-                <div
-                    v-if="popoverPosition.positionY === 'above'"
+                <div v-if="popoverPosition.positionY === 'above'"
                     class="absolute -bottom-2 h-4 w-4 rotate-45 border-b border-r border-gray-200 bg-white"
-                    :style="{ left: popoverPosition.arrowLeft + 'px' }"
-                ></div>
+                    :style="{ left: popoverPosition.arrowLeft + 'px' }"></div>
 
                 <div class="relative">
-                    <div
-                        class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
-                    >
+                    <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
                         <Trash2 class="h-5 w-5 text-red-600" />
                     </div>
 
@@ -618,16 +738,12 @@ const getErrorClassForInput = (index: number, field: keyof Experience) => {
                     </p>
 
                     <div class="flex gap-2">
-                        <button
-                            @click.stop="closeDeleteConfirm"
-                            class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
-                        >
+                        <button @click.stop="closeDeleteConfirm"
+                            class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50">
                             Cancelar
                         </button>
-                        <button
-                            @click.stop="confirmDelete(deleteConfirmIndex)"
-                            class="flex-1 rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-red-700"
-                        >
+                        <button @click.stop="confirmDelete(deleteConfirmIndex)"
+                            class="flex-1 rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-red-700">
                             Eliminar
                         </button>
                     </div>

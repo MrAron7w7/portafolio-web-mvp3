@@ -301,48 +301,35 @@ const getErrorClassForInput = (index: number, field: keyof Education) => {
 
         <div class="space-y-3">
             <!-- Items del acordeón -->
-            <div
-                v-for="(education, index) in modelValue"
-                :key="education.id"
+            <div v-for="(education, index) in modelValue" :key="education.id"
                 class="overflow-hidden rounded-lg border transition-all duration-500 ease-in-out"
-                :class="getContainerClass(index, education.id)"
-            >
+                :class="getContainerClass(index, education.id)">
                 <!-- Header del acordeón -->
-                <button
-                    @click="toggleEducation(education.id)"
+                <button @click="toggleEducation(education.id)"
                     class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
-                    type="button"
-                >
+                    type="button">
                     <div class="flex flex-1 items-center gap-3 text-left">
                         <ChevronDown
                             class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
-                            :class="{ 'rotate-180 transform': expandedIndex === education.id }"
-                        />
+                            :class="{ 'rotate-180 transform': expandedIndex === education.id }" />
 
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2">
-                                <span
-                                    class="text-base font-medium transition-colors duration-300"
-                                    :class="{
-                                        'text-red-700': hasEducationError(index),
-                                        'text-emerald-700': newItems.has(education.id),
-                                        'text-gray-900': !hasEducationError(index) && !newItems.has(education.id)
-                                    }"
-                                >
+                                <span class="text-base font-medium transition-colors duration-300" :class="{
+                                    'text-red-700': hasEducationError(index),
+                                    'text-emerald-700': newItems.has(education.id),
+                                    'text-gray-900': !hasEducationError(index) && !newItems.has(education.id)
+                                }">
                                     {{ education.degree || 'Nueva educación' }}
                                 </span>
 
                                 <!-- ICONO DE ERROR -->
-                                <AlertCircle
-                                    v-if="hasEducationError(index)"
-                                    class="h-4 w-4 text-red-500 animate-pulse"
-                                />
+                                <AlertCircle v-if="hasEducationError(index)"
+                                    class="h-4 w-4 text-red-500 animate-pulse" />
 
                                 <!-- ICONO DE NUEVO -->
-                                <Sparkles
-                                    v-if="newItems.has(education.id) && !hasEducationError(index)"
-                                    class="h-4 w-4 text-emerald-500 animate-bounce"
-                                />
+                                <Sparkles v-if="newItems.has(education.id) && !hasEducationError(index)"
+                                    class="h-4 w-4 text-emerald-500 animate-bounce" />
                             </div>
                             <span v-if="education.institution" class="text-sm text-gray-500">
                                 en {{ education.institution }}
@@ -350,49 +337,35 @@ const getErrorClassForInput = (index: number, field: keyof Education) => {
                         </div>
                     </div>
 
-                    <button
-                        @click.stop="openDeleteConfirm(index, $event)"
-                        type="button"
-                        class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
-                    >
+                    <button @click.stop="openDeleteConfirm(index, $event)" type="button"
+                        class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500">
                         <Trash2 class="h-4 w-4" />
                     </button>
                 </button>
 
                 <!-- Contenido del acordeón -->
-                <transition
-                    enter-active-class="transition-all duration-300 ease-out"
+                <transition enter-active-class="transition-all duration-300 ease-out"
                     leave-active-class="transition-all duration-300 ease-in"
-                    enter-from-class="max-h-0 opacity-0 overflow-hidden"
-                    enter-to-class="max-h-[1200px] opacity-100"
-                    leave-from-class="max-h-[1200px] opacity-100"
-                    leave-to-class="max-h-0 opacity-0 overflow-hidden"
-                >
-                    <div
-                        v-if="expandedIndex === education.id"
-                        class="border-t px-4 py-4 bg-white/50"
-                        :class="hasEducationError(index) ? 'border-red-200' : 'border-gray-200'"
-                    >
+                    enter-from-class="max-h-0 opacity-0 overflow-hidden" enter-to-class="max-h-[1200px] opacity-100"
+                    leave-from-class="max-h-[1200px] opacity-100" leave-to-class="max-h-0 opacity-0 overflow-hidden">
+                    <div v-if="expandedIndex === education.id" class="border-t px-4 py-4 bg-white/50"
+                        :class="hasEducationError(index) ? 'border-red-200' : 'border-gray-200'">
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <!-- Título/Carrera -->
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700">
                                     Título/Carrera *
                                 </label>
-                                <input
-                                    :value="education.degree"
-                                    @input="
-                                        updateEducation(
-                                            index,
-                                            'degree',
-                                            ($event.target as HTMLInputElement).value
-                                        )
-                                    "
-                                    type="text"
+                                <input :value="education.degree" @input="
+                                    updateEducation(
+                                        index,
+                                        'degree',
+                                        ($event.target as HTMLInputElement).value
+                                    )
+                                    " type="text"
                                     class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                                     :class="getErrorClassForInput(index, 'degree')"
-                                    placeholder="Ej: Ingeniería en Informática"
-                                />
+                                    placeholder="Ej: Ingeniería en Informática" />
                                 <p v-if="educationErrors[index]?.degree" class="mt-1 text-sm text-red-500">
                                     {{ educationErrors[index].degree }}
                                 </p>
@@ -403,20 +376,16 @@ const getErrorClassForInput = (index: number, field: keyof Education) => {
                                 <label class="mb-2 block text-sm font-medium text-gray-700">
                                     Institución *
                                 </label>
-                                <input
-                                    :value="education.institution"
-                                    @input="
-                                        updateEducation(
-                                            index,
-                                            'institution',
-                                            ($event.target as HTMLInputElement).value
-                                        )
-                                    "
-                                    type="text"
+                                <input :value="education.institution" @input="
+                                    updateEducation(
+                                        index,
+                                        'institution',
+                                        ($event.target as HTMLInputElement).value
+                                    )
+                                    " type="text"
                                     class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                                     :class="getErrorClassForInput(index, 'institution')"
-                                    placeholder="Ej: Universidad Nacional"
-                                />
+                                    placeholder="Ej: Universidad Nacional" />
                                 <p v-if="educationErrors[index]?.institution" class="mt-1 text-sm text-red-500">
                                     {{ educationErrors[index].institution }}
                                 </p>
@@ -427,19 +396,15 @@ const getErrorClassForInput = (index: number, field: keyof Education) => {
                                 <label class="mb-2 block text-sm font-medium text-gray-700">
                                     Fecha de inicio *
                                 </label>
-                                <input
-                                    :value="education.startDate"
-                                    @input="
-                                        updateEducation(
-                                            index,
-                                            'startDate',
-                                            ($event.target as HTMLInputElement).value
-                                        )
-                                    "
-                                    type="month"
+                                <input :value="education.startDate" @input="
+                                    updateEducation(
+                                        index,
+                                        'startDate',
+                                        ($event.target as HTMLInputElement).value
+                                    )
+                                    " type="month"
                                     class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
-                                    :class="getErrorClassForInput(index, 'startDate')"
-                                />
+                                    :class="getErrorClassForInput(index, 'startDate')" />
                                 <p v-if="educationErrors[index]?.startDate" class="mt-1 text-sm text-red-500">
                                     {{ educationErrors[index].startDate }}
                                 </p>
@@ -450,20 +415,15 @@ const getErrorClassForInput = (index: number, field: keyof Education) => {
                                 <label class="mb-2 block text-sm font-medium text-gray-700">
                                     Fecha de fin
                                 </label>
-                                <input
-                                    :value="education.endDate"
-                                    @input="
-                                        updateEducation(
-                                            index,
-                                            'endDate',
-                                            ($event.target as HTMLInputElement).value
-                                        )
-                                    "
-                                    type="month"
-                                    :disabled="education.current"
+                                <input :value="education.endDate" @input="
+                                    updateEducation(
+                                        index,
+                                        'endDate',
+                                        ($event.target as HTMLInputElement).value
+                                    )
+                                    " type="month" :disabled="education.current"
                                     class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20 disabled:cursor-not-allowed disabled:opacity-50"
-                                    :class="getErrorClassForInput(index, 'endDate')"
-                                />
+                                    :class="getErrorClassForInput(index, 'endDate')" />
                                 <p v-if="educationErrors[index]?.endDate" class="mt-1 text-sm text-red-500">
                                     {{ educationErrors[index].endDate }}
                                 </p>
@@ -472,121 +432,56 @@ const getErrorClassForInput = (index: number, field: keyof Education) => {
                             <!-- Checkbox actualmente estudiando -->
                             <div class="md:col-span-2">
                                 <label class="flex cursor-pointer items-center space-x-3">
-                                    <input
-                                        :checked="education.current"
-                                        @change="
-                                            handleCurrentChange(
-                                                index,
-                                                ($event.target as HTMLInputElement).checked
-                                            )
-                                        "
-                                        type="checkbox"
-                                        class="h-4 w-4 cursor-pointer rounded border-gray-300 text-[#005aeb] focus:ring-[#005aeb]"
-                                    />
+                                    <input :checked="education.current" @change="
+                                        handleCurrentChange(
+                                            index,
+                                            ($event.target as HTMLInputElement).checked
+                                        )
+                                        " type="checkbox"
+                                        class="h-4 w-4 cursor-pointer rounded border-gray-300 text-[#005aeb] focus:ring-[#005aeb]" />
                                     <span class="text-sm font-medium text-gray-700">
                                         Actualmente estudiando
                                     </span>
                                 </label>
                             </div>
 
-                            <!-- Descripción -->
-                            <div class="md:col-span-2">
-                                <label class="mb-2 block text-sm font-medium text-gray-700">
-                                    Descripción
-                                </label>
-                                <p class="mb-2 text-xs text-gray-500">
-                                    Información adicional sobre tu formación (opcional).
-                                </p>
-                                <textarea
-                                    :value="education.description"
-                                    @input="
-                                        updateEducation(
-                                            index,
-                                            'description',
-                                            ($event.target as HTMLTextAreaElement).value
-                                        )
-                                    "
-                                    rows="4"
-                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
-                                    :class="getErrorClassForInput(index, 'description')"
-                                    placeholder="Ej: Especialización en desarrollo web, becado..."
-                                ></textarea>
-                                <div class="mt-1 flex items-center justify-between">
-                                    <span
-                                        v-if="educationErrors[index]?.description"
-                                        class="text-sm text-red-500"
-                                    >
-                                        {{ educationErrors[index].description }}
-                                    </span>
-                                    <span v-else class="text-sm text-transparent">placeholder</span>
-                                    <span
-                                        class="text-xs"
-                                        :class="[
-                                            getCharCount(education.description).isOverLimit
-                                                ? 'font-medium text-red-500'
-                                                : getCharCount(education.description).isNearLimit
-                                                  ? 'text-amber-500'
-                                                  : 'text-gray-400',
-                                        ]"
-                                    >
-                                        {{ getCharCount(education.description).current }}/{{
-                                            getCharCount(education.description).max
-                                        }}
-                                    </span>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </transition>
             </div>
 
             <!-- Botón agregar educación -->
-            <button
-                @click="addEducation"
-                class="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-4 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]"
-            >
+            <button @click="addEducation"
+                class="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-4 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]">
                 <Plus class="h-5 w-5" />
                 <span>Agregar nueva educación</span>
             </button>
         </div>
 
         <!-- Backdrop para cerrar popover -->
-        <div
-            v-if="deleteConfirmIndex !== null"
-            @click="closeDeleteConfirm"
-            class="fixed inset-0 z-40"
-        ></div>
+        <div v-if="deleteConfirmIndex !== null" @click="closeDeleteConfirm" class="fixed inset-0 z-40"></div>
 
         <!-- Popover de confirmación -->
-        <transition
-            enter-active-class="transition-all duration-200 ease-out"
-            leave-active-class="transition-all duration-200 ease-in"
-            enter-from-class="opacity-0 scale-95 translate-y-2"
-            enter-to-class="opacity-100 scale-100 translate-y-0"
-            leave-from-class="opacity-100 scale-100 translate-y-0"
-            leave-to-class="opacity-0 scale-95 translate-y-2"
-        >
-            <div
-                v-if="deleteConfirmIndex !== null"
+        <transition enter-active-class="transition-all duration-200 ease-out"
+            leave-active-class="transition-all duration-200 ease-in" enter-from-class="opacity-0 scale-95 translate-y-2"
+            enter-to-class="opacity-100 scale-100 translate-y-0" leave-from-class="opacity-100 scale-100 translate-y-0"
+            leave-to-class="opacity-0 scale-95 translate-y-2">
+            <div v-if="deleteConfirmIndex !== null"
                 class="pointer-events-auto fixed z-50 w-56 rounded-lg border border-gray-200 bg-white p-4 shadow-2xl"
                 :style="{
                     top: popoverPosition.top + 'px',
                     left: popoverPosition.left + 'px',
-                }"
-            >
+                }">
                 <!-- Flecha arriba -->
-                <div
-                    v-if="popoverPosition.positionY === 'below'"
+                <div v-if="popoverPosition.positionY === 'below'"
                     class="absolute -top-2 h-4 w-4 rotate-45 border-l border-t border-gray-200 bg-white"
-                    :style="{ left: popoverPosition.arrowLeft + 'px' }"
-                ></div>
+                    :style="{ left: popoverPosition.arrowLeft + 'px' }"></div>
 
                 <!-- Flecha abajo -->
-                <div
-                    v-if="popoverPosition.positionY === 'above'"
+                <div v-if="popoverPosition.positionY === 'above'"
                     class="absolute -bottom-2 h-4 w-4 rotate-45 border-b border-r border-gray-200 bg-white"
-                    :style="{ left: popoverPosition.arrowLeft + 'px' }"
-                ></div>
+                    :style="{ left: popoverPosition.arrowLeft + 'px' }"></div>
 
                 <div class="relative">
                     <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
@@ -602,16 +497,12 @@ const getErrorClassForInput = (index: number, field: keyof Education) => {
                     </p>
 
                     <div class="flex gap-2">
-                        <button
-                            @click.stop="closeDeleteConfirm"
-                            class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
-                        >
+                        <button @click.stop="closeDeleteConfirm"
+                            class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50">
                             Cancelar
                         </button>
-                        <button
-                            @click.stop="confirmDelete(deleteConfirmIndex)"
-                            class="flex-1 rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-red-700"
-                        >
+                        <button @click.stop="confirmDelete(deleteConfirmIndex)"
+                            class="flex-1 rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-red-700">
                             Eliminar
                         </button>
                     </div>
