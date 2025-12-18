@@ -519,15 +519,10 @@ const handleAttemptFinish = () => {
 
 
 
-
 const handleSaveAndExit = async () => {
-    // 1. Cerrar modal
     closeCompleteModal();
-
-    // 2. Guardar estado actual
     await saveChanges();
-
-    // 3. Salir
+    await new Promise(resolve => setTimeout(resolve, 1200)); // ← Delay
     router.visit('/dashboard');
 };
 
@@ -548,7 +543,7 @@ onMounted(() => {
     if (showStartChoice.value) {
         isAIModalBackdropVisible.value = true;
         document.body.classList.add('modal-open');
-        console.log('✅ Backdrop inicializado en onMounted');
+      
     }
 });
 

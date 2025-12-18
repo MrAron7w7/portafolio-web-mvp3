@@ -98,7 +98,7 @@
     
                         <!-- Content -->
                         <div class="relative z-10">
-                            <h1 class="text-3xl font-bold mb-2">¿Cómo quieres crear tu portafolio?</h1>
+                            <h1 class="text-3xl font-bold mb-2">¿Cómo quieres editar tu portafolio?</h1>
                             <p class="text-teal-100 text-lg">Elige la opción que mejor se adapte a ti</p>
                         </div>
                     </div>
