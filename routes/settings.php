@@ -14,6 +14,7 @@ Route::middleware('auth')->group(function () {
     Route::get('settings/general', [GeneralController::class, 'edit'])->name('settings.general');
     Route::patch('settings/general', [GeneralController::class, 'update'])->name('settings.general.update');
     Route::post('settings/general', [GeneralController::class, 'update'])->name('settings.general.update.post'); // Para archivos
+    Route::post('settings/general/remove-avatar', [GeneralController::class, 'removeAvatar'])->name('settings.general.remove-avatar');
     Route::delete('settings/general', [GeneralController::class, 'destroy'])->name('settings.general.destroy');
 
     // Profile

@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+
+// Datos del usuario autenticado
+const page = usePage();
+const isAuthenticated = computed(() => page.props.auth?.user != null);
 
 // Estado para el menú móvil
 const mobileMenuOpen = ref(false);
@@ -275,8 +279,8 @@ onMounted(() => {
 
     // Smooth scroll con offset para header fixed
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener('click', function (e) {
-            const href = this.getAttribute('href');
+        anchor.addEventListener('click', (e) => {
+            const href = (e.currentTarget as HTMLAnchorElement).getAttribute('href');
             if (href && href !== '#ejemplos') {
                 e.preventDefault();
                 const targetId = href.substring(1);
@@ -354,27 +358,36 @@ onUnmounted(() => {
 
                     <!-- Botones Desktop -->
                     <div class="hidden items-center space-x-4 md:flex">
-                         <a
-                            href="/comunidad"
-                            class="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[#005aeb] hover:text-[#005aeb]"
-                        >
-                            <span class="text-lg">💬</span>
-                            Comunidad
-                        </a>
-                        <a
-                            href="/login"
-                            class="font-medium text-gray-700 transition-all duration-200 hover:text-[#005aeb] hover:scale-105"
-                            >Iniciar Sesión</a
-                        >
-                        <a
-                            href="/register"
-                            class="group relative overflow-hidden rounded-lg bg-[#005aeb] px-6 py-2 font-medium text-white shadow-lg transition-all duration-300 hover:bg-[#0048c4] hover:shadow-xl hover:scale-105"
-                        >
-                            <span class="relative z-10">Crear Portafolio</span>
-                            <div
-                                class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-                            ></div>
-                        </a>
+                        <!-- Botones para usuarios NO autenticados -->
+                        <template v-if="!isAuthenticated">
+                            <a
+                                href="/login"
+                                class="font-medium text-gray-700 transition-all duration-200 hover:text-[#005aeb] hover:scale-105"
+                                >Iniciar Sesión</a
+                            >
+                            <a
+                                href="/register"
+                                class="group relative overflow-hidden rounded-lg bg-[#005aeb] px-6 py-2 font-medium text-white shadow-lg transition-all duration-300 hover:bg-[#0048c4] hover:shadow-xl hover:scale-105"
+                            >
+                                <span class="relative z-10">Crear Portafolio</span>
+                                <div
+                                    class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                                ></div>
+                            </a>
+                        </template>
+                        
+                        <!-- Botón para usuarios autenticados -->
+                        <template v-else>
+                            <a
+                                href="/dashboard"
+                                class="group relative overflow-hidden rounded-lg bg-gradient-to-r from-[#005aeb] to-[#7B2FF7] px-6 py-2.5 font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
+                            >
+                                <span class="relative z-10">Ir al Dashboard</span>
+                                <div
+                                    class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                                ></div>
+                            </a>
+                        </template>
                     </div>
 
                     <!-- Menú Móvil -->
@@ -418,17 +431,30 @@ onUnmounted(() => {
                             >Contacto</a
                         >
                         <div class="space-y-3 border-t border-gray-200 pt-4">
-                            <a
-                                href="/login"
-                                class="block font-medium text-gray-700 transition-colors duration-200 hover:text-[#005aeb]"
-                                >Iniciar Sesión</a
-                            >
-                            <a
-                                href="/register"
-                                class="block rounded-lg bg-[#005aeb] px-6 py-3 text-center font-medium text-white transition-colors duration-200 hover:bg-[#0048c4]"
-                            >
-                                Crear Portafolio
-                            </a>
+                            <!-- Botones para usuarios NO autenticados -->
+                            <template v-if="!isAuthenticated">
+                                <a
+                                    href="/login"
+                                    class="block font-medium text-gray-700 transition-colors duration-200 hover:text-[#005aeb]"
+                                    >Iniciar Sesión</a
+                                >
+                                <a
+                                    href="/register"
+                                    class="block rounded-lg bg-[#005aeb] px-6 py-3 text-center font-medium text-white transition-colors duration-200 hover:bg-[#0048c4]"
+                                >
+                                    Crear Portafolio
+                                </a>
+                            </template>
+                            
+                            <!-- Botón para usuarios autenticados -->
+                            <template v-else>
+                                <a
+                                    href="/dashboard"
+                                    class="block rounded-lg bg-gradient-to-r from-[#005aeb] to-[#7B2FF7] px-6 py-3 text-center font-semibold text-white transition-all duration-200 hover:shadow-lg"
+                                >
+                                    Ir al Dashboard
+                                </a>
+                            </template>
                         </div>
 ```
                     </div>
@@ -506,7 +532,9 @@ onUnmounted(() => {
                         </div>
 
                         <div class="flex flex-col gap-4 sm:flex-row">
+                            <!-- Botón para usuarios NO autenticados -->
                             <a
+                                v-if="!isAuthenticated"
                                 href="/register"
                                 class="magnetic-button group relative overflow-hidden rounded-xl bg-gradient-to-r from-[#005aeb] to-[#0048c4] px-8 py-4 text-center font-bold text-white shadow-2xl transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,90,235,0.4)] hover:scale-105"
                             >
@@ -517,6 +545,21 @@ onUnmounted(() => {
                                     class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full"
                                 ></div>
                             </a>
+                            
+                            <!-- Botón para usuarios autenticados -->
+                            <a
+                                v-else
+                                href="/dashboard"
+                                class="magnetic-button group relative overflow-hidden rounded-xl bg-gradient-to-r from-[#005aeb] to-[#7B2FF7] px-8 py-4 text-center font-bold text-white shadow-2xl transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,90,235,0.4)] hover:scale-105"
+                            >
+                                <span class="relative z-10"
+                                    >Ir al Dashboard</span
+                                >
+                                <div
+                                    class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                                ></div>
+                            </a>
+                            
                             <a
                                 href="#ejemplos"
                                 class="group rounded-xl border-2 border-gray-300 bg-white/50 backdrop-blur-sm px-8 py-4 text-center font-bold text-gray-900 transition-all duration-300 hover:border-[#005aeb] hover:bg-[#005aeb]/5 hover:scale-105"
