@@ -4,6 +4,7 @@
    ============================================ -->
    <script setup lang="ts">
     import { ref, computed } from 'vue';
+    import { PencilRuler,Bot } from 'lucide-vue-next';
     
     // Props
     const props = defineProps<{
@@ -97,7 +98,7 @@
     
                         <!-- Content -->
                         <div class="relative z-10">
-                            <h1 class="text-3xl font-bold mb-2">¿Cómo quieres crear tu portafolio?</h1>
+                            <h1 class="text-3xl font-bold mb-2">¿Cómo quieres editar tu portafolio?</h1>
                             <p class="text-teal-100 text-lg">Elige la opción que mejor se adapte a ti</p>
                         </div>
                     </div>
@@ -124,15 +125,13 @@
                                 <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
                                     <!-- Icon -->
                                     <div class="mb-4 p-4 bg-teal-100 dark:bg-teal-900/40 rounded-xl group-hover:scale-110 transition-transform">
-                                        <svg class="w-12 h-12 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                        </svg>
+                                        <Bot class="w-12 h-12 text-teal-600 dark:text-teal-400" />
                                     </div>
     
                                     <!-- Text -->
-                                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Con IA</h2>
+                                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Con asistente IA</h2>
                                     <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                                        Genera automáticamente contenido inteligente y ahorra tiempo
+                                        Rellena tu portafolio con contenido inteligente y ahorra tiempo
                                     </p>
     
                                     <!-- Badge -->
@@ -171,20 +170,18 @@
                                 <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
                                     <!-- Icon -->
                                     <div class="mb-4 p-4 bg-blue-100 dark:bg-blue-900/40 rounded-xl group-hover:scale-110 transition-transform">
-                                        <svg class="w-12 h-12 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 011.414.586l5 5a2 2 0 01-2.828 2.828l-5-5A2 2 0 0111 4m0 0a2 2 0 00-1.414.586l-5 5a2 2 0 112.828 2.828l5-5A2 2 0 0111 4m6 12a2 2 0 01-1.414-.586l-5-5a2 2 0 012.828-2.828l5 5A2 2 0 0117 16z" />
-                                        </svg>
+                                        <PencilRuler class="w-12 h-12 text-blue-600 dark:text-blue-400" />
                                     </div>
     
                                     <!-- Text -->
-                                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Manualmente</h2>
+                                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2"> Continuar manualmente</h2>
                                     <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                                        Control total sobre cada detalle de tu portafolio
+                                        Ser tu propio guía  sobre cada detalle de tu portafolio
                                     </p>
     
                                     <!-- Badge -->
                                     <div class="mt-4 inline-block bg-blue-500/20 px-3 py-1 rounded-full">
-                                        <span class="text-xs font-semibold text-blue-700 dark:text-blue-300">🎨 Control total</span>
+                                        <span class="text-xs font-semibold text-blue-700 dark:text-blue-300">🎨 Personalizado</span>
                                     </div>
     
                                     <!-- Loading indicator -->

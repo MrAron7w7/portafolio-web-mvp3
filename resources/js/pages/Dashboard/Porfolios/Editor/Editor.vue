@@ -319,18 +319,7 @@ const handleConfirmationContinue = () => {
     resetAI();
     isAIModalBackdropVisible.value = false;
 
-    // Navegar al siguiente paso
-    if (currentStep.value < steps.value.length) {
-        steps.value[currentStep.value - 1].completed = true;
-        currentStep.value += 1;
-
-        console.log('👉 Navegando al paso:', currentStep.value);
-
-        // Scroll al inicio
-        setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 100);
-    }
+   
 };
 
 // Manejador para cuando AboutSection emite los datos de IA
@@ -530,15 +519,10 @@ const handleAttemptFinish = () => {
 
 
 
-
 const handleSaveAndExit = async () => {
-    // 1. Cerrar modal
     closeCompleteModal();
-
-    // 2. Guardar estado actual
     await saveChanges();
-
-    // 3. Salir
+    await new Promise(resolve => setTimeout(resolve, 1200)); // ← Delay
     router.visit('/dashboard');
 };
 
@@ -559,7 +543,7 @@ onMounted(() => {
     if (showStartChoice.value) {
         isAIModalBackdropVisible.value = true;
         document.body.classList.add('modal-open');
-        console.log('✅ Backdrop inicializado en onMounted');
+      
     }
 });
 
