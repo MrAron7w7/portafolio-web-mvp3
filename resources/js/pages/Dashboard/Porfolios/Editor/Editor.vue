@@ -319,18 +319,7 @@ const handleConfirmationContinue = () => {
     resetAI();
     isAIModalBackdropVisible.value = false;
 
-    // Navegar al siguiente paso
-    if (currentStep.value < steps.value.length) {
-        steps.value[currentStep.value - 1].completed = true;
-        currentStep.value += 1;
-
-        console.log('👉 Navegando al paso:', currentStep.value);
-
-        // Scroll al inicio
-        setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 100);
-    }
+   
 };
 
 // Manejador para cuando AboutSection emite los datos de IA

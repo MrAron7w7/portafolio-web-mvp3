@@ -242,7 +242,7 @@ const handleClose = () => {
                     <div
                         class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 mb-8">
                         <p class="text-sm text-green-900 dark:text-green-200">
-                            <span class="font-semibold">✅ Ahora </span> continúa con la edición manual para completar los campos restantes.
+                            <span class="font-semibold">✅ Ahora </span> continúa con la edición manual para completar los campos restantes. Avancemos paso a paso.
                         </p>
                     </div>
                 </div>
