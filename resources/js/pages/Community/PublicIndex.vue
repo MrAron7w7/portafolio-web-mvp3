@@ -12,6 +12,8 @@ const props = defineProps<{
         views_count: number;
         created_at: string;
         comments_count: number;
+        ratings_count?: number;
+        ratings_avg_rating?: number | null;
         user: {
             first_name: string;
             last_name: string;
@@ -222,6 +224,12 @@ onUnmounted(() => {
                             <p class="text-gray-500 text-sm line-clamp-3">
                                 {{ post.content }}
                             </p>
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <Star class="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                                <span class="font-semibold text-gray-700">{{ Number(post.ratings_avg_rating ?? 0).toFixed(1) }}</span>
+                                <span class="text-gray-300">•</span>
+                                <span>{{ post.ratings_count ?? 0 }} votos</span>
+                            </div>
 
                             <div class="space-y-3">
                                 <div v-if="post.comments && post.comments.length" class="space-y-3">

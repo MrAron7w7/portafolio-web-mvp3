@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\CommunityPost;
 use App\Models\CommunityComment;
+use App\Models\CommunityPostRating;
 use Illuminate\Support\Facades\Auth;
 
 class CommunityCommentController extends Controller
@@ -24,6 +25,14 @@ class CommunityCommentController extends Controller
             if ($parent->community_post_id !== $post->id) {
                 return back()->withErrors(['parent_id' => 'Invalid parent comment.']);
             }
+        }
+
+        $hasRated = CommunityPostRating::where('community_post_id', $post->id)
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        if (!$hasRated) {
+            return back()->withErrors(['rating' => 'Debes calificar la publicación para comentar.']);
         }
 
         CommunityComment::create([

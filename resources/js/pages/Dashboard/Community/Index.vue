@@ -40,6 +40,8 @@ interface Post {
     views_count: number;
     created_at: string;
     comments_count: number;
+    ratings_count?: number;
+    ratings_avg_rating?: number | null;
     user: User;
     portfolio: Portfolio;
 }
@@ -212,6 +214,10 @@ watch(() => page.props.flash.success, (msg) => {
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-3 text-xs text-gray-400">
+                                    <span class="flex items-center gap-1">
+                                        <Star class="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                                        {{ Number(post.ratings_avg_rating ?? 0).toFixed(1) }}
+                                    </span>
                                     <span class="flex items-center gap-1">
                                         <MessageSquare class="h-3 w-3" /> {{ post.comments_count }}
                                     </span>

@@ -4,6 +4,7 @@ const routes: Record<string, string> = {
     'community.show': '/dashboard/comunidad/:id',
     'community.store': '/dashboard/comunidad',
     'community.destroy': '/dashboard/comunidad/:id',
+    'community.rate': '/dashboard/comunidad/:id/calificar',
     'community.comment.store': '/dashboard/comunidad/:postId/comentar',
     'community.comment.update': '/dashboard/comunidad/comentarios/:comment',
     'community.comment.destroy': '/dashboard/comunidad/comentarios/:comment',

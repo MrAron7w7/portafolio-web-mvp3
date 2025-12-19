@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\CommunityPost;
+use App\Models\CommunityPostRating;
 use App\Models\Portfolio;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,8 +25,10 @@ class CommunityController extends Controller
                         ->with('user:id,first_name,last_name,profile_photo_path');
                 }
             ])
-            ->withCount('comments')
-            ->latest()
+            ->withCount(['comments', 'ratings'])
+            ->withAvg('ratings', 'rating')
+            ->orderByDesc('ratings_avg_rating')
+            ->orderByDesc('created_at')
             ->get();
 
         return Inertia::render('Community/PublicIndex', [
@@ -40,8 +43,10 @@ class CommunityController extends Controller
     public function dashboardIndex()
     {
         $posts = CommunityPost::with(['user:id,first_name,last_name,profile_photo_path', 'portfolio:id,title,slug,user_id,theme_settings'])
-            ->withCount('comments')
-            ->latest()
+            ->withCount(['comments', 'ratings'])
+            ->withAvg('ratings', 'rating')
+            ->orderByDesc('ratings_avg_rating')
+            ->orderByDesc('created_at')
             ->paginate(12);
 
         // Get user's eligible portfolios for posting (must be public and not already posted)
@@ -96,11 +101,17 @@ class CommunityController extends Controller
     public function show($id)
     {
         $post = CommunityPost::with(['user', 'portfolio'])
-            ->withCount('comments')
+            ->withCount(['comments', 'ratings'])
+            ->withAvg('ratings', 'rating')
             ->findOrFail($id);
             
         // Increment views
         $post->increment('views_count');
+
+        $userRating = $post->ratings()
+            ->where('user_id', Auth::id())
+            ->value('rating');
+        $hasRated = $userRating !== null;
 
         // Fetch comments with nesting
         // For simplicity in MVP, we might fetch flat and rebuild tree in JS, 
@@ -108,17 +119,23 @@ class CommunityController extends Controller
         // Let's fetch top level with recursive children for 2-3 levels or fetch all and key by parent.
         // Easier: Fetch all comments for this post and let Frontend organize tree, OR fetch nested.
         
-        $comments = $post->comments()
-            ->with('user:id,first_name,last_name,profile_photo_path')
-            ->whereNull('parent_id') // Top level
-            ->with('replies.user:id,first_name,last_name,profile_photo_path') // Second level
-            ->with('replies.replies.user:id,first_name,last_name,profile_photo_path') // Third level (optional depth)
-            ->latest()
-            ->get();
+        $comments = collect();
+        if ($hasRated) {
+            $comments = $post->comments()
+                ->with('user:id,first_name,last_name,profile_photo_path')
+                ->whereNull('parent_id') // Top level
+                ->with('replies.user:id,first_name,last_name,profile_photo_path') // Second level
+                ->with('replies.replies.user:id,first_name,last_name,profile_photo_path') // Third level (optional depth)
+                ->latest()
+                ->get();
+        }
 
         return Inertia::render('Dashboard/Community/Show', [
             'post' => $post,
-            'comments' => $comments
+            'comments' => $comments,
+            'hasRated' => $hasRated,
+            'userRating' => $userRating,
+            'averageRating' => $post->ratings_avg_rating ? round($post->ratings_avg_rating, 2) : 0,
         ]);
     }
 
@@ -136,5 +153,29 @@ class CommunityController extends Controller
         $post->delete();
 
         return redirect()->route('dashboard.community')->with('success', 'Publicación eliminada correctamente.');
+    }
+
+    /**
+     * Calificar publicación (1-5)
+     */
+    public function rate(Request $request, $id)
+    {
+        $post = CommunityPost::findOrFail($id);
+
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+        ]);
+
+        CommunityPostRating::updateOrCreate(
+            [
+                'community_post_id' => $post->id,
+                'user_id' => Auth::id(),
+            ],
+            [
+                'rating' => $validated['rating'],
+            ]
+        );
+
+        return back();
     }
 }

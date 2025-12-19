@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified'])
         Route::post('/comunidad', [\App\Http\Controllers\CommunityController::class, 'store'])->name('community.store');
         Route::get('/comunidad/{id}', [\App\Http\Controllers\CommunityController::class, 'show'])->name('community.show');
         Route::delete('/comunidad/{id}', [\App\Http\Controllers\CommunityController::class, 'destroy'])->name('community.destroy');
+        Route::post('/comunidad/{id}/calificar', [\App\Http\Controllers\CommunityController::class, 'rate'])->name('community.rate');
         Route::post('/comunidad/{postId}/comentar', [\App\Http\Controllers\CommunityCommentController::class, 'store'])->name('community.comment.store');
         Route::put('/comunidad/comentarios/{comment}', [\App\Http\Controllers\CommunityCommentController::class, 'update'])->name('community.comment.update');
         Route::delete('/comunidad/comentarios/{comment}', [\App\Http\Controllers\CommunityCommentController::class, 'destroy'])->name('community.comment.destroy');
