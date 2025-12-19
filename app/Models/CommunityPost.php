@@ -32,4 +32,9 @@ class CommunityPost extends Model
     {
         return $this->hasMany(CommunityComment::class, 'community_post_id');
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(CommunityPostRating::class, 'community_post_id');
+    }
 }

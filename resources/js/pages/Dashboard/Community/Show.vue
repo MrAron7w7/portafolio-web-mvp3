@@ -40,6 +40,7 @@ interface Post {
     views_count: number;
     created_at: string;
     comments_count: number;
+    ratings_count?: number;
     user: User;
     portfolio: Portfolio;
 }
@@ -47,6 +48,9 @@ interface Post {
 const props = defineProps<{
     post: Post;
     comments: Comment[];
+    hasRated: boolean;
+    userRating: number | null;
+    averageRating: number;
 }>();
 
 const page = usePage();
@@ -58,11 +62,21 @@ const form = useForm({
 });
 
 const deletePostForm = useForm({});
+const ratingForm = useForm({
+    rating: props.userRating ?? 0,
+});
 
 const submitComment = () => {
     form.post(route('community.comment.store', props.post.id), {
         onSuccess: () => form.reset(),
         preserveScroll: true
+    });
+};
+
+const setRating = (value: number) => {
+    ratingForm.rating = value;
+    ratingForm.post(route('community.rate', props.post.id), {
+        preserveScroll: true,
     });
 };
 
@@ -175,6 +189,39 @@ const getPortfolioUrl = (portfolio: Portfolio) => {
                     </div>
                 </div>
 
+                <!-- Rating Gate -->
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10 mb-8">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Califica la publicación</h2>
+                            <p class="text-gray-500 mt-1">
+                                Para acceder al hilo necesitas calificar este portafolio. Tu voto ayuda a destacar lo mejor de la comunidad.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-1">
+                                <button
+                                    v-for="i in 5"
+                                    :key="i"
+                                    type="button"
+                                    class="transition-colors"
+                                    :class="i <= ratingForm.rating ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-300'"
+                                    :disabled="ratingForm.processing"
+                                    @click="setRating(i)"
+                                >
+                                    <svg class="h-7 w-7 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                <div class="font-semibold text-gray-900">{{ props.averageRating.toFixed(1) }}</div>
+                                <div>{{ props.post.ratings_count ?? 0 }} votos</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Discussion Section -->
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10">
                     <h2 class="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
@@ -183,7 +230,11 @@ const getPortfolioUrl = (portfolio: Portfolio) => {
                     </h2>
 
                     <!-- New Comment Form -->
-                    <form @submit.prevent="submitComment" class="mb-12 bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                    <div v-if="!props.hasRated" class="mb-12 rounded-2xl border border-dashed border-indigo-200 bg-indigo-50 p-6 text-indigo-700">
+                        <p class="font-semibold">Primero califica esta publicación.</p>
+                        <p class="text-sm mt-1">Después de votar podrás ver el hilo completo y comentar.</p>
+                    </div>
+                    <form v-else @submit.prevent="submitComment" class="mb-12 bg-gray-50 p-6 rounded-2xl border border-gray-100">
                         <label class="block text-sm font-medium text-gray-700 mb-3">Participa en la discusión</label>
                         <div class="space-y-4">
                             <Textarea 
@@ -214,7 +265,7 @@ const getPortfolioUrl = (portfolio: Portfolio) => {
                             :postId="post.id"
                         />
                         
-                        <div v-if="comments.length === 0" class="text-center py-10 text-gray-400 italic">
+                        <div v-if="props.hasRated && comments.length === 0" class="text-center py-10 text-gray-400 italic">
                             Aún no hay comentarios. Sé el primero en iniciar la conversación.
                         </div>
                     </div>
