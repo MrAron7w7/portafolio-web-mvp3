@@ -162,7 +162,7 @@ class TemplateController extends Controller
         $defaultData = [
             'personal' => [
                 'firstName' => Auth::user()->first_name,
-                'lastName' => '',
+                'lastName' => Auth::user()->last_name ?? '',
                 'title' => '',
                 'email' => Auth::user()->email,
                 'phone' => '',

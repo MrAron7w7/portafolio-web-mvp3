@@ -220,6 +220,7 @@ const handleCloseStartChoice = () => {
 // HANDLERS - ANÁLISIS IA
 // ============================================
 const handleAnalyzeDescription = async (description: string) => {
+    userDescription.value = description; // Guarda la descripción para el fallback
     isAnalyzing.value = true;
     try {
         console.log('🔄 Analizando descripción...');

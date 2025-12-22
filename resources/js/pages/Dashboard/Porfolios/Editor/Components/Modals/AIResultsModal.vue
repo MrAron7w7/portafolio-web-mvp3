@@ -20,7 +20,19 @@
     
     // Types - Interfaz correcta del mapa de IA
     interface AIAnalysisResult {
-        personal: Array<{ summary: string }>;
+        personal: Array<{ 
+            summary: string;
+            firstName?: string;
+            lastName?: string;
+            title?: string;
+            email?: string;
+            phone?: string;
+            city?: string;
+            country?: string;
+            linkedin?: string;
+            github?: string;
+            website?: string;
+        }>;
         experience: Array<{ 
             company: string; 
             position: string; 
@@ -279,9 +291,80 @@
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                                         <User class="w-5 h-5 text-indigo-500" /> Resumen del Perfil
                                     </h3>
-                                    <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+
+                                    <!-- Nombre, Apellido y Título Extraídos -->
+                                    <div v-if="props.analysisResult?.personal?.[0]?.firstName || props.analysisResult?.personal?.[0]?.lastName || props.analysisResult?.personal?.[0]?.title" 
+                                         class="mb-5 grid grid-cols-1 sm:grid-cols-3 gap-6 p-4 bg-white/50 dark:bg-slate-800/50 rounded-lg border border-indigo-100 dark:border-indigo-900/50">
+                                        
+                                        <div v-if="props.analysisResult?.personal?.[0]?.firstName">
+                                            <span class="text-[10px] text-indigo-500 dark:text-indigo-400 font-bold uppercase tracking-widest block mb-1">Nombre</span>
+                                            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ props.analysisResult.personal[0].firstName }}</p>
+                                        </div>
+
+                                        <div v-if="props.analysisResult?.personal?.[0]?.lastName">
+                                            <span class="text-[10px] text-indigo-500 dark:text-indigo-400 font-bold uppercase tracking-widest block mb-1">Apellido</span>
+                                            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ props.analysisResult.personal[0].lastName }}</p>
+                                        </div>
+
+                                        <div v-if="props.analysisResult?.personal?.[0]?.title" class="sm:border-l sm:pl-6 border-indigo-100 dark:border-indigo-900/50">
+                                            <span class="text-[10px] text-purple-500 dark:text-purple-400 font-bold uppercase tracking-widest block mb-1">Título Profesional</span>
+                                            <p class="text-lg font-bold text-gray-900 dark:text-white">{{ props.analysisResult.personal[0].title }}</p>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                                         {{ personalSummary }}
                                     </p>
+
+                                    <!-- Detalles de Contacto y Ubicación -->
+                                    <div v-if="props.analysisResult?.personal?.[0]?.email || props.analysisResult?.personal?.[0]?.phone || props.analysisResult?.personal?.[0]?.city" 
+                                         class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-indigo-50/50 dark:bg-slate-800/50 rounded-lg border border-indigo-100 dark:border-indigo-900/30">
+                                        
+                                        <div v-if="props.analysisResult?.personal?.[0]?.email" class="flex items-center gap-3">
+                                            <div class="p-2 bg-white dark:bg-slate-700 rounded-lg shadow-sm">
+                                                <Mail class="w-4 h-4 text-indigo-500" />
+                                            </div>
+                                            <div class="min-w-0">
+                                                <span class="text-[10px] text-gray-500 uppercase font-bold block">Email</span>
+                                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ props.analysisResult.personal[0].email }}</p>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="props.analysisResult?.personal?.[0]?.phone" class="flex items-center gap-3">
+                                            <div class="p-2 bg-white dark:bg-slate-700 rounded-lg shadow-sm">
+                                                <Phone class="w-4 h-4 text-green-500" />
+                                            </div>
+                                            <div class="min-w-0">
+                                                <span class="text-[10px] text-gray-500 uppercase font-bold block">Teléfono</span>
+                                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ props.analysisResult.personal[0].phone }}</p>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="props.analysisResult?.personal?.[0]?.city" class="flex items-center gap-3">
+                                            <div class="p-2 bg-white dark:bg-slate-700 rounded-lg shadow-sm">
+                                                <MapPin class="w-4 h-4 text-orange-500" />
+                                            </div>
+                                            <div class="min-w-0">
+                                                <span class="text-[10px] text-gray-500 uppercase font-bold block">Ubicación</span>
+                                                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                                    {{ props.analysisResult.personal[0].city }}{{ props.analysisResult.personal[0].country ? `, ${props.analysisResult.personal[0].country}` : '' }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="props.analysisResult?.personal?.[0]?.linkedin || props.analysisResult?.personal?.[0]?.github" class="flex items-center gap-3">
+                                            <div class="p-2 bg-white dark:bg-slate-700 rounded-lg shadow-sm">
+                                                <Globe class="w-4 h-4 text-blue-500" />
+                                            </div>
+                                            <div class="min-w-0">
+                                                <span class="text-[10px] text-gray-500 uppercase font-bold block">Social</span>
+                                                <p class="text-sm font-medium text-gray-900 dark:text-white flex gap-2">
+                                                    <span v-if="props.analysisResult.personal[0].linkedin">LI</span>
+                                                    <span v-if="props.analysisResult.personal[0].github">GH</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
     
                                 <div class="grid grid-cols-2 gap-3">
@@ -413,14 +496,15 @@
                                         </div>
                                         
                                         <a 
-    :href="project.link"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="inline-flex items-center gap-2 text-pink-500 hover:text-pink-600 ..."
->
-    <ExternalLink class="w-4 h-4 flex-shrink-0" />
-    <span class="underline">{{ project.link }}</span>
-</a>
+                                            v-if="project.link"
+                                            :href="project.link"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="inline-flex items-center gap-2 text-pink-500 hover:text-pink-600 transition-colors text-sm font-medium"
+                                        >
+                                            <ExternalLink class="w-4 h-4 flex-shrink-0" />
+                                            <span class="underline truncate max-w-[200px]">{{ project.link }}</span>
+                                        </a>
 
                                     </div>
                                 </TransitionGroup>

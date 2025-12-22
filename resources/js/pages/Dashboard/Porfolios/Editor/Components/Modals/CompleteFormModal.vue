@@ -28,7 +28,7 @@
     const showCompletionConfirm = ref(false);
     const redirectCountdown = ref(3);
     const isRedirecting = ref(false);
-    let countdownInterval: NodeJS.Timeout | null = null;
+    let countdownInterval: ReturnType<typeof setInterval> | null = null;
 
     // ============================================
     // WATCHER - DETECTAR COMPLETACIÓN EXITOSA

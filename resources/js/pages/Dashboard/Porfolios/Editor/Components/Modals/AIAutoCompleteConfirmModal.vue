@@ -9,7 +9,12 @@ import { CheckCircle2, Briefcase, GraduationCap, Globe, Wrench, Loader2, Code2 }
 
 // Tipos - Interfaz correcta del mapa de IA
 interface AIAnalysisResult {
-    personal: Array<{ summary: string }>;
+    personal: Array<{ 
+        summary: string;
+        firstName?: string;
+        lastName?: string;
+        title?: string;
+    }>;
     experience: Array<{
         company: string;
         position: string;
@@ -106,7 +111,7 @@ const handleClose = () => {
                 @click.stop>
                 <!-- Header Success - STICKY -->
                 <div
-                    class="sticky top-0 z-10 relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-12 text-white text-center flex-shrink-0">
+                    class="sticky top-0 z-10 overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-12 text-white text-center flex-shrink-0">
                     <!-- Decorative elements -->
                     <div class="absolute top-0 right-0 w-40 h-40 bg-green-400 rounded-full -mr-20 -mt-20 opacity-20" />
 
