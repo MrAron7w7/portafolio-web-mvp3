@@ -11,6 +11,7 @@
         Globe,
         Lock,
         X,
+        Edit3,
     } from 'lucide-vue-next';
     import { router } from '@inertiajs/vue3';
     
@@ -43,13 +44,13 @@
         <header class="border-b border-gray-200/60 bg-white sticky top-0 z-30">
             <div class="container mx-auto px-6 py-4">
                 <div class="flex items-center justify-between">
-                    <!-- Logo -->
-                    <div class="flex items-center space-x-3">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005aeb]">
-                            <span class="text-sm font-bold text-white">P</span>
-                        </div>
-                        <span class="text-xl font-bold text-gray-900">PortafolioAI</span>
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 shrink-0">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005aeb]">
+                        <span class="text-sm font-bold text-white">P</span>
                     </div>
+                    <span class="text-xl font-bold text-gray-900">PortafolioAI</span>
+                </div>
     
                     <!-- Centro: Progreso -->
                     <div class="hidden items-center space-x-4 md:flex">
@@ -71,7 +72,22 @@
                                 :style="{ width: progress + '%' }"></div>
                         </div>
                     </div>
-    
+
+                    <!-- Título del Portafolio (Centro-Derecha) -->
+                    <div class="hidden flex-1 max-w-[280px] px-6 lg:block">
+                        <div class="relative group">
+                            <input
+                                type="text"
+                                v-model="formData.config.title"
+                                class="w-full bg-gray-50/50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-semibold !text-gray-700 transition-all duration-200 focus:bg-white focus:border-[#005aeb] focus:ring-4 focus:ring-blue-50 focus:outline-none placeholder:text-gray-400 group-hover:border-gray-300"
+                                placeholder="Nombre de tu proyecto..."
+                            />
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Edit3 class="w-3.5 h-3.5 text-gray-400" />
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Derecha: Acciones -->
                     <div class="flex items-center space-x-3">
                         <!-- Botón Público/Privado -->

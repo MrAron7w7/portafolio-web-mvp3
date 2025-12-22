@@ -16,6 +16,9 @@ Route::get('/portfolio/{portfolio}/editor', [TemplateController::class, 'EditorT
 Route::put('/portfolio/{portfolio}', [TemplateController::class, 'updatePortfolio'])
     ->name('portfolio.update');
 
+Route::patch('/portfolio/{portfolio}/title', [TemplateController::class, 'updateTitle'])
+    ->name('portfolio.update-title');
+
 Route::get('/portfolio/{portfolio}/view', [TemplateController::class, 'viewPortfolio'])
     ->name('portfolio.view');
 

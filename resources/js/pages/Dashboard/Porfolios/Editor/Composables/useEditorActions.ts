@@ -80,6 +80,7 @@ export function useEditorActions(
                     {
                         template_data: templateData,
                         config: {
+                            title: formData.config.title,
                             theme: formData.config.theme,
                             is_public: formData.config.is_public,
                         },
@@ -129,6 +130,7 @@ export function useEditorActions(
                     {
                         template_data: templateData,
                         config: {
+                            title: formData.config.title,
                             theme: formData.config.theme,
                             is_public: formData.config.is_public,
                             is_completed: true
@@ -182,6 +184,7 @@ export function useEditorActions(
                     {
                         template_data: templateData,
                         config: {
+                            title: formData.config.title,
                             theme: formData.config.theme,
                             is_public: newPublicStatus,
                         },

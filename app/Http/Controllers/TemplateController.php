@@ -303,6 +303,7 @@ class TemplateController extends Controller
         $dataToUpdate = [
             'template_data' => $templateData,
             'is_public' => $request->config['is_public'] ?? false,
+            'title' => $request->config['title'] ?? $portfolio->title,
         ];
         
         // 👉 Solo agregar si el parámetro llega
@@ -313,6 +314,26 @@ class TemplateController extends Controller
         $portfolio->update($dataToUpdate);
 
         return back()->with('success', 'Portfolio actualizado correctamente');
+    }
+
+    /**
+     * Actualizar solo el título del portafolio (para edición rápida desde Dashboard)
+     */
+    public function updateTitle(Request $request, Portfolio $portfolio)
+    {
+        if ($portfolio->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+        ]);
+
+        $portfolio->update([
+            'title' => $request->title,
+        ]);
+
+        return back()->with('success', 'Título actualizado correctamente');
     }
 
     /**

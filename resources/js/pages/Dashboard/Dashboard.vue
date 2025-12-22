@@ -13,9 +13,12 @@ import {
     Plus,
     Search,
     Trash2,
+    Pencil,
+    Check,
+    X,
 } from 'lucide-vue-next';
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { computed, ref } from 'vue';
+import { computed, ref, nextTick } from 'vue';
 
 // Props que vienen del backend
 const props = defineProps<{
@@ -77,6 +80,55 @@ const editPortfolio = (portfolioId: number) => {
 // Función para ver portafolio
 const viewPortfolio = (portfolioId: number) => {
     router.visit(`/dashboard/portfolio/${portfolioId}/view`);
+};
+
+// ========================================
+// EDICIÓN DE TÍTULOS INLINE
+// ========================================
+const editingTitleId = ref<number | null>(null);
+const editingTitleValue = ref('');
+const titleInputRef = ref<HTMLInputElement | null>(null);
+
+const startEditingTitle = async (portfolio: any) => {
+    editingTitleId.value = portfolio.id;
+    editingTitleValue.value = portfolio.title;
+    await nextTick();
+    // Enfocar el input
+    const input = document.getElementById(`title-input-${portfolio.id}`) as HTMLInputElement;
+    if (input) {
+        input.focus();
+        input.select();
+    }
+};
+
+const cancelEditingTitle = () => {
+    editingTitleId.value = null;
+    editingTitleValue.value = '';
+};
+
+const saveTitle = (portfolioId: number) => {
+    if (!editingTitleValue.value.trim()) {
+        cancelEditingTitle();
+        return;
+    }
+
+    router.patch(`/dashboard/portfolio/${portfolioId}/title`, {
+        title: editingTitleValue.value.trim(),
+    }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            editingTitleId.value = null;
+            editingTitleValue.value = '';
+        },
+    });
+};
+
+const handleTitleKeydown = (event: KeyboardEvent, portfolioId: number) => {
+    if (event.key === 'Enter') {
+        saveTitle(portfolioId);
+    } else if (event.key === 'Escape') {
+        cancelEditingTitle();
+    }
 };
 </script>
 
@@ -233,9 +285,25 @@ const viewPortfolio = (portfolioId: number) => {
                         <div class="p-6">
                             <div class="mb-3 flex items-start justify-between">
                                 <div class="min-w-0 flex-1">
-                                    <h3 class="mb-1 truncate text-lg font-semibold text-gray-900">
-                                        {{ portfolio.title }}
-                                    </h3>
+                                    <!-- Título Editable -->
+                                    <div v-if="editingTitleId === portfolio.id" class="mb-1 flex items-center gap-2">
+                                        <input
+                                            :id="`title-input-${portfolio.id}`"
+                                            v-model="editingTitleValue"
+                                            @keydown="handleTitleKeydown($event, portfolio.id)"
+                                            @blur="saveTitle(portfolio.id)"
+                                            type="text"
+                                            class="flex-1 rounded-lg border border-[#005aeb] bg-white px-3 py-1.5 text-base font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#005aeb]/30"
+                                            placeholder="Título del portafolio"
+                                        />
+                                    </div>
+                                    <!-- Título Normal (click para editar) -->
+                                    <div v-else class="group/title flex items-center gap-2 cursor-pointer" @click="startEditingTitle(portfolio)">
+                                        <h3 class="mb-1 truncate text-lg font-semibold text-gray-900 group-hover/title:text-[#005aeb] transition-colors">
+                                            {{ portfolio.title }}
+                                        </h3>
+                                        <Pencil class="h-3.5 w-3.5 text-gray-400 opacity-0 group-hover/title:opacity-100 transition-opacity flex-shrink-0" />
+                                    </div>
                                     <p class="mb-2 line-clamp-2 text-sm leading-relaxed text-gray-600">
                                         {{ portfolio.description }}
                                     </p>

@@ -138,6 +138,7 @@ const steps = ref([
         projects: props.templateData.projects || [],
         education: props.templateData.education || [],
         config: {
+            title: props.portfolio.title || 'Mi Portafolio',
             theme: 'moderna',
             is_public: props.portfolio.is_public || false,
             is_completed: props.portfolio.is_completed || false,

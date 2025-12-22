@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
     modelValue: {
+        title: string;
         theme: string;
         is_public: boolean;
     };
