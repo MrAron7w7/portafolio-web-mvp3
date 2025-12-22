@@ -253,10 +253,12 @@
                         :class="getContainerClass('technical', index, skill.id)"
                     >
                         <!-- Header Acordeón -->
-                        <button
+                        <div
+                            role="button"
+                            tabindex="0"
                             @click="toggleSkill(skill.id)"
+                            @keydown.enter="toggleSkill(skill.id)"
                             class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
-                            type="button"
                         >
                             <div class="flex flex-1 items-center gap-3 text-left">
                                 <ChevronDown
@@ -302,7 +304,7 @@
                             >
                                 <Trash2 class="h-4 w-4" />
                             </button>
-                        </button>
+                        </div>
     
     
                         <!-- Contenido Acordeón -->
@@ -406,10 +408,12 @@
                         :class="getContainerClass('soft', index, skill.id)"
                     >
                         <!-- Header Acordeón -->
-                        <button
+                        <div
+                            role="button"
+                            tabindex="0"
                             @click="toggleSkill(skill.id)"
+                            @keydown.enter="toggleSkill(skill.id)"
                             class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
-                            type="button"
                         >
                             <div class="flex flex-1 items-center gap-3 text-left">
                                 <ChevronDown
@@ -455,7 +459,7 @@
                             >
                                 <Trash2 class="h-4 w-4" />
                             </button>
-                        </button>
+                        </div>
     
     
                         <!-- Contenido Acordeón -->

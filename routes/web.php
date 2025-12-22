@@ -51,6 +51,19 @@ Route::get('/p/{slug}', [TemplateController::class, 'viewPublicBySlug'])
     ->name('portfolio.public.view');
 
 // ==========================================
+// RUTAS PÚBLICAS DE ENLACES COMPARTIDOS
+// ==========================================
+use App\Http\Controllers\PortfolioSharingController;
+
+// Ver portafolio vía token compartido (acceso público o restringido según config)
+Route::get('/share/{token}', [PortfolioSharingController::class, 'viewShared'])
+    ->name('portfolio.share.view');
+
+// Actualizar portafolio vía token (solo si tiene permiso view_edit)
+Route::put('/share/{token}', [PortfolioSharingController::class, 'updateShared'])
+    ->name('portfolio.share.update-shared');
+
+// ==========================================
 // RUTA PÚBLICA DE COMUNIDAD
 // ==========================================
 Route::get('/comunidad', [\App\Http\Controllers\CommunityController::class, 'index'])

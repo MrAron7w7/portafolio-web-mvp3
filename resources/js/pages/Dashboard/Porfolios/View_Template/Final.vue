@@ -11,7 +11,8 @@ import {
     ExternalLink,
     Copy,
     Check,
-    QrCode
+    QrCode,
+    X
 } from 'lucide-vue-next';
 import { getTemplateComponent } from '@/components/Templates/index';
 
@@ -25,14 +26,34 @@ const props = defineProps<{
         template_type: string;
         template_data: any;
         is_public: boolean;
+        access_mode: 'owner_only' | 'link'; // Nuevo campo
         is_completed: boolean;
         theme_settings: any;
         created_at: string;
         updated_at: string;
+        share_token?: string;
     };
     isOwner: boolean;
     publicUrl?: string;
 }>();
+
+// Estado de compartición calculado
+const shareStatus = computed(() => {
+    if (props.portfolio.access_mode === 'link') {
+        return {
+            label: 'Público', // Cambiado de 'Compartido' a 'Público'
+            icon: Globe,
+            classes: 'bg-green-100 text-green-700',
+            isPublic: true
+        };
+    }
+    return {
+        label: 'Privado',
+        icon: Lock,
+        classes: 'bg-gray-100 text-gray-600',
+        isPublic: false
+    };
+});
 
 // Componente de template dinámico
 const TemplateComponent = computed(() => {
@@ -120,22 +141,16 @@ const printPortfolio = () => {
 
                     <!-- Info del portafolio -->
                     <div class="flex items-center space-x-3">
-                        <span :class="[
-                            'flex items-center space-x-1 rounded-full px-3 py-1 text-sm font-medium',
-                            portfolio.is_public 
-                                ? 'bg-green-100 text-green-700' 
-                                : 'bg-gray-100 text-gray-600'
-                        ]">
-                            <Globe v-if="portfolio.is_public" class="h-4 w-4" />
-                            <Lock v-else class="h-4 w-4" />
-                            <span>{{ portfolio.is_public ? 'Público' : 'Privado' }}</span>
+                        <span :class="['flex items-center space-x-1 rounded-full px-3 py-1 text-sm font-medium', shareStatus.classes]">
+                            <component :is="shareStatus.icon" class="h-4 w-4" />
+                            <span>{{ shareStatus.label }}</span>
                         </span>
                     </div>
 
                     <!-- Acciones -->
                     <div class="flex items-center space-x-2">
                         <!-- Compartir -->
-                        <button v-if="portfolio.is_public" 
+                        <button v-if="shareStatus.isPublic" 
                             @click="showShareModal = true"
                             class="flex items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-50">
                             <Share2 class="h-4 w-4" />
@@ -203,8 +218,13 @@ const printPortfolio = () => {
                 <div v-if="showShareModal" 
                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
                     @click.self="showShareModal = false">
-                    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-                        <h3 class="mb-4 text-xl font-bold text-gray-900">Compartir Portafolio</h3>
+                    <div class="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                        <div class="mb-4 flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-gray-900">Compartir Portafolio</h3>
+                            <button @click="showShareModal = false" class="rounded-full p-1 bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
+                                <X class="h-5 w-5" />
+                            </button>
+                        </div>
                         
                         <!-- URL del portafolio -->
                         <div class="mb-6">
@@ -214,23 +234,30 @@ const printPortfolio = () => {
                             <div class="flex rounded-lg border border-gray-300 overflow-hidden">
                                 <input 
                                     type="text" 
-                                    :value="publicUrl" 
+                                    :value="publicUrl || (portfolio.share_token ? `${$page.props.app_url || window.location.origin}/p/${portfolio.share_token}` : 'Enlace no disponible')" 
                                     readonly
-                                    class="flex-1 bg-gray-50 px-4 py-2.5 text-sm text-gray-600"
+                                    class="flex-1 bg-gray-50 px-4 py-2.5 text-sm text-gray-600 focus:outline-none"
+                                    :class="{ 'text-gray-400 italic': !publicUrl && !portfolio.share_token }"
                                 />
-                                <button @click="copyUrl"
-                                    class="flex items-center space-x-2 bg-gray-100 px-4 transition hover:bg-gray-200">
+                                <button 
+                                    @click="copyUrl"
+                                    :disabled="!publicUrl && !portfolio.share_token"
+                                    class="flex items-center space-x-2 bg-gray-100 px-4 transition hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
                                     <Check v-if="copied" class="h-4 w-4 text-green-600" />
                                     <Copy v-else class="h-4 w-4 text-gray-600" />
                                 </button>
                             </div>
-                            <p v-if="copied" class="mt-2 text-sm text-green-600">
-                                ¡Enlace copiado!
+                            <p v-if="copied" class="mt-2 text-sm text-green-600 font-medium">
+                                ¡Enlace copiado al portapapeles!
+                            </p>
+                            <p v-if="!publicUrl && !portfolio.share_token" class="mt-2 text-xs text-red-500">
+                                No se ha podido generar el enlace. Por favor, vuelve a activarlo desde el editor.
                             </p>
                         </div>
 
                         <!-- Redes sociales -->
-                        <div class="mb-6">
+                        <div>
                             <label class="mb-3 block text-sm font-medium text-gray-700">
                                 Compartir en redes
                             </label>
@@ -245,12 +272,6 @@ const printPortfolio = () => {
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Cerrar -->
-                        <button @click="showShareModal = false"
-                            class="w-full rounded-lg border border-gray-300 py-2.5 text-gray-700 transition hover:bg-gray-50">
-                            Cerrar
-                        </button>
                     </div>
                 </div>
             </Transition>

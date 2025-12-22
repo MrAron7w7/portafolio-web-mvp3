@@ -142,6 +142,8 @@ const steps = ref([
             theme: 'moderna',
             is_public: props.portfolio.is_public || false,
             is_completed: props.portfolio.is_completed || false,
+            accessType: props.portfolio.is_public ? 'link' : 'private', // 'private' | 'link'
+            linkPermission: 'view', // 'view' | 'edit'
         },
         languages: props.templateData.languages || [],
         certifications: props.templateData.certifications || [],

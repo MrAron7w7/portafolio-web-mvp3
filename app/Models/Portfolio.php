@@ -48,6 +48,11 @@ class Portfolio extends Model
         'theme_settings',
         'seo_metadata',
         'published_at',
+        'access_mode',
+        'link_permission',
+        'link_audience_type',
+        'share_token',
+        'link_created_at',
     ];
 
     protected $casts = [
@@ -57,6 +62,7 @@ class Portfolio extends Model
         'theme_settings' => 'json',
         'seo_metadata' => 'json',
         'published_at' => 'datetime',
+        'link_created_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -102,5 +108,144 @@ class Portfolio extends Model
     public function communityPost()
     {
         return $this->hasOne(CommunityPost::class);
+    }
+
+    /**
+     * Relación con correos autorizados
+     */
+    public function authorizedEmails(): HasMany
+    {
+        return $this->hasMany(PortfolioAuthorizedEmail::class);
+    }
+
+    // ========================================
+    // LÓGICA DEL SISTEMA DE COMPARTIR
+    // ========================================
+
+    /**
+     * Generar un enlace compartido seguro (UUID)
+     */
+    public function generateShareLink(): string
+    {
+        $this->update([
+            'access_mode' => 'link',
+            'share_token' => \Illuminate\Support\Str::random(32),
+            'link_created_at' => now(),
+            'link_permission' => 'view',
+            'link_audience_type' => 'any_with_link',
+            'is_public' => true,
+        ]);
+
+        return $this->getShareUrl();
+    }
+
+    /**
+     * Desactivar enlace compartido
+     */
+    public function disableShareLink(): void
+    {
+        $this->update([
+            'access_mode' => 'owner_only',
+            'share_token' => null,
+            'link_created_at' => null,
+        ]);
+    }
+
+    /**
+     * Obtener la URL completa del enlace compartido
+     */
+    public function getShareUrl(): ?string
+    {
+        if (!$this->share_token) return null;
+        return url("/share/{$this->share_token}");
+    }
+
+    /**
+     * Verificar si tiene un enlace activo
+     */
+    public function hasActiveLink(): bool
+    {
+        return $this->access_mode === 'link' && !empty($this->share_token);
+    }
+
+    /**
+     * Cambiar permisos del enlace
+     */
+    public function setLinkPermission(string $permission): void
+    {
+        if (in_array($permission, ['view', 'view_edit'])) {
+            $this->update(['link_permission' => $permission]);
+        }
+    }
+
+    /**
+     * Cambiar tipo de audiencia
+     */
+    public function setLinkAudienceType(string $type): void
+    {
+        if (in_array($type, ['any_with_link', 'emails_only'])) {
+            $this->update(['link_audience_type' => $type]);
+        }
+    }
+
+    /**
+     * Agregar correo autorizado
+     */
+    public function addAuthorizedEmail(string $email, ?string $invitedByName = null): PortfolioAuthorizedEmail
+    {
+        return $this->authorizedEmails()->updateOrCreate(
+            ['email' => strtolower(trim($email))],
+            ['invited_by_name' => $invitedByName, 'invited_at' => now()]
+        );
+    }
+
+    /**
+     * Eliminar correo autorizado
+     */
+    public function removeAuthorizedEmail(string $email): bool
+    {
+        return $this->authorizedEmails()->where('email', strtolower(trim($email)))->delete() > 0;
+    }
+
+    /**
+     * Verificar si el acceso requiere correo autorizado
+     */
+    public function requiresAuthorizedEmail(): bool
+    {
+        return $this->access_mode === 'link' && $this->link_audience_type === 'emails_only';
+    }
+
+    /**
+     * Lógica central de autorización via enlace
+     */
+    public function canAccessViaLink(?string $userEmail = null): array
+    {
+        // 1. Si está en owner_only, nadie excepto el dueño entra (el dueño entraría por la ruta de dashboard, no por aquí)
+        if ($this->access_mode === 'owner_only') {
+            return ['allowed' => false, 'reason' => 'private'];
+        }
+
+        // 2. Si es acceso para cualquier persona con el enlace
+        if ($this->link_audience_type === 'any_with_link') {
+            return ['allowed' => true, 'permission' => $this->link_permission];
+        }
+
+        // 3. Si es restringido por correo
+        if ($this->link_audience_type === 'emails_only') {
+            if (!$userEmail) {
+                return ['allowed' => false, 'reason' => 'auth_required'];
+            }
+
+            $authorized = $this->authorizedEmails()->forEmail($userEmail)->first();
+            
+            if ($authorized) {
+                $authorized->markAsAccessed();
+                return ['allowed' => true, 'permission' => $this->link_permission];
+            }
+
+            return ['allowed' => false, 'reason' => 'not_authorized'];
+        }
+
+        return ['allowed' => false, 'reason' => 'unknown'];
     }
 }

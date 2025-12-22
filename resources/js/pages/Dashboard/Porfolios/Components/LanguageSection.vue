@@ -162,10 +162,12 @@ const getErrorClass = (index: number, field: keyof Language) => {
           :class="getContainerClass(index, language.id)"
         >
           <!-- Header Acordeón -->
-          <button
+          <div
+            role="button"
+            tabindex="0"
             @click="toggleLanguage(language.id)"
+            @keydown.enter="toggleLanguage(language.id)"
             class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
-            type="button"
           >
             <div class="flex flex-1 items-center gap-3 text-left">
               <ChevronDown
@@ -209,7 +211,7 @@ const getErrorClass = (index: number, field: keyof Language) => {
             >
               <Trash2 class="h-4 w-4" />
             </button>
-          </button>
+          </div>
 
           <!-- Contenido Acordeón -->
           <transition
