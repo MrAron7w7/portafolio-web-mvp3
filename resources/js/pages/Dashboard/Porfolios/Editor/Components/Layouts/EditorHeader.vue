@@ -27,9 +27,14 @@
         isSaved: boolean;
         isPortfolioPublic: boolean;
         formData: any;
+        isPublicEdit?: boolean;
+        returnUrl?: string;
     }
     
-    const props = withDefaults(defineProps<Props>(), {}); 
+    const props = withDefaults(defineProps<Props>(), {
+        isPublicEdit: false,
+        returnUrl: ''
+    }); 
     
     const emits = defineEmits<{
         save: [];
@@ -70,9 +75,10 @@
     const isLinkSharing = computed(() => accessMode.value === 'link');
     const hasActiveLink = computed(() => !!shareToken.value);
     
+    // URL pública usando el slug del portafolio (más limpia y profesional)
     const publicUrl = computed(() => {
-        if (!shareToken.value) return '';
-        return `${window.location.origin}/share/${shareToken.value}`;
+        if (!props.portfolio?.slug) return '';
+        return `${window.location.origin}/p/${props.portfolio.slug}`;
     });
 
     /**
@@ -87,178 +93,97 @@
     /**
      * Cambiar a modo privado (Solo tú tienes acceso)
      */
-    const setPrivate = async () => {
+    const setPrivate = () => {
         if (isPrivate.value && !hasActiveLink.value) return;
         
         isUpdating.value = true;
         
-        try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            
-            const response = await fetch(`/dashboard/portfolio/${props.portfolio.id}/share/disable`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                accessMode.value = 'owner_only';
-                shareToken.value = null;
-                authorizedEmails.value = [];
-                linkPermission.value = 'view';
-                linkAudienceType.value = 'any_with_link';
-                console.log('✅ Cambiado a privado');
-            }
-        } catch (error) {
-            console.error('❌ Error:', error);
-        } finally {
-            isUpdating.value = false;
-        }
+        router.post(`/dashboard/portfolio/${props.portfolio.id}/share/disable`, {}, {
+            preserveScroll: true,
+            onSuccess: () => console.log('✅ Cambiado a privado'),
+            onFinish: () => isUpdating.value = false,
+        });
     };
 
     /**
      * Cambiar a modo enlace compartido
      */
-    const setLinkSharing = async () => {
+    const setLinkSharing = () => {
         if (isLinkSharing.value && hasActiveLink.value) return;
         
         isUpdating.value = true;
         
-        try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            
-            const response = await fetch(`/dashboard/portfolio/${props.portfolio.id}/share/generate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                accessMode.value = 'link';
-                // El linkPermission y linkAudienceType se mantienen o se resetean según el backend
-                // Asumimos que el backend devuelve el portafolio actualizado
-                if (data.portfolio) {
-                    shareToken.value = data.portfolio.share_token;
-                } else if (data.share_url) {
-                    // Extraer token de la URL si el backend solo manda la URL
-                    shareToken.value = data.share_url.split('/').pop();
-                }
-                console.log('✅ Enlace generado');
-            }
-        } catch (error) {
-            console.error('❌ Error:', error);
-        } finally {
-            isUpdating.value = false;
-        }
+        router.post(`/dashboard/portfolio/${props.portfolio.id}/share/generate`, {}, {
+            preserveScroll: true,
+            onSuccess: () => console.log('✅ Enlace generado'),
+            onFinish: () => isUpdating.value = false,
+        });
     };
 
     /**
      * Actualiza el permiso del enlace
      */
-    const updatePermission = async (permission: 'view' | 'view_edit') => {
-        if (linkPermission.value === permission) return;
+    const updatePermission = (permission: 'view' | 'view_edit') => {
+        if (props.portfolio.link_permission === permission) return;
         
         isUpdating.value = true;
-        try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            const response = await fetch(`/dashboard/portfolio/${props.portfolio.id}/share/permission`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ permission })
-            });
-            if (response.ok) {
-                linkPermission.value = permission;
-            }
-        } catch (e) { console.error(e); }
-        finally { isUpdating.value = false; }
+        
+        router.patch(`/dashboard/portfolio/${props.portfolio.id}/share/permission`, { permission }, {
+            preserveScroll: true,
+            onSuccess: () => console.log('✅ Permiso actualizado'),
+            onFinish: () => isUpdating.value = false,
+        });
     };
 
     /**
      * Actualiza el tipo de audiencia
      */
-    const updateAudience = async (audience: 'any_with_link' | 'emails_only') => {
-        if (linkAudienceType.value === audience) return;
+    const updateAudience = (audience: 'any_with_link' | 'emails_only') => {
+        if (props.portfolio.link_audience_type === audience) return;
         
         isUpdating.value = true;
-        try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            const response = await fetch(`/dashboard/portfolio/${props.portfolio.id}/share/audience`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ audience_type: audience })
-            });
-            if (response.ok) {
-                linkAudienceType.value = audience;
-            }
-        } catch (e) { console.error(e); }
-        finally { isUpdating.value = false; }
+        
+        router.patch(`/dashboard/portfolio/${props.portfolio.id}/share/audience`, { audience_type: audience }, {
+            preserveScroll: true,
+            onSuccess: () => console.log('✅ Audiencia actualizada'),
+            onFinish: () => isUpdating.value = false,
+        });
     };
 
     /**
      * Agregar correo
      */
-    const addEmail = async () => {
+    const addEmail = () => {
         if (!newEmail.value.trim()) return;
+        
         isUpdating.value = true;
-        try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            const response = await fetch(`/dashboard/portfolio/${props.portfolio.id}/share/emails`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ email: newEmail.value })
-            });
-            if (response.ok) {
-                const data = await response.json();
-                // Actualizar lista local (el backend debería devolver la lista o el nuevo item)
-                // Para simplificar, refrescamos via reload silencioso o asumimos success
+        // Limpiamos error previo
+        emailError.value = '';
+
+        router.post(`/dashboard/portfolio/${props.portfolio.id}/share/emails`, { email: newEmail.value }, {
+            preserveScroll: true,
+            onSuccess: () => {
                 newEmail.value = '';
-                router.reload({ only: ['portfolio'] });
-            } else {
-                const data = await response.json();
-                emailError.value = data.errors?.email?.[0] || 'Error al agregar correo';
-            }
-        } catch (e) { console.error(e); }
-        finally { isUpdating.value = false; }
+                console.log('✅ Correo agregado');
+            },
+            onError: (errors) => {
+                emailError.value = errors.email || 'Error al agregar correo';
+            },
+            onFinish: () => isUpdating.value = false,
+        });
     };
 
     /**
      * Eliminar correo
      */
-    const removeEmail = async (email: string) => {
+    const removeEmail = (email: string) => {
         isUpdating.value = true;
-        try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            const response = await fetch(`/dashboard/portfolio/${props.portfolio.id}/share/emails/${encodeURIComponent(email)}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                }
-            });
-            if (response.ok) {
-                router.reload({ only: ['portfolio'] });
-            }
-        } catch (e) { console.error(e); }
-        finally { isUpdating.value = false; }
+        
+        router.delete(`/dashboard/portfolio/${props.portfolio.id}/share/emails/${encodeURIComponent(email)}`, {
+            preserveScroll: true,
+            onSuccess: () => console.log('✅ Correo eliminado'),
+            onFinish: () => isUpdating.value = false,
+        });
     };
 
     const copyToClipboard = () => {
@@ -366,12 +291,13 @@
                                     </div>
 
                                     <div class="p-5 space-y-5">
-                                        <!-- Opciones de Modo (Tarjetas) -->
-                                        <div class="grid gap-3">
+                                        <!-- Opciones de Modo (Tarjetas) - Solo para dueño -->
+                                        <div v-if="!isPublicEdit" class="grid gap-3">
                                             <!-- Modo Privado -->
-                                            <div 
+                                            <button 
+                                                type="button"
                                                 @click="setPrivate"
-                                                class="group relative flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer"
+                                                class="group relative flex items-start w-full text-left gap-3 p-3.5 rounded-xl border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                                                 :class="isPrivate ? 'border-blue-200 bg-blue-50/30' : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50/50'">
                                                 
                                                 <div class="mt-0.5 p-2 rounded-lg transition-colors"
@@ -386,12 +312,13 @@
                                                     </div>
                                                     <p class="text-xs text-gray-500 mt-0.5">Nadie más puede ver este portafolio.</p>
                                                 </div>
-                                            </div>
+                                            </button>
 
                                             <!-- Modo Enlace -->
-                                            <div 
+                                            <button 
+                                                type="button"
                                                 @click="setLinkSharing"
-                                                class="group relative flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer"
+                                                class="group relative flex items-start w-full text-left gap-3 p-3.5 rounded-xl border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                                                 :class="isLinkSharing ? 'border-blue-200 bg-blue-50/30' : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50/50'">
                                                 
                                                 <div class="mt-0.5 p-2 rounded-lg transition-colors"
@@ -406,7 +333,7 @@
                                                     </div>
                                                     <p class="text-xs text-gray-500 mt-0.5">Cualquier persona con el enlace puede acceder.</p>
                                                 </div>
-                                            </div>
+                                            </button>
                                         </div>
 
                                         <!-- Configuración del Enlace -->
@@ -420,7 +347,7 @@
                                             
                                             <div v-if="isLinkSharing" class="space-y-4 pt-4 border-t border-gray-50">
                                                 <!-- Configuración Grid -->
-                                                <div class="grid grid-cols-2 gap-3">
+                                                <div v-if="!isPublicEdit" class="grid grid-cols-2 gap-3">
                                                     <div class="space-y-1.5">
                                                         <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Permiso</label>
                                                         <div class="relative">
@@ -470,7 +397,7 @@
                                                 </div>
 
                                                 <!-- Gestión de Correos (Solo restringido) -->
-                                                <div v-if="linkAudienceType === 'emails_only'" class="mt-4 p-4 rounded-xl bg-gradient-to-b from-amber-50/50 to-orange-50/30 border border-amber-100/80">
+                                                <div v-if="linkAudienceType === 'emails_only' && !isPublicEdit" class="mt-4 p-4 rounded-xl bg-gradient-to-b from-amber-50/50 to-orange-50/30 border border-amber-100/80">
                                                     <!-- Header de la sección -->
                                                     <div class="flex items-start gap-3 mb-4">
                                                         <div class="p-2 rounded-lg bg-amber-100 text-amber-600">
@@ -548,13 +475,13 @@
                         <!-- Botón Guardar -->
                         <button
                             @click="emits('save')"
-                            :disabled="isSaving || isSaved || !hasUnsavedChanges"
+                            :disabled="isSaving || isSaved || !hasUnsavedChanges || isUpdating"
                             :class="[
                                 'flex items-center space-x-2 rounded-lg font-medium px-4 py-2 transition-all duration-300',
-                                !isSaving && !isSaved && hasUnsavedChanges && 'bg-[#005aeb] text-white hover:bg-[#0048c4] shadow-md hover:shadow-lg',
-                                isSaving && 'bg-[#005aeb] text-white opacity-75 cursor-not-allowed',
+                                !isSaving && !isSaved && hasUnsavedChanges && !isUpdating && 'bg-[#005aeb] text-white hover:bg-[#0048c4] shadow-md hover:shadow-lg',
+                                (isSaving || isUpdating) && 'bg-[#005aeb] text-white opacity-75 cursor-not-allowed',
                                 isSaved && 'bg-green-500 text-white shadow-lg shadow-green-500/30',
-                                !hasUnsavedChanges && !isSaving && !isSaved && 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                                !hasUnsavedChanges && !isSaving && !isSaved && !isUpdating && 'bg-gray-100 text-gray-500 cursor-not-allowed'
                             ]">
                             <Loader2 v-if="isSaving" class="w-5 h-5 animate-spin" />
                             <Check v-else-if="isSaved" class="w-5 h-5 animate-bounce" />

@@ -13,12 +13,7 @@ const props = defineProps<{
 const page = usePage();
 const currentUser = computed(() => page.props.auth?.user || null);
 
-// Estado de edición
-const isEditing = ref(false);
-const isSaving = ref(false);
-const editedData = ref<any>(null);
-
-// Datos del portafolio
+// Datos del portafolio (para visualización)
 const templateData = computed(() => props.portfolio.template_data || {});
 const personal = computed(() => templateData.value.personal || {});
 const experience = computed(() => templateData.value.experience || []);
@@ -31,52 +26,15 @@ const fullName = computed(() => {
     return `${personal.value.firstName || ''} ${personal.value.lastName || ''}`.trim() || 'Sin nombre';
 });
 
-// Iniciar edición
-const startEditing = () => {
-    if (!props.canEdit) return;
-    editedData.value = JSON.parse(JSON.stringify(templateData.value));
-    isEditing.value = true;
-};
-
-// Cancelar edición
-const cancelEditing = () => {
-    isEditing.value = false;
-    editedData.value = null;
-};
-
-// Guardar cambios
-const saveChanges = async () => {
-    if (!editedData.value) return;
-    
-    isSaving.value = true;
-    
-    try {
-        const response = await fetch(`/share/${props.portfolio.share_token}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-            },
-            body: JSON.stringify({
-                template_data: editedData.value,
-            }),
-        });
-
-        if (response.ok) {
-            isEditing.value = false;
-            // Recargar la página para ver los cambios
-            window.location.reload();
-        } else {
-            const error = await response.json();
-            alert(error.error || 'Error al guardar');
-        }
-    } catch (err) {
-        console.error('Error:', err);
-        alert('Error al guardar los cambios');
-    } finally {
-        isSaving.value = false;
+// URL del editor
+const editUrl = computed(() => {
+    // Si es el dueño, ir al dashboard
+    if (props.isOwner) {
+        return `/dashboard/portfolio/${props.portfolio.id}/editor`;
     }
-};
+    // Si es invitado con permiso, ir al editor público
+    return `/p/${props.portfolio.slug}/edit`;
+});
 </script>
 
 <template>
@@ -110,34 +68,14 @@ const saveChanges = async () => {
                             {{ canEdit ? 'Puedes editar' : 'Solo lectura' }}
                         </div>
 
-                        <!-- Botones de edición -->
-                        <template v-if="canEdit && !isEditing">
-                            <button
-                                @click="startEditing"
-                                class="flex items-center gap-2 px-4 py-2 bg-[#005aeb] text-white rounded-lg font-medium hover:bg-[#0048c4] transition-colors"
-                            >
-                                <Edit3 class="w-4 h-4" />
-                                Editar
-                            </button>
-                        </template>
+                        <!-- Botón de edición -->
+                        <a v-if="canEdit" :href="editUrl"
+                            class="flex items-center gap-2 px-4 py-2 bg-[#005aeb] text-white rounded-lg font-medium hover:bg-[#0048c4] transition-colors"
+                        >
+                            <Edit3 class="w-4 h-4" />
+                            Editar Portafolio
+                        </a>
 
-                        <template v-if="isEditing">
-                            <button
-                                @click="cancelEditing"
-                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                @click="saveChanges"
-                                :disabled="isSaving"
-                                class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors disabled:opacity-50"
-                            >
-                                <Loader2 v-if="isSaving" class="w-4 h-4 animate-spin" />
-                                <Save v-else class="w-4 h-4" />
-                                {{ isSaving ? 'Guardando...' : 'Guardar' }}
-                            </button>
-                        </template>
                     </div>
                 </div>
             </div>

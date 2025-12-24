@@ -353,10 +353,11 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                 :class="getContainerClass(index, project.id)"
             >
                 <!-- Header del acordeón -->
-                <button
+                <div
                     @click="toggleProject(project.id)"
-                    class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
-                    type="button"
+                    class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50 cursor-pointer"
+                    role="button"
+                    tabindex="0"
                 >
                     <div class="flex flex-1 items-center gap-3 text-left">
                         <ChevronDown
@@ -403,7 +404,7 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                     >
                         <Trash2 class="h-4 w-4" />
                     </button>
-                </button>
+                </div>
 
                 <!-- Contenido del acordeón -->
                 <transition

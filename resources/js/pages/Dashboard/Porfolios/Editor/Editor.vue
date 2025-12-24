@@ -41,7 +41,13 @@ const props = defineProps<{
     portfolio: any;
     templateData: any;
     sections: any[];
+    isPublicEdit?: boolean; // Indica si es edición pública (sin autenticación)
+    returnUrl?: string; // URL para volver después de editar
 }>();
+
+// Helpers para el template
+const isPublicEdit = computed(() => props.isPublicEdit || false);
+const returnUrl = computed(() => props.returnUrl || '');
 
 
 // Estado para el modal
@@ -474,7 +480,12 @@ const finishAndRedirect = async () => {
         await saveChanges();
         await new Promise(resolve => setTimeout(resolve, 1500));
     }
-    router.visit('/dashboard');
+    
+    if (isPublicEdit.value && returnUrl.value) {
+        window.location.href = returnUrl.value;
+    } else {
+        router.visit('/dashboard');
+    }
 };
 
 const cancelExit = () => {
@@ -524,7 +535,12 @@ const handleSaveAndExit = async () => {
     closeCompleteModal();
     await saveChanges();
     await new Promise(resolve => setTimeout(resolve, 1200)); // ← Delay
-    router.visit('/dashboard');
+    
+    if (isPublicEdit.value && returnUrl.value) {
+        window.location.href = returnUrl.value;
+    } else {
+        router.visit('/dashboard');
+    }
 };
 
 
@@ -616,7 +632,8 @@ onBeforeUnmount(() => {
         <!-- Header -->
         <EditorHeader :portfolio="portfolio" :progress="progress" :has-unsaved-changes="hasUnsavedChanges"
             :is-saving="isSaving" :is-saved="isSaved" :is-portfolio-public="isPortfolioPublicInHeader"
-            :form-data="formData" @save="saveChanges" @open-preview="openFullPreview"
+            :form-data="formData" :is-public-edit="isPublicEdit" :return-url="returnUrl"
+            @save="saveChanges" @open-preview="openFullPreview"
             @open-public-modal="openPublicToggleModal" @finish="handleFinish" />
 
 

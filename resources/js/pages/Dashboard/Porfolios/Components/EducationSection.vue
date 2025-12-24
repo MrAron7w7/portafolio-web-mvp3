@@ -305,9 +305,10 @@ const getErrorClassForInput = (index: number, field: keyof Education) => {
                 class="overflow-hidden rounded-lg border transition-all duration-500 ease-in-out"
                 :class="getContainerClass(index, education.id)">
                 <!-- Header del acordeón -->
-                <button @click="toggleEducation(education.id)"
-                    class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
-                    type="button">
+                <div @click="toggleEducation(education.id)"
+                    class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50 cursor-pointer"
+                    role="button"
+                    tabindex="0">
                     <div class="flex flex-1 items-center gap-3 text-left">
                         <ChevronDown
                             class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
@@ -341,7 +342,7 @@ const getErrorClassForInput = (index: number, field: keyof Education) => {
                         class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500">
                         <Trash2 class="h-4 w-4" />
                     </button>
-                </button>
+                </div>
 
                 <!-- Contenido del acordeón -->
                 <transition enter-active-class="transition-all duration-300 ease-out"

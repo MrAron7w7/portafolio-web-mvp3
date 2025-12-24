@@ -124,29 +124,33 @@ class TemplateController extends Controller
     }
 
     /**
-     * Vista del portafolio terminado
-     */
-    public function viewPortfolio(Portfolio $portfolio)
-    {
-        // Verificar acceso: dueño o portafolio público
-        $isOwner = Auth::check() && $portfolio->user_id === Auth::id();
-        
-        if (!$portfolio->is_public && !$isOwner) {
-            abort(404);
-        }
-
-        // URL pública del portafolio
-        $publicUrl = $portfolio->is_public 
-            ? url("/p/{$portfolio->slug}") 
-            : null;
-
-        return Inertia::render('Dashboard/Porfolios/View_Template/Final', [
-            'portfolio' => $portfolio,
-            'isOwner' => $isOwner,
-            'publicUrl' => $publicUrl,
-        ]);
+ * Vista del portafolio terminado
+ */
+public function viewPortfolio(Portfolio $portfolio)
+{
+    // Verificar acceso: dueño o portafolio con acceso por enlace
+    $isOwner = Auth::check() && $portfolio->user_id === Auth::id();
+    
+    // Si es modo owner_only y no es el dueño, denegar acceso
+    if ($portfolio->access_mode === 'owner_only' && !$isOwner) {
+        abort(404);
     }
 
+    // URL pública del portafolio
+    $publicUrl = $portfolio->access_mode === 'link' 
+        ? url("/p/{$portfolio->slug}") 
+        : null;
+
+    // Puede editar: es dueño o tiene permiso view_edit
+    $canEdit = $isOwner || $portfolio->link_permission === 'view_edit';
+
+    return Inertia::render('Dashboard/Porfolios/View_Template/Final', [
+        'portfolio' => $portfolio,
+        'isOwner' => $isOwner,
+        'publicUrl' => $publicUrl,
+        'canEdit' => $canEdit,
+    ]);
+}
     /**
      * Vista pública por slug (lectura)
      */
@@ -155,6 +159,83 @@ class TemplateController extends Controller
         $portfolio = Portfolio::where('slug', $slug)->firstOrFail();
 
         return $this->viewPortfolio($portfolio);
+    }
+
+    /**
+     * Editor público por slug (requiere permiso view_edit y autenticación)
+     */
+    public function editPublicBySlug(string $slug)
+    {
+        // 1. Verificar autenticación
+        if (!Auth::check()) {
+            // Guardar la URL intentada para redirigir después del login
+            session()->put('url.intended', url("/p/{$slug}/edit"));
+            
+            return redirect()->route('login')
+                ->with('warning', 'Debes iniciar sesión o registrarte para editar este portafolio.');
+        }
+
+        $portfolio = Portfolio::where('slug', $slug)->firstOrFail();
+
+        // 2. Verificar que el portafolio tenga permiso de edición pública
+        if ($portfolio->access_mode !== 'link' || $portfolio->link_permission !== 'view_edit') {
+            return redirect()->route('portfolio.public.view', $slug)
+                ->with('error', 'No tienes permiso para editar este portafolio.');
+        }
+
+        // Renderizar el editor con modo "público"
+        return Inertia::render('Dashboard/Porfolios/Editor/Editor', [
+            'portfolio' => $portfolio,
+            'templateData' => $portfolio->template_data, // ✅ Datos necesarios para Editor.vue
+            'sections' => $portfolio->sections,          // ✅ Secciones necesarias
+            'isPublicEdit' => true, 
+            'returnUrl' => url("/p/{$slug}"),
+        ]);
+    }
+
+    /**
+     * Guardar cambios desde editor público (requiere permiso view_edit y autenticación)
+     */
+    public function updatePublicBySlug(Request $request, string $slug)
+    {
+        // 1. Verificar autenticación
+        if (!Auth::check()) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Debes iniciar sesión.'], 401);
+            }
+            return redirect()->route('login');
+        }
+
+        $portfolio = Portfolio::where('slug', $slug)->firstOrFail();
+
+        // Verificar permiso
+        if ($portfolio->access_mode !== 'link' || $portfolio->link_permission !== 'view_edit') {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'No tienes permiso para editar este portafolio.'], 403);
+            }
+            return redirect()->route('portfolio.public.view', $slug)
+                ->with('error', 'No tienes permiso para editar este portafolio.');
+        }
+
+        // Validar y actualizar
+        $validated = $request->validate([
+            'template_data' => 'required|array',
+        ]);
+
+        $portfolio->update([
+            'template_data' => $validated['template_data'],
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Portafolio actualizado correctamente.',
+                'portfolio' => $portfolio->refresh(),
+            ]);
+        }
+
+        return redirect()->route('portfolio.public.view', $slug)
+            ->with('success', 'Portafolio actualizado correctamente.');
     }
 
     private function getTemplateDefaultData($templateType)

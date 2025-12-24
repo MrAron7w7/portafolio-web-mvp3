@@ -99,7 +99,9 @@ const formatDate = (dateString: string) => {
 };
 
 // URL logic for external link
-const getPortfolioUrl = (portfolio: Portfolio) => {
+const getPortfolioUrl = (portfolio: Portfolio | null) => {
+    if (!portfolio) return '#';
+    
     if (portfolio.custom_domain) {
         return `https://${portfolio.custom_domain}`;
     }
@@ -167,7 +169,7 @@ const getPortfolioUrl = (portfolio: Portfolio) => {
                                     </div>
                                 </div>
                                 
-                                <a :href="getPortfolioUrl(post.portfolio)" target="_blank" class="hidden sm:inline-flex items-center gap-2 bg-white text-indigo-900 hover:bg-indigo-50 px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm">
+                                <a v-if="post.portfolio" :href="getPortfolioUrl(post.portfolio)" target="_blank" class="hidden sm:inline-flex items-center gap-2 bg-white text-indigo-900 hover:bg-indigo-50 px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm">
                                     Ver Portafolio <ExternalLink class="h-4 w-4" />
                                 </a>
                             </div>
@@ -178,7 +180,7 @@ const getPortfolioUrl = (portfolio: Portfolio) => {
                     <div class="p-8 md:p-10">
                         <!-- Mobile CTA -->
                         <div class="sm:hidden mb-8">
-                             <a :href="getPortfolioUrl(post.portfolio)" target="_blank" class="w-full flex justify-center items-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700 px-5 py-3 rounded-xl font-bold transition-all shadow-md text-sm">
+                            <a v-if="post.portfolio" :href="getPortfolioUrl(post.portfolio)" target="_blank" class="w-full flex justify-center items-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700 px-5 py-3 rounded-xl font-bold transition-all shadow-md text-sm">
                                 Ver Portafolio <ExternalLink class="h-4 w-4" />
                             </a>
                         </div>

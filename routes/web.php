@@ -50,6 +50,14 @@ Route::get('/portfolio/{id}/download-pdf', [PortfolioPdfController::class, 'down
 Route::get('/p/{slug}', [TemplateController::class, 'viewPublicBySlug'])
     ->name('portfolio.public.view');
 
+// Ruta pública para EDITAR portafolio por slug (requiere permiso view_edit)
+Route::get('/p/{slug}/edit', [TemplateController::class, 'editPublicBySlug'])
+    ->name('portfolio.public.edit');
+
+// Ruta pública para GUARDAR cambios del editor público
+Route::put('/p/{slug}', [TemplateController::class, 'updatePublicBySlug'])
+    ->name('portfolio.public.update');
+
 // ==========================================
 // RUTAS PÚBLICAS DE ENLACES COMPARTIDOS
 // ==========================================

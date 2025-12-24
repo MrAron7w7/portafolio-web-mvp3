@@ -188,7 +188,7 @@ watch(() => page.props.flash.success, (msg) => {
                                         </div>
                                     </div>
                                     <div class="h-14 w-14 rounded-xl bg-white/80 border border-white/70 shadow-inner flex items-center justify-center text-indigo-900 font-bold">
-                                        {{ post.portfolio.title.substring(0,2).toUpperCase() }}
+                                        {{ post.portfolio?.title?.substring(0,2).toUpperCase() ?? 'NA' }}
                                     </div>
                                 </div>
                             </div>
