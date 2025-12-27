@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Cloud, Code, Cpu, Database, Server, Terminal } from 'lucide-vue-next';
+import { Cloud, Code, Cpu, Database, Server, Terminal, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 const props = defineProps<{
     data: {
@@ -36,6 +37,31 @@ const props = defineProps<{
     theme?: any;
 }>();
 
+// Carousel state
+const projectIndex = ref(0);
+const experienceIndex = ref(0);
+
+const nextProject = () => {
+    if (props.data.projects && projectIndex.value < props.data.projects.length - 1) {
+        projectIndex.value++;
+    }
+};
+const prevProject = () => {
+    if (projectIndex.value > 0) {
+        projectIndex.value--;
+    }
+};
+const nextExperience = () => {
+    if (props.data.experience && experienceIndex.value < props.data.experience.length - 1) {
+        experienceIndex.value++;
+    }
+};
+const prevExperience = () => {
+    if (experienceIndex.value > 0) {
+        experienceIndex.value--;
+    }
+};
+
 const ensureUrl = (url: string) => (url?.startsWith('http') ? url : `https://${url}`);
 
 const formatDate = (date: string) => {
@@ -67,7 +93,7 @@ const techIcons: { [key: string]: any } = {
         class="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white"
     >
         <!-- Header Tecnológico -->
-        <header class="relative overflow-hidden px-8 py-16">
+        <header class="relative overflow-hidden px-4 py-8 md:px-8 md:py-16">
             <!-- Efectos de fondo tecnológico -->
             <div class="absolute inset-0 opacity-10">
                 <div
@@ -82,14 +108,14 @@ const techIcons: { [key: string]: any } = {
             <div class="bg-grid-white absolute inset-0 opacity-5"></div>
 
             <div class="relative mx-auto max-w-6xl">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-0">
                     <div>
                         <h1
-                            class="mb-3 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-5xl font-bold text-transparent"
+                            class="mb-2 md:mb-3 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-3xl md:text-5xl font-bold text-transparent"
                         >
                             {{ data.personal.name || 'Tu Nombre' }}
                         </h1>
-                        <p class="mb-6 text-2xl text-gray-300">
+                        <p class="mb-4 md:mb-6 text-lg md:text-2xl text-gray-300">
                             {{
                                 data.personal.title ||
                                 'Desarrollador de Software'
@@ -107,7 +133,7 @@ const techIcons: { [key: string]: any } = {
                                     5,
                                 )"
                                 :key="tech.name"
-                                class="rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-sm backdrop-blur-sm"
+                                class="rounded-full border border-blue-400/30 bg-blue-400/10 px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm backdrop-blur-sm"
                             >
                                 {{ tech.name }}
                             </span>
@@ -129,27 +155,27 @@ const techIcons: { [key: string]: any } = {
                     </div>
 
                     <!-- Contacto Tecnológico -->
-                    <div class="text-right">
+                    <div class="text-left md:text-right">
                         <div class="space-y-2 text-sm text-gray-300">
                             <div
                                 v-if="data.personal.email"
-                                class="flex items-center justify-end"
+                                class="flex items-center md:justify-end"
                             >
                                 <span>{{ data.personal.email }}</span>
                             </div>
                             <div
                                 v-if="data.personal.phone"
-                                class="flex items-center justify-end"
+                                class="flex items-center md:justify-end"
                             >
                                 <span>{{ data.personal.phone }}</span>
                             </div>
                             <div
                                 v-if="data.personal.location"
-                                class="flex items-center justify-end"
+                                class="flex items-center md:justify-end"
                             >
                                 <span>{{ data.personal.location }}</span>
                             </div>
-                            <div class="mt-3 flex justify-end space-x-3">
+                            <div class="mt-3 flex md:justify-end space-x-3">
                                 <a
                                     v-if="data.personal.github"
                                     :href="ensureUrl(data.personal.github)"
@@ -174,7 +200,7 @@ const techIcons: { [key: string]: any } = {
         </header>
 
         <!-- Contenido Principal -->
-        <main class="relative mx-auto max-w-6xl px-8 py-12">
+        <main class="relative mx-auto max-w-6xl px-4 py-8 md:px-8 md:py-12">
             <!-- Resumen Tecnológico -->
             <section v-if="data.personal.summary" class="mb-12">
                 <div
@@ -200,52 +226,83 @@ const techIcons: { [key: string]: any } = {
                             Experiencia Técnica
                         </h2>
 
-                        <div class="space-y-6">
-                            <div
-                                v-for="(exp, index) in data.experience"
-                                :key="index"
-                                class="rounded-2xl border border-blue-400/20 bg-blue-400/5 p-6 backdrop-blur-sm"
+                        <!-- Carousel Container -->
+                        <div class="relative group">
+                            <!-- Navigation Arrows - Elegant glassmorphism style for dark theme -->
+                            <button 
+                                v-if="experienceIndex > 0"
+                                @click="prevExperience"
+                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
                             >
+                                <ChevronLeft class="h-5 w-5" />
+                            </button>
+                            <button 
+                                v-if="experienceIndex < data.experience.length - 1"
+                                @click="nextExperience"
+                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                            >
+                                <ChevronRight class="h-5 w-5" />
+                            </button>
+
+                            <!-- Experience Display (2 at a time on lg) -->
+                            <div class="grid gap-4 md:grid-cols-2">
                                 <div
-                                    class="mb-4 flex items-start justify-between"
+                                    v-for="(exp, index) in data.experience.slice(experienceIndex, experienceIndex + 2)"
+                                    :key="index"
+                                    class="rounded-2xl border border-blue-400/20 bg-blue-400/5 p-6 backdrop-blur-sm transition-all duration-300"
                                 >
-                                    <div>
-                                        <h3 class="text-xl font-bold">
-                                            {{ exp.position }}
-                                        </h3>
-                                        <p class="text-cyan-400">
-                                            {{ exp.company }}
-                                        </p>
+                                    <div
+                                        class="mb-4 flex items-start justify-between"
+                                    >
+                                        <div>
+                                            <h3 class="text-xl font-bold">
+                                                {{ exp.position }}
+                                            </h3>
+                                            <p class="text-cyan-400">
+                                                {{ exp.company }}
+                                            </p>
+                                        </div>
+                                        <span
+                                            class="rounded-full bg-cyan-400/20 px-4 py-1 text-sm text-cyan-300"
+                                        >
+                                            {{ formatDate(exp.startDate) }} –
+                                            {{
+                                                exp.current
+                                                    ? 'Presente'
+                                                    : formatDate(exp.endDate || '')
+                                            }}
+                                        </span>
                                     </div>
-                                    <span
-                                        class="rounded-full bg-cyan-400/20 px-4 py-1 text-sm text-cyan-300"
-                                    >
-                                        {{ formatDate(exp.startDate) }} –
-                                        {{
-                                            exp.current
-                                                ? 'Presente'
-                                                : formatDate(exp.endDate || '')
-                                        }}
-                                    </span>
-                                </div>
 
-                                <p class="mb-4 leading-relaxed text-gray-300">
-                                    {{ exp.description }}
-                                </p>
+                                    <p class="mb-4 leading-relaxed text-gray-300">
+                                        {{ exp.description }}
+                                    </p>
 
-                                <!-- Tecnologías usadas -->
-                                <div
-                                    v-if="exp.technologies?.length"
-                                    class="flex flex-wrap gap-2"
-                                >
-                                    <span
-                                        v-for="tech in exp.technologies"
-                                        :key="tech"
-                                        class="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs"
+                                    <!-- Tecnologías usadas -->
+                                    <div
+                                        v-if="exp.technologies?.length"
+                                        class="flex flex-wrap gap-2"
                                     >
-                                        {{ tech }}
-                                    </span>
+                                        <span
+                                            v-for="tech in exp.technologies"
+                                            :key="tech"
+                                            class="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs"
+                                        >
+                                            {{ tech }}
+                                        </span>
+                                    </div>
                                 </div>
+                            </div>
+
+                            <!-- Dots Indicator - Modern pill style -->
+                            <div v-if="data.experience.length > 1" class="flex justify-center items-center gap-1.5 mt-6">
+                                <button 
+                                    v-for="(_, idx) in data.experience" 
+                                    :key="idx"
+                                    @click="experienceIndex = idx"
+                                    class="rounded-full transition-all duration-300"
+                                    :class="idx === experienceIndex ? 'w-6 h-2 bg-cyan-400' : 'w-2 h-2 bg-gray-600 hover:bg-cyan-400/50'"
+                                />
                             </div>
                         </div>
                     </section>
@@ -257,47 +314,78 @@ const techIcons: { [key: string]: any } = {
                             Proyectos Técnicos
                         </h2>
 
-                        <div class="grid gap-4 md:grid-cols-2">
-                            <div
-                                v-for="(project, index) in data.projects"
-                                :key="index"
-                                class="rounded-xl border border-blue-400/20 bg-blue-400/5 p-6 backdrop-blur-sm transition hover:border-cyan-400/40"
+                        <!-- Carousel Container -->
+                        <div class="relative group">
+                            <!-- Navigation Arrows - Elegant glassmorphism style for dark theme -->
+                            <button 
+                                v-if="projectIndex > 0"
+                                @click="prevProject"
+                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
                             >
-                                <div v-if="project.image" class="mb-4 overflow-hidden rounded-lg border border-cyan-500/30">
-                                    <img 
-                                        :src="project.image" 
-                                        :alt="project.name" 
-                                        class="h-48 w-full object-cover transition-transform hover:scale-105"
-                                    />
-                                </div>
-                                <h3 class="mb-2 font-bold">
-                                    {{ project.name }}
-                                </h3>
-                                <p class="mb-3 text-sm text-gray-400">
-                                    {{ project.description }}
-                                </p>
+                                <ChevronLeft class="h-5 w-5" />
+                            </button>
+                            <button 
+                                v-if="projectIndex < data.projects.length - 1"
+                                @click="nextProject"
+                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                            >
+                                <ChevronRight class="h-5 w-5" />
+                            </button>
 
+                            <!-- Projects Display (2 at a time) -->
+                            <div class="grid gap-4 md:grid-cols-2">
                                 <div
-                                    v-if="project.technologies?.length"
-                                    class="flex flex-wrap gap-1"
+                                    v-for="(project, index) in data.projects.slice(projectIndex, projectIndex + 2)"
+                                    :key="index"
+                                    class="rounded-xl border border-blue-400/20 bg-blue-400/5 p-6 backdrop-blur-sm transition-all duration-300 hover:border-cyan-400/40"
                                 >
-                                    <span
-                                        v-for="tech in project.technologies"
-                                        :key="tech"
-                                        class="rounded-full bg-cyan-400/20 px-2 py-1 text-xs text-cyan-300"
-                                    >
-                                        {{ tech }}
-                                    </span>
-                                </div>
+                                    <div v-if="project.image" class="mb-4 overflow-hidden rounded-lg border border-cyan-500/30">
+                                        <img 
+                                            :src="project.image" 
+                                            :alt="project.name" 
+                                            class="h-48 w-full object-cover transition-transform hover:scale-105"
+                                        />
+                                    </div>
+                                    <h3 class="mb-2 font-bold">
+                                        {{ project.name }}
+                                    </h3>
+                                    <p class="mb-3 text-sm text-gray-400">
+                                        {{ project.description }}
+                                    </p>
 
-                                <a
-                                    v-if="project.url"
-                                    :href="project.url"
-                                    target="_blank"
-                                    class="mt-3 inline-block text-sm text-cyan-400 hover:text-cyan-300"
-                                >
-                                    Ver código →
-                                </a>
+                                    <div
+                                        v-if="project.technologies?.length"
+                                        class="flex flex-wrap gap-1"
+                                    >
+                                        <span
+                                            v-for="tech in project.technologies"
+                                            :key="tech"
+                                            class="rounded-full bg-cyan-400/20 px-2 py-1 text-xs text-cyan-300"
+                                        >
+                                            {{ tech }}
+                                        </span>
+                                    </div>
+
+                                    <a
+                                        v-if="project.url"
+                                        :href="project.url"
+                                        target="_blank"
+                                        class="mt-3 inline-block text-sm text-cyan-400 hover:text-cyan-300"
+                                    >
+                                        Ver código →
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Dots Indicator - Modern pill style -->
+                            <div v-if="data.projects.length > 1" class="flex justify-center items-center gap-1.5 mt-6">
+                                <button 
+                                    v-for="(_, idx) in data.projects" 
+                                    :key="idx"
+                                    @click="projectIndex = idx"
+                                    class="rounded-full transition-all duration-300"
+                                    :class="idx === projectIndex ? 'w-6 h-2 bg-cyan-400' : 'w-2 h-2 bg-gray-600 hover:bg-cyan-400/50'"
+                                />
                             </div>
                         </div>
                     </section>

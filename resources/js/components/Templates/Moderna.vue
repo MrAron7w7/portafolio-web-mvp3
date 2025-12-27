@@ -8,7 +8,10 @@ import {
     Mail,
     MapPin,
     Phone,
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 
 const props = defineProps<{
@@ -45,6 +48,31 @@ const props = defineProps<{
     };
     theme?: any;
 }>();
+
+// Carousel state
+const projectIndex = ref(0);
+const experienceIndex = ref(0);
+
+const nextProject = () => {
+    if (props.data.projects && projectIndex.value < props.data.projects.length - 1) {
+        projectIndex.value++;
+    }
+};
+const prevProject = () => {
+    if (projectIndex.value > 0) {
+        projectIndex.value--;
+    }
+};
+const nextExperience = () => {
+    if (props.data.experience && experienceIndex.value < props.data.experience.length - 1) {
+        experienceIndex.value++;
+    }
+};
+const prevExperience = () => {
+    if (experienceIndex.value > 0) {
+        experienceIndex.value--;
+    }
+};
 
 
 // Formatear fechas
@@ -211,54 +239,74 @@ const calculateDuration = (
                             Experiencia Laboral
                         </h2>
 
+                        <!-- Carousel Container -->
+                        <div class="relative group">
+                            <!-- Navigation Arrows - Elegant glassmorphism style -->
+                            <button 
+                                v-if="experienceIndex > 0"
+                                @click="prevExperience"
+                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-600 shadow-md hover:shadow-lg hover:bg-white hover:text-blue-600 hover:border-blue-300 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                            >
+                                <ChevronLeft class="h-5 w-5" />
+                            </button>
+                            <button 
+                                v-if="experienceIndex < data.experience.length - 1"
+                                @click="nextExperience"
+                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-600 shadow-md hover:shadow-lg hover:bg-white hover:text-blue-600 hover:border-blue-300 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                            >
+                                <ChevronRight class="h-5 w-5" />
+                            </button>
 
-                        <div class="experience-list">
-                            <div v-for="(exp, index) in data.experience" :key="index"
-                                class="experience-card">
-                                <!-- Línea temporal -->
+                            <!-- Single Experience Display -->
+                            <div class="experience-card transition-all duration-300">
                                 <div class="timeline-indicator"></div>
-
-
                                 <div class="experience-content">
                                     <div class="experience-header">
                                         <div>
                                             <h3 class="experience-position">
-                                                {{ exp.position }}
+                                                {{ data.experience[experienceIndex].position }}
                                             </h3>
                                             <p class="experience-company">
-                                                {{ exp.company }}
+                                                {{ data.experience[experienceIndex].company }}
                                             </p>
                                         </div>
                                     </div>
 
-
                                     <div class="experience-meta">
                                         <span class="meta-item">
                                             <Calendar class="meta-icon" />
-                                            {{ formatDate(exp.startDate) }} -
+                                            {{ formatDate(data.experience[experienceIndex].startDate) }} -
                                             {{
-                                                exp.current
+                                                data.experience[experienceIndex].current
                                                     ? 'Actualidad'
-                                                    : formatDate(
-                                                        exp.endDate || '',
-                                                    )
+                                                    : formatDate(data.experience[experienceIndex].endDate || '')
                                             }}
                                         </span>
                                         <span class="meta-separator">•</span>
                                         <span class="meta-item">{{
                                             calculateDuration(
-                                                exp.startDate,
-                                                exp.endDate,
-                                                exp.current,
+                                                data.experience[experienceIndex].startDate,
+                                                data.experience[experienceIndex].endDate,
+                                                data.experience[experienceIndex].current,
                                             )
                                         }}</span>
                                     </div>
 
-
                                     <p class="experience-description">
-                                        {{ exp.description }}
+                                        {{ data.experience[experienceIndex].description }}
                                     </p>
                                 </div>
+                            </div>
+
+                            <!-- Dots Indicator - Modern pill style -->
+                            <div v-if="data.experience.length > 1" class="flex justify-center items-center gap-1.5 mt-6">
+                                <button 
+                                    v-for="(_, idx) in data.experience" 
+                                    :key="idx"
+                                    @click="experienceIndex = idx"
+                                    class="rounded-full transition-all duration-300"
+                                    :class="idx === experienceIndex ? 'w-6 h-2 bg-blue-500' : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'"
+                                />
                             </div>
                         </div>
                     </section>
@@ -271,36 +319,47 @@ const calculateDuration = (
                             Proyectos Destacados
                         </h2>
 
+                        <!-- Carousel Container -->
+                        <div class="relative group">
+                            <!-- Navigation Arrows - Elegant glassmorphism style -->
+                            <button 
+                                v-if="projectIndex > 0"
+                                @click="prevProject"
+                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-600 shadow-md hover:shadow-lg hover:bg-white hover:text-blue-600 hover:border-blue-300 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                            >
+                                <ChevronLeft class="h-5 w-5" />
+                            </button>
+                            <button 
+                                v-if="projectIndex < data.projects.length - 1"
+                                @click="nextProject"
+                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-600 shadow-md hover:shadow-lg hover:bg-white hover:text-blue-600 hover:border-blue-300 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                            >
+                                <ChevronRight class="h-5 w-5" />
+                            </button>
 
-                        <div class="projects-grid">
-                            <div v-for="(project, index) in data.projects" :key="index"
-                                class="project-card">
-                                <!-- Imagen del proyecto (opcional) -->
-                                <img v-if="project.image" :src="project.image" :alt="project.name"
+                            <!-- Single Project Display -->
+                            <div class="project-card transition-all duration-300">
+                                <img v-if="data.projects[projectIndex].image" :src="data.projects[projectIndex].image" :alt="data.projects[projectIndex].name"
                                     class="project-image" />
 
-
                                 <h3 class="project-name">
-                                    {{ project.name }}
+                                    {{ data.projects[projectIndex].name }}
                                 </h3>
 
-
                                 <p class="project-description">
-                                    {{ project.description }}
+                                    {{ data.projects[projectIndex].description }}
                                 </p>
 
-
                                 <!-- Tecnologías -->
-                                <div v-if="project.technologies?.length" class="technologies-list">
-                                    <span v-for="tech in project.technologies" :key="tech"
+                                <div v-if="data.projects[projectIndex].technologies?.length" class="technologies-list">
+                                    <span v-for="tech in data.projects[projectIndex].technologies" :key="tech"
                                         class="technology-tag">
                                         {{ tech }}
                                     </span>
                                 </div>
 
-
                                 <!-- Link/URL del proyecto -->
-                                <a v-if="project.link" :href="project.link" target="_blank" rel="noopener noreferrer"
+                                <a v-if="data.projects[projectIndex].link" :href="data.projects[projectIndex].link" target="_blank" rel="noopener noreferrer"
                                     class="project-link">
                                     Ver proyecto
                                     <svg class="link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,6 +367,17 @@ const calculateDuration = (
                                             d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                                     </svg>
                                 </a>
+                            </div>
+
+                            <!-- Dots Indicator - Modern pill style -->
+                            <div v-if="data.projects.length > 1" class="flex justify-center items-center gap-1.5 mt-6">
+                                <button 
+                                    v-for="(_, idx) in data.projects" 
+                                    :key="idx"
+                                    @click="projectIndex = idx"
+                                    class="rounded-full transition-all duration-300"
+                                    :class="idx === projectIndex ? 'w-6 h-2 bg-blue-500' : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'"
+                                />
                             </div>
                         </div>
                     </section>
