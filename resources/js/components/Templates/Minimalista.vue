@@ -10,6 +10,7 @@ const props = defineProps<{
             website?: string;
             linkedin?: string;
             github?: string;
+            photo?: string;
             summary: string;
         };
         experience: Array<{
@@ -22,8 +23,8 @@ const props = defineProps<{
         }>;
         education: Array<any>;
         skills: {
-            technical: string[];
-            soft: string[];
+            technical: Array<any>;
+            soft: Array<any>;
         };
         projects: Array<any>;
         certifications: Array<any>;
@@ -31,6 +32,8 @@ const props = defineProps<{
     };
     theme?: any;
 }>();
+
+const ensureUrl = (url: string) => (url?.startsWith('http') ? url : `https://${url}`);
 
 const formatDate = (date: string) => {
     if (!date) return '';
@@ -44,6 +47,14 @@ const formatDate = (date: string) => {
         <div class="mx-auto max-w-4xl px-8 py-16">
             <!-- Header Minimalista -->
             <header class="mb-16 border-b border-gray-900 pb-8">
+                <div class="mb-6" v-if="data.personal.photo">
+                    <img 
+                        :src="data.personal.photo" 
+                        :alt="data.personal.name" 
+                        class="h-32 w-32 object-cover grayscale"
+                    >
+                </div>
+
                 <h1
                     class="mb-2 font-serif text-5xl font-light tracking-tight text-gray-900"
                 >
@@ -72,7 +83,7 @@ const formatDate = (date: string) => {
                     }}</span>
                     <a
                         v-if="data.personal.website"
-                        :href="data.personal.website"
+                        :href="ensureUrl(data.personal.website)"
                         target="_blank"
                         class="hover:text-gray-900"
                     >
@@ -80,7 +91,7 @@ const formatDate = (date: string) => {
                     </a>
                     <a
                         v-if="data.personal.linkedin"
-                        :href="data.personal.linkedin"
+                        :href="ensureUrl(data.personal.linkedin)"
                         target="_blank"
                         class="hover:text-gray-900"
                     >
@@ -88,7 +99,7 @@ const formatDate = (date: string) => {
                     </a>
                     <a
                         v-if="data.personal.github"
-                        :href="data.personal.github"
+                        :href="ensureUrl(data.personal.github)"
                         target="_blank"
                         class="hover:text-gray-900"
                     >
@@ -177,7 +188,7 @@ const formatDate = (date: string) => {
                             Técnicas
                         </h3>
                         <p class="leading-relaxed text-gray-700">
-                            {{ data.skills.technical.join(' • ') }}
+                            {{ data.skills.technical.map((s: any) => s.name).join(' • ') }}
                         </p>
                     </div>
 
@@ -188,8 +199,9 @@ const formatDate = (date: string) => {
                             Competencias
                         </h3>
                         <p class="leading-relaxed text-gray-700">
-                            {{ data.skills.soft.join(' • ') }}
+                            {{ data.skills.soft.map((s: any) => s.name).join(' • ') }}
                         </p>
+
                     </div>
                 </div>
             </section>
@@ -202,6 +214,12 @@ const formatDate = (date: string) => {
 
                 <div class="space-y-8">
                     <div v-for="(project, index) in data.projects" :key="index">
+                        <img 
+                            v-if="project.image" 
+                            :src="project.image" 
+                            :alt="project.name" 
+                            class="mb-4 w-full h-64 object-cover grayscale block"
+                        >
                         <h3 class="mb-2 text-lg font-medium text-gray-900">
                             {{ project.name }}
                         </h3>

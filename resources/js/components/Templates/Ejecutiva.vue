@@ -26,8 +26,8 @@ const props = defineProps<{
         }>;
         education: Array<any>;
         skills: {
-            technical: string[];
-            soft: string[];
+            technical: Array<any>;
+            soft: Array<any>;
         };
         projects: Array<any>;
         certifications: Array<any>;
@@ -35,6 +35,8 @@ const props = defineProps<{
     };
     theme?: any;
 }>();
+
+const ensureUrl = (url: string) => (url?.startsWith('http') ? url : `https://${url}`);
 
 const formatDate = (date: string) => {
     if (!date) return '';
@@ -90,18 +92,23 @@ const calculateDuration = (
             <div class="mx-auto max-w-6xl px-8 py-12">
                 <div class="flex items-start justify-between">
                     <!-- Información Principal -->
-                    <div class="flex-1">
-                        <h1 class="mb-2 text-4xl font-bold">
-                            {{ data.personal.name || 'Tu Nombre' }}
-                        </h1>
-                        <p class="mb-6 text-xl text-gray-300">
-                            {{ data.personal.title || 'Director Ejecutivo' }}
-                        </p>
+                    <div class="flex flex-1 items-center gap-6">
+                        <div v-if="data.personal.photo" class="h-32 w-32 shrink-0 overflow-hidden rounded-lg border-2 border-gray-700 bg-gray-800">
+                             <img :src="data.personal.photo" :alt="data.personal.name" class="h-full w-full object-cover" />
+                        </div>
+                        <div>
+                           <h1 class="mb-2 text-4xl font-bold">
+                                {{ data.personal.name || 'Tu Nombre' }}
+                            </h1>
+                            <p class="mb-6 text-xl text-gray-300">
+                                {{ data.personal.title || 'Director Ejecutivo' }}
+                            </p>
+                        </div>
 
                         <!-- Resumen Ejecutivo -->
                         <p
                             v-if="data.personal.summary"
-                            class="max-w-2xl leading-relaxed text-gray-400"
+                            class="max-w-2xl leading-relaxed text-gray-400 mt-4"
                         >
                             {{ data.personal.summary }}
                         </p>
@@ -134,13 +141,25 @@ const calculateDuration = (
                                     data.personal.location
                                 }}</span>
                             </div>
-                            <div
-                                v-if="data.personal.linkedin"
-                                class="flex items-center justify-end"
-                            >
-                                <span class="text-gray-300">{{
-                                    data.personal.linkedin
-                                }}</span>
+                            <div class="flex items-center justify-end gap-4 mt-2">
+                                <a
+                                    v-if="data.personal.linkedin"
+                                    :href="ensureUrl(data.personal.linkedin)"
+                                    target="_blank"
+                                    class="flex items-center text-gray-300 transition-colors hover:text-white"
+                                >
+                                    <Linkedin class="mr-2 h-4 w-4" />
+                                    <span>LinkedIn</span>
+                                </a>
+                                <a
+                                    v-if="data.personal.github"
+                                    :href="ensureUrl(data.personal.github)"
+                                    target="_blank"
+                                    class="flex items-center text-gray-300 transition-colors hover:text-white"
+                                >
+                                    <Github class="mr-2 h-4 w-4" />
+                                    <span>GitHub</span>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -259,6 +278,12 @@ const calculateDuration = (
                                 :key="index"
                                 class="rounded-lg border border-gray-200 bg-white p-6 transition hover:shadow-md"
                             >
+                                <img
+                                    v-if="project.image"
+                                    :src="project.image"
+                                    :alt="project.name"
+                                    class="mb-4 h-48 w-full rounded object-cover"
+                                />
                                 <h3 class="mb-2 font-bold text-gray-900">
                                     {{ project.name }}
                                 </h3>
@@ -312,14 +337,14 @@ const calculateDuration = (
                                 <div class="space-y-2">
                                     <div
                                         v-for="skill in data.skills.technical"
-                                        :key="skill"
+                                        :key="skill.name"
                                         class="flex items-center"
                                     >
                                         <div
                                             class="mr-3 h-2 w-2 rounded-full bg-blue-600"
                                         ></div>
                                         <span class="text-sm text-gray-700">{{
-                                            skill
+                                            skill.name
                                         }}</span>
                                     </div>
                                 </div>
@@ -332,14 +357,14 @@ const calculateDuration = (
                                 <div class="space-y-2">
                                     <div
                                         v-for="skill in data.skills.soft"
-                                        :key="skill"
+                                        :key="skill.name"
                                         class="flex items-center"
                                     >
                                         <div
                                             class="mr-3 h-2 w-2 rounded-full bg-green-600"
                                         ></div>
                                         <span class="text-sm text-gray-700">{{
-                                            skill
+                                            skill.name
                                         }}</span>
                                     </div>
                                 </div>

@@ -35,6 +35,22 @@ const props = defineProps<{
     theme?: any;
 }>();
 
+const formatSkill = (skill: string | any) => {
+    if (typeof skill === 'string') {
+        try {
+            if (skill.trim().startsWith('{')) {
+                const parsed = JSON.parse(skill);
+                return parsed.name || skill;
+            }
+        } catch (e) {
+            return skill;
+        }
+    }
+    return skill?.name || skill;
+};
+
+const ensureUrl = (url: string) => (url?.startsWith('http') ? url : `https://${url}`);
+
 const formatDate = (date: string) => {
     if (!date) return '';
     const [year, month] = date.split('-');
@@ -201,7 +217,7 @@ const formatDate = (date: string) => {
                                     :key="skill"
                                     class="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-sm"
                                 >
-                                    {{ skill }}
+                                    {{ formatSkill(skill) }}
                                 </span>
                             </div>
                         </div>
@@ -216,7 +232,7 @@ const formatDate = (date: string) => {
                                     :key="skill"
                                     class="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-sm"
                                 >
-                                    {{ skill }}
+                                    {{ formatSkill(skill) }}
                                 </span>
                             </div>
                         </div>
@@ -234,8 +250,14 @@ const formatDate = (date: string) => {
                             <div
                                 v-for="(project, index) in data.projects"
                                 :key="index"
-                                class="rounded-xl border-2 border-dashed border-purple-200 p-4 transition hover:border-purple-400"
+                            class="rounded-xl border-2 border-dashed border-purple-200 p-4 transition hover:border-purple-400"
                             >
+                                <img 
+                                    v-if="project.image" 
+                                    :src="project.image" 
+                                    :alt="project.name" 
+                                    class="mb-4 h-48 w-full rounded-lg object-cover"
+                                />
                                 <h3 class="font-bold text-gray-900">
                                     {{ project.name }}
                                 </h3>
@@ -294,7 +316,7 @@ const formatDate = (date: string) => {
             <div class="mb-4 flex justify-center space-x-4">
                 <a
                     v-if="data.personal.website"
-                    :href="data.personal.website"
+                    :href="ensureUrl(data.personal.website)"
                     target="_blank"
                     class="rounded-full bg-purple-100 p-3 text-purple-600 transition hover:bg-purple-200"
                 >
@@ -302,7 +324,7 @@ const formatDate = (date: string) => {
                 </a>
                 <a
                     v-if="data.personal.linkedin"
-                    :href="data.personal.linkedin"
+                    :href="ensureUrl(data.personal.linkedin)"
                     target="_blank"
                     class="rounded-full bg-blue-100 p-3 text-blue-600 transition hover:bg-blue-200"
                 >
@@ -310,7 +332,7 @@ const formatDate = (date: string) => {
                 </a>
                 <a
                     v-if="data.personal.github"
-                    :href="data.personal.github"
+                    :href="ensureUrl(data.personal.github)"
                     target="_blank"
                     class="rounded-full bg-gray-100 p-3 text-gray-600 transition hover:bg-gray-200"
                 >

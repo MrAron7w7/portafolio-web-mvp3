@@ -26,8 +26,8 @@ const props = defineProps<{
         }>;
         education: Array<any>;
         skills: {
-            technical: string[];
-            soft: string[];
+            technical: Array<any>;
+            soft: Array<any>;
         };
         projects: Array<any>;
         certifications: Array<any>;
@@ -35,6 +35,8 @@ const props = defineProps<{
     };
     theme?: any;
 }>();
+
+const ensureUrl = (url: string) => (url?.startsWith('http') ? url : `https://${url}`);
 
 const formatDate = (date: string) => {
     if (!date) return '';
@@ -104,11 +106,25 @@ const techIcons: { [key: string]: any } = {
                                     0,
                                     5,
                                 )"
-                                :key="tech"
+                                :key="tech.name"
                                 class="rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-sm backdrop-blur-sm"
                             >
-                                {{ tech }}
+                                {{ tech.name }}
                             </span>
+                        </div>
+                    </div>
+
+                   <!-- Profile Photo -->
+                    <div v-if="data.personal.photo" class="hidden md:block mx-8 shrink-0">
+                        <div class="relative h-40 w-40">
+                             <div class="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 blur-lg opacity-50"></div>
+                             <div class="relative h-full w-full overflow-hidden rounded-full border-2 border-cyan-500/50 p-1 bg-gray-900">
+                                <img 
+                                    :src="data.personal.photo" 
+                                    :alt="data.personal.name" 
+                                    class="h-full w-full rounded-full object-cover"
+                                />
+                             </div>
                         </div>
                     </div>
 
@@ -136,7 +152,7 @@ const techIcons: { [key: string]: any } = {
                             <div class="mt-3 flex justify-end space-x-3">
                                 <a
                                     v-if="data.personal.github"
-                                    :href="data.personal.github"
+                                    :href="ensureUrl(data.personal.github)"
                                     target="_blank"
                                     class="rounded-lg bg-white/10 p-2 backdrop-blur-sm transition hover:bg-white/20"
                                 >
@@ -144,7 +160,7 @@ const techIcons: { [key: string]: any } = {
                                 </a>
                                 <a
                                     v-if="data.personal.linkedin"
-                                    :href="data.personal.linkedin"
+                                    :href="ensureUrl(data.personal.linkedin)"
                                     target="_blank"
                                     class="rounded-lg bg-white/10 p-2 backdrop-blur-sm transition hover:bg-white/20"
                                 >
@@ -247,6 +263,13 @@ const techIcons: { [key: string]: any } = {
                                 :key="index"
                                 class="rounded-xl border border-blue-400/20 bg-blue-400/5 p-6 backdrop-blur-sm transition hover:border-cyan-400/40"
                             >
+                                <div v-if="project.image" class="mb-4 overflow-hidden rounded-lg border border-cyan-500/30">
+                                    <img 
+                                        :src="project.image" 
+                                        :alt="project.name" 
+                                        class="h-48 w-full object-cover transition-transform hover:scale-105"
+                                    />
+                                </div>
                                 <h3 class="mb-2 font-bold">
                                     {{ project.name }}
                                 </h3>
@@ -297,22 +320,57 @@ const techIcons: { [key: string]: any } = {
                             <div class="space-y-4">
                                 <div
                                     v-for="skill in data.skills.technical"
-                                    :key="skill"
+                                    :key="skill.name"
                                     class="flex items-center justify-between"
                                 >
                                     <div class="flex items-center">
                                         <component
-                                            :is="techIcons[skill] || Code"
+                                            :is="techIcons[skill.name] || Code"
                                             class="mr-3 h-4 w-4 text-cyan-400"
                                         />
-                                        <span class="text-sm">{{ skill }}</span>
+                                        <span class="text-sm font-medium">{{ skill.name }}</span>
                                     </div>
                                     <div
-                                        class="h-1 w-16 rounded-full bg-gray-700"
+                                        class="h-1 w-16 rounded-full bg-gray-700 overflow-hidden"
                                     >
                                         <div
                                             class="h-full rounded-full bg-cyan-400"
-                                            style="width: 85%"
+                                            :style="{ width: skill.level ? skill.level + '%' : '85%' }"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Habilidades Blandas -->
+                    <section v-if="data.skills?.soft?.length" class="mb-8">
+                        <div
+                            class="rounded-2xl border border-blue-400/20 bg-blue-400/5 p-6 backdrop-blur-sm"
+                        >
+                            <h2
+                                class="mb-4 flex items-center text-xl font-bold"
+                            >
+                                <Users class="mr-2 h-5 w-5 text-purple-400" />
+                                Soft Skills
+                            </h2>
+
+                            <div class="space-y-3">
+                                <div
+                                    v-for="skill in data.skills.soft"
+                                    :key="skill.name"
+                                    class="flex flex-col"
+                                >
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-sm font-medium">{{ skill.name }}</span>
+                                        <span v-if="skill.level" class="text-xs text-gray-400">{{ skill.level }}%</span>
+                                    </div>
+                                    <div
+                                        class="h-1 w-full rounded-full bg-gray-700 overflow-hidden"
+                                    >
+                                        <div
+                                            class="h-full rounded-full bg-purple-400"
+                                            :style="{ width: skill.level ? skill.level + '%' : '100%' }"
                                         ></div>
                                     </div>
                                 </div>

@@ -48,6 +48,8 @@ const props = defineProps<{
 
 
 // Formatear fechas
+const ensureUrl = (url: string) => (url?.startsWith('http') ? url : `https://${url}`);
+
 const formatDate = (date: string) => {
     if (!date) return '';
     const [year, month] = date.split('-');
@@ -164,15 +166,15 @@ const calculateDuration = (
 
                         <!-- Links sociales -->
                         <div class="social-links">
-                            <a v-if="data.personal.website" :href="data.personal.website" target="_blank"
+                            <a v-if="data.personal.website" :href="ensureUrl(data.personal.website)" target="_blank"
                                 class="social-icon">
                                 <Globe class="icon" />
                             </a>
-                            <a v-if="data.personal.linkedin" :href="`https://${data.personal.linkedin}`" target="_blank"
+                            <a v-if="data.personal.linkedin" :href="ensureUrl(data.personal.linkedin)" target="_blank"
                                 class="social-icon">
                                 <Linkedin class="icon" />
                             </a>
-                            <a v-if="data.personal.github" :href="`https://${data.personal.github}`" target="_blank"
+                            <a v-if="data.personal.github" :href="ensureUrl(data.personal.github)" target="_blank"
                                 class="social-icon">
                                 <Github class="icon" />
                             </a>

@@ -12,6 +12,7 @@ const props = defineProps<{
             website?: string;
             linkedin?: string;
             github?: string;
+            photo?: string;
             summary: string;
         };
         experience: Array<{
@@ -73,13 +74,27 @@ const formatDate = (date: string) => {
             <!-- Header Académico -->
             <header class="mb-12 border-b border-gray-300 pb-8">
                 <div class="flex items-start justify-between">
-                    <div>
-                        <h1 class="mb-2 text-4xl font-bold text-gray-900">
-                            {{ data.personal.name || 'Tu Nombre' }}
-                        </h1>
-                        <p class="mb-4 text-xl text-gray-600">
-                            {{ data.personal.title || 'Tu Título Académico' }}
-                        </p>
+                    <div class="flex items-center gap-6">
+                        <div
+                            v-if="data.personal.photo"
+                            class="h-32 w-32 shrink-0 overflow-hidden rounded-full border-4 border-gray-100 shadow-md"
+                        >
+                            <img
+                                :src="data.personal.photo"
+                                :alt="data.personal.name"
+                                class="h-full w-full object-cover"
+                            />
+                        </div>
+                        <div>
+                            <h1 class="mb-2 text-4xl font-bold text-gray-900">
+                                {{ data.personal.name || 'Tu Nombre' }}
+                            </h1>
+                            <p class="mb-4 text-xl text-gray-600">
+                                {{
+                                    data.personal.title || 'Tu Título Académico'
+                                }}
+                            </p>
+                        </div>
                     </div>
                     <div class="text-right">
                         <div class="space-y-1 text-sm text-gray-600">
@@ -161,6 +176,48 @@ const formatDate = (date: string) => {
                                 <p class="text-gray-700">
                                     {{ exp.description }}
                                 </p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Proyectos Académicos -->
+                    <section v-if="data.projects?.length" class="mb-8">
+                        <div class="mb-4 flex items-start">
+                            <Users class="mt-1 mr-3 h-5 w-5 text-blue-600" />
+                            <h2 class="text-2xl font-bold text-gray-900">
+                                Proyectos Destacados
+                            </h2>
+                        </div>
+                        <div class="grid gap-6 md:grid-cols-2">
+                            <div
+                                v-for="(project, index) in data.projects"
+                                :key="index"
+                                class="rounded-lg border border-gray-200 p-4 transition hover:border-blue-300 hover:shadow-md"
+                            >
+                                <img
+                                    v-if="project.image"
+                                    :src="project.image"
+                                    :alt="project.name"
+                                    class="mb-4 h-40 w-full rounded-md object-cover"
+                                />
+                                <h3 class="mb-2 font-bold text-gray-900">
+                                    {{ project.name }}
+                                </h3>
+                                <p class="mb-3 text-sm text-gray-700">
+                                    {{ project.description }}
+                                </p>
+                                <div
+                                    v-if="project.technologies?.length"
+                                    class="flex flex-wrap gap-1"
+                                >
+                                    <span
+                                        v-for="tech in project.technologies"
+                                        :key="tech"
+                                        class="rounded bg-blue-50 px-2 py-1 text-xs text-blue-700"
+                                    >
+                                        {{ tech }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </section>
