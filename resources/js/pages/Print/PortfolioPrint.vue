@@ -24,13 +24,48 @@ const currentTemplate = computed(() => {
     const key = props.portfolio.template_type as keyof typeof templates;
     return templates[key] ?? Moderna;
 });
+
+// Datos formateados para el template (Misma lógica que en Final.vue)
+const templateData = computed(() => {
+    const data = props.portfolio.template_data;
+    if (!data) return null;
+ 
+    return {
+        personal: {
+            // Construir el nombre completo si existe firstName/lastName, o usar name si ya existe
+            name: (data.personal?.name && data.personal.name !== 'Tu Nombre') 
+                ? data.personal.name 
+                : `${data.personal?.firstName || ''} ${data.personal?.lastName || ''}`.trim() || 'Tu Nombre',
+            title: data.personal?.title || 'Tu Título Profesional',
+            email: data.personal?.email || '',
+            phone: data.personal?.phone || '',
+            photo: data.personal?.photo || null,
+            location: data.personal?.location || '',
+            website: data.personal?.website || '',
+            linkedin: data.personal?.linkedin || '',
+            github: data.personal?.github || '',
+            summary: data.personal?.summary || '',
+            description: data.personal?.description || '',
+        },
+        experience: data.experience || [],
+        education: data.education || [],
+        skills: {
+            technical: data.skills?.technical || [],
+            soft: data.skills?.soft || [],
+        },
+        projects: data.projects || [],
+        languages: data.languages || [],
+        certifications: data.certifications || [],
+    };
+});
 </script>
 
 <template>
     <div class="pdf-wrapper">
         <component 
+            v-if="templateData"
             :is="currentTemplate" 
-            :data="portfolio.template_data" 
+            :data="templateData" 
             class="print-container"
         />
     </div>
