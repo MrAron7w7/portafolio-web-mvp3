@@ -83,9 +83,7 @@ export function useEditorValidation(formData: any, currentStep: any) {
         return socialValidation.validateAll(formData.social);
     };
 
-    const validateConfig = (): boolean => {
-        return true;
-    };
+
 
     const validations = [
         validatePersonal,
@@ -96,7 +94,6 @@ export function useEditorValidation(formData: any, currentStep: any) {
         validateSkills,
         validateProjects,
         validateSocial,
-        validateConfig,
     ];
 
     // ============================================

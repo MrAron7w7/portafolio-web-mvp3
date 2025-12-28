@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import ImageGallery from '../Shared/ImageGallery.vue';
 import {
     Briefcase,
     Calendar,
@@ -11,7 +13,7 @@ import {
     ChevronLeft,
     ChevronRight,
 } from 'lucide-vue-next';
-import { ref } from 'vue';
+
 
 
 const props = defineProps<{
@@ -50,6 +52,15 @@ const props = defineProps<{
 }>();
 
 // Carousel state
+const galleryOpen = ref(false);
+const galleryImages = ref<string[]>([]);
+const galleryStartIndex = ref(0);
+
+function openGallery(images: string[], startIdx: number = 0) {
+  galleryImages.value = images;
+  galleryStartIndex.value = startIdx;
+  galleryOpen.value = true;
+}
 const projectIndex = ref(0);
 const experienceIndex = ref(0);
 
@@ -339,8 +350,32 @@ const calculateDuration = (
 
                             <!-- Single Project Display -->
                             <div class="project-card transition-all duration-300">
-                                <img v-if="data.projects[projectIndex].image" :src="data.projects[projectIndex].image" :alt="data.projects[projectIndex].name"
-                                    class="project-image" />
+                                <!-- Multi-image gallery grid -->
+                                <div v-if="data.projects[projectIndex].images && data.projects[projectIndex].images.length > 1" class="gallery-grid">
+                                    <img 
+                                        v-for="(img, idx) in data.projects[projectIndex].images.slice(0, 4)" 
+                                        :key="idx" 
+                                        :src="img" 
+                                        :alt="`${data.projects[projectIndex].name} - ${Number(idx) + 1}`"
+                                        class="gallery-thumbnail cursor-pointer"
+                                        @click="openGallery(data.projects[projectIndex].images, Number(idx))"
+                                    />
+                                    <div 
+                                        v-if="data.projects[projectIndex].images.length > 4" 
+                                        class="gallery-more"
+                                        @click="openGallery(data.projects[projectIndex].images, 4)"
+                                    >
+                                        +{{ data.projects[projectIndex].images.length - 4 }}
+                                    </div>
+                                </div>
+                                <!-- Single image fallback -->
+                                <img 
+                                    v-else-if="data.projects[projectIndex].image" 
+                                    :src="data.projects[projectIndex].image" 
+                                    :alt="data.projects[projectIndex].name"
+                                    class="project-image cursor-pointer" 
+                                    @click="openGallery([data.projects[projectIndex].image], 0)"
+                                />
 
                                 <h3 class="project-name">
                                     {{ data.projects[projectIndex].name }}
@@ -380,6 +415,14 @@ const calculateDuration = (
                                 />
                             </div>
                         </div>
+
+                        <!-- Image Gallery Modal -->
+                        <ImageGallery 
+                            v-if="galleryOpen" 
+                            :images="galleryImages" 
+                            :initialIndex="galleryStartIndex"
+                            @close="galleryOpen = false"
+                        />
                     </section>
                 </div>
 
@@ -961,6 +1004,56 @@ const calculateDuration = (
     width: 100%;
     border-radius: 0.5rem;
     object-fit: cover;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.project-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Gallery Grid for Multiple Images */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-bottom: clamp(0.75rem, 2vw, 1rem);
+    position: relative;
+}
+
+.gallery-thumbnail {
+    width: 100%;
+    height: clamp(5rem, 12vw, 7rem);
+    object-fit: cover;
+    border-radius: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gallery-thumbnail:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-more {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: calc(50% - 0.25rem);
+    height: clamp(5rem, 12vw, 7rem);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.gallery-more:hover {
+    background: rgba(0, 0, 0, 0.8);
 }
 
 

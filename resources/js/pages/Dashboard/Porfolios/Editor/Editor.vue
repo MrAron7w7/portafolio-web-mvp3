@@ -512,9 +512,6 @@ const handleAttemptFinish = () => {
 
     // B. Filtrar pasos incompletos USANDO LA VALIDACIÓN REAL
     const incomplete = steps.value.filter(step => {
-        // 1. Ignorar Configuración (Paso 9)
-        if (step.id === 9) return false;
-
         // 2. Obtener estado real de validación
         // (Si no existe en el registro, asumimos false/invalido)
         const isStepValid = persistentStepValidation.value[step.id] === true;

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Cloud, Code, Cpu, Database, Server, Terminal, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { ref } from 'vue';
+import ImageGallery from '../Shared/ImageGallery.vue';
 
 const props = defineProps<{
     data: {
@@ -40,6 +41,17 @@ const props = defineProps<{
 // Carousel state
 const projectIndex = ref(0);
 const experienceIndex = ref(0);
+
+// Gallery state
+const galleryOpen = ref(false);
+const galleryImages = ref<string[]>([]);
+const galleryStartIndex = ref(0);
+
+function openGallery(images: string[], startIdx: number = 0) {
+  galleryImages.value = images;
+  galleryStartIndex.value = startIdx;
+  galleryOpen.value = true;
+}
 
 const nextProject = () => {
     if (props.data.projects && projectIndex.value < props.data.projects.length - 1) {
@@ -93,23 +105,20 @@ const techIcons: { [key: string]: any } = {
         class="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white"
     >
         <!-- Header Tecnológico -->
-        <header class="relative overflow-hidden px-4 py-8 md:px-8 md:py-16">
+        <header class="relative overflow-hidden border-b border-cyan-900/50 bg-slate-950 p-6 md:p-12">
             <!-- Efectos de fondo tecnológico -->
             <div class="absolute inset-0 opacity-10">
                 <div
-                    class="absolute top-0 left-0 h-64 w-64 rounded-full bg-blue-500 blur-3xl"
-                ></div>
-                <div
-                    class="absolute right-0 bottom-0 h-64 w-64 rounded-full bg-cyan-500 blur-3xl"
+                    class="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 blur-3xl"
                 ></div>
             </div>
 
-            <!-- Patrón de grid -->
+            <!-- Grid Background -->
             <div class="bg-grid-white absolute inset-0 opacity-5"></div>
 
             <div class="relative mx-auto max-w-6xl">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-0">
-                    <div>
+                <div class="header-layout">
+                    <div class="header-text-section">
                         <h1
                             class="mb-2 md:mb-3 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-3xl md:text-5xl font-bold text-transparent"
                         >
@@ -141,7 +150,7 @@ const techIcons: { [key: string]: any } = {
                     </div>
 
                    <!-- Profile Photo -->
-                    <div v-if="data.personal.photo" class="hidden md:block mx-8 shrink-0">
+                    <div v-if="data.personal.photo" class="banner-photo">
                         <div class="relative h-40 w-40">
                              <div class="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 blur-lg opacity-50"></div>
                              <div class="relative h-full w-full overflow-hidden rounded-full border-2 border-cyan-500/50 p-1 bg-gray-900">
@@ -155,27 +164,27 @@ const techIcons: { [key: string]: any } = {
                     </div>
 
                     <!-- Contacto Tecnológico -->
-                    <div class="text-left md:text-right">
+                    <div class="header-contact-section">
                         <div class="space-y-2 text-sm text-gray-300">
                             <div
                                 v-if="data.personal.email"
-                                class="flex items-center md:justify-end"
+                                class="contact-item-row"
                             >
                                 <span>{{ data.personal.email }}</span>
                             </div>
                             <div
                                 v-if="data.personal.phone"
-                                class="flex items-center md:justify-end"
+                                class="contact-item-row"
                             >
                                 <span>{{ data.personal.phone }}</span>
                             </div>
                             <div
                                 v-if="data.personal.location"
-                                class="flex items-center md:justify-end"
+                                class="contact-item-row"
                             >
                                 <span>{{ data.personal.location }}</span>
                             </div>
-                            <div class="mt-3 flex md:justify-end space-x-3">
+                            <div class="social-links-row">
                                 <a
                                     v-if="data.personal.github"
                                     :href="ensureUrl(data.personal.github)"
@@ -216,7 +225,7 @@ const techIcons: { [key: string]: any } = {
                 </div>
             </section>
 
-            <div class="grid gap-8 lg:grid-cols-3">
+            <div class="main-grid">
                 <!-- Columna Principal -->
                 <div class="lg:col-span-2">
                     <!-- Experiencia Tecnológica -->
@@ -232,20 +241,20 @@ const techIcons: { [key: string]: any } = {
                             <button 
                                 v-if="experienceIndex > 0"
                                 @click="prevExperience"
-                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 md:opacity-0 group-hover:opacity-100"
                             >
                                 <ChevronLeft class="h-5 w-5" />
                             </button>
                             <button 
                                 v-if="experienceIndex < data.experience.length - 1"
                                 @click="nextExperience"
-                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 md:opacity-0 group-hover:opacity-100"
                             >
                                 <ChevronRight class="h-5 w-5" />
                             </button>
 
                             <!-- Experience Display (2 at a time on lg) -->
-                            <div class="grid gap-4 md:grid-cols-2">
+                            <div class="cards-grid">
                                 <div
                                     v-for="(exp, index) in data.experience.slice(experienceIndex, experienceIndex + 2)"
                                     :key="index"
@@ -254,34 +263,43 @@ const techIcons: { [key: string]: any } = {
                                     <div
                                         class="mb-4 flex items-start justify-between"
                                     >
-                                        <div>
-                                            <h3 class="text-xl font-bold">
+                                        <div class="flex-1">
+                                            <h3
+                                                class="text-lg font-bold text-gray-100"
+                                            >
                                                 {{ exp.position }}
                                             </h3>
-                                            <p class="text-cyan-400">
+                                            <p class="text-blue-400">
                                                 {{ exp.company }}
                                             </p>
                                         </div>
-                                        <span
-                                            class="rounded-full bg-cyan-400/20 px-4 py-1 text-sm text-cyan-300"
+                                        <div
+                                            class="text-right text-xs text-gray-400"
                                         >
-                                            {{ formatDate(exp.startDate) }} –
-                                            {{
-                                                exp.current
-                                                    ? 'Presente'
-                                                    : formatDate(exp.endDate || '')
-                                            }}
-                                        </span>
+                                            <p>
+                                                {{ formatDate(exp.startDate) }}
+                                                -
+                                            </p>
+                                            <p>
+                                                {{
+                                                    exp.current
+                                                        ? 'Presente'
+                                                        : formatDate(
+                                                              exp.endDate || '',
+                                                          )
+                                                }}
+                                            </p>
+                                        </div>
                                     </div>
 
-                                    <p class="mb-4 leading-relaxed text-gray-300">
+                                    <p class="text-sm leading-relaxed text-gray-300">
                                         {{ exp.description }}
                                     </p>
 
                                     <!-- Tecnologías usadas -->
                                     <div
                                         v-if="exp.technologies?.length"
-                                        class="flex flex-wrap gap-2"
+                                        class="flex flex-wrap gap-2 mt-4"
                                     >
                                         <span
                                             v-for="tech in exp.technologies"
@@ -295,13 +313,13 @@ const techIcons: { [key: string]: any } = {
                             </div>
 
                             <!-- Dots Indicator - Modern pill style -->
-                            <div v-if="data.experience.length > 1" class="flex justify-center items-center gap-1.5 mt-6">
+                            <div v-if="data.experience.length > 2" class="flex justify-center items-center gap-1.5 mt-6">
                                 <button 
-                                    v-for="(_, idx) in data.experience" 
+                                    v-for="(_, idx) in Math.ceil(data.experience.length / 2)" 
                                     :key="idx"
-                                    @click="experienceIndex = idx"
+                                    @click="experienceIndex = idx * 2"
                                     class="rounded-full transition-all duration-300"
-                                    :class="idx === experienceIndex ? 'w-6 h-2 bg-cyan-400' : 'w-2 h-2 bg-gray-600 hover:bg-cyan-400/50'"
+                                    :class="idx * 2 === experienceIndex ? 'w-6 h-2 bg-blue-500' : 'w-2 h-2 bg-gray-600 hover:bg-gray-500'"
                                 />
                             </div>
                         </div>
@@ -309,10 +327,13 @@ const techIcons: { [key: string]: any } = {
 
                     <!-- Proyectos Técnicos -->
                     <section v-if="data.projects?.length" class="mb-8">
-                        <h2 class="mb-6 flex items-center text-2xl font-bold">
+                        <div class="mb-6 flex items-center">
                             <Code class="mr-3 h-6 w-6 text-cyan-400" />
-                            Proyectos Técnicos
-                        </h2>
+                            <h2 class="text-2xl font-bold text-gray-900">
+                                <span class="text-gray-100">Proyectos</span>
+                                <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"> Destacados</span>
+                            </h2>
+                        </div>
 
                         <!-- Carousel Container -->
                         <div class="relative group">
@@ -320,30 +341,50 @@ const techIcons: { [key: string]: any } = {
                             <button 
                                 v-if="projectIndex > 0"
                                 @click="prevProject"
-                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 md:opacity-0 group-hover:opacity-100"
                             >
                                 <ChevronLeft class="h-5 w-5" />
                             </button>
                             <button 
                                 v-if="projectIndex < data.projects.length - 1"
                                 @click="nextProject"
-                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gray-800/90 backdrop-blur-sm border border-cyan-400/30 text-cyan-400 shadow-md hover:shadow-cyan-400/20 hover:shadow-lg hover:bg-gray-800 hover:border-cyan-400 transition-all duration-300 md:opacity-0 group-hover:opacity-100"
                             >
                                 <ChevronRight class="h-5 w-5" />
                             </button>
 
-                            <!-- Projects Display (2 at a time) -->
-                            <div class="grid gap-4 md:grid-cols-2">
+                           <!-- Projects Display (2 at a time) -->
+                            <div class="cards-grid">
                                 <div
                                     v-for="(project, index) in data.projects.slice(projectIndex, projectIndex + 2)"
                                     :key="index"
-                                    class="rounded-xl border border-blue-400/20 bg-blue-400/5 p-6 backdrop-blur-sm transition-all duration-300 hover:border-cyan-400/40"
+                                    class="group/card relative rounded-2xl border border-blue-400/20 bg-gray-900 overflow-hidden transition-all duration-300 hover:border-cyan-400/50 hover:shadow-lg hover:shadow-cyan-400/10"
                                 >
-                                    <div v-if="project.image" class="mb-4 overflow-hidden rounded-lg border border-cyan-500/30">
+                                    <!-- Multi-image gallery grid -->
+                                    <div v-if="project.images && project.images.length > 1" class="gallery-grid mb-4">
+                                        <img 
+                                            v-for="(img, imgIdx) in project.images.slice(0, 4)" 
+                                            :key="imgIdx" 
+                                            :src="img" 
+                                            :alt="`${project.name} - ${Number(imgIdx) + 1}`"
+                                            class="gallery-thumbnail cursor-pointer"
+                                            @click="openGallery(project.images, Number(imgIdx))"
+                                        />
+                                        <div 
+                                            v-if="project.images.length > 4" 
+                                            class="gallery-more"
+                                            @click="openGallery(project.images, 4)"
+                                        >
+                                            +{{ project.images.length - 4 }}
+                                        </div>
+                                    </div>
+                                    <!-- Single image fallback -->
+                                    <div v-else-if="project.image" class="mb-4 overflow-hidden rounded-lg border border-cyan-500/30">
                                         <img 
                                             :src="project.image" 
                                             :alt="project.name" 
-                                            class="h-48 w-full object-cover transition-transform hover:scale-105"
+                                            class="h-48 w-full object-cover transition-transform hover:scale-105 cursor-pointer"
+                                            @click="openGallery([project.image], 0)"
                                         />
                                     </div>
                                     <h3 class="mb-2 font-bold">
@@ -389,6 +430,14 @@ const techIcons: { [key: string]: any } = {
                             </div>
                         </div>
                     </section>
+
+                    <!-- Image Gallery Modal -->
+                    <ImageGallery 
+                        v-if="galleryOpen" 
+                        :images="galleryImages" 
+                        :initialIndex="galleryStartIndex"
+                        @close="galleryOpen = false"
+                    />
                 </div>
 
                 <!-- Sidebar -->
@@ -574,4 +623,191 @@ const techIcons: { [key: string]: any } = {
 .transition {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Gallery Grid for Multiple Images */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    position: relative;
+}
+
+.gallery-thumbnail {
+    width: 100%;
+    height: 6rem;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.gallery-thumbnail:hover {
+    transform: scale(1.03);
+    border-color: rgba(34, 211, 238, 0.6);
+}
+
+.gallery-more {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: calc(50% - 0.25rem);
+    height: 6rem;
+    background: rgba(0, 0, 0, 0.7);
+    color: #22d3ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.gallery-more:hover {
+    background: rgba(0, 0, 0, 0.85);
+}
+.portfolio-container {
+    container-type: inline-size;
+}
+
+.bg-grid-white {
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Gallery Grid for Multiple Images */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    position: relative;
+}
+
+.gallery-thumbnail {
+    width: 100%;
+    height: 6rem;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(56, 189, 248, 0.3); /* sky-400/30 */
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gallery-thumbnail:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.2); /* cyan-400/20 */
+    border-color: rgba(34, 211, 238, 0.6);
+}
+
+.gallery-more {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: calc(50% - 0.25rem);
+    height: 6rem;
+    background: rgba(15, 23, 42, 0.8); /* slate-900/80 */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.gallery-more:hover {
+    background: rgba(15, 23, 42, 0.95);
+}
+
+/* Container Queries */
+.header-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+@container (min-width: 64rem) { /* lg equivalent */
+    .header-layout {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0;
+    }
+}
+
+.header-text-section {
+    text-align: left;
+}
+
+.header-contact-section {
+    text-align: left;
+}
+
+@container (min-width: 64rem) {
+    .header-contact-section {
+        text-align: right;
+    }
+}
+
+.banner-photo {
+    display: block;
+    margin: 1.5rem auto;
+    flex-shrink: 0;
+}
+
+@container (min-width: 64rem) {
+    .banner-photo {
+        margin: 0 2rem;
+    }
+}
+
+.contact-item-row {
+    display: flex;
+    align-items: center;
+}
+
+@container (min-width: 64rem) {
+    .contact-item-row {
+        justify-content: flex-end;
+    }
+}
+
+.social-links-row {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+@container (min-width: 64rem) {
+    .social-links-row {
+        justify-content: flex-end;
+    }
+}
+
+/* Grids */
+.main-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+}
+
+@container (min-width: 64rem) {
+    .main-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.cards-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+}
+
+@container (min-width: 48rem) {
+    .cards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
 </style>
+```

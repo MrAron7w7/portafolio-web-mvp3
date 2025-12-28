@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Plus, Trash2, ChevronDown, AlertCircle, Sparkles, X } from 'lucide-vue-next';
+import { Plus, Trash2, ChevronDown, AlertCircle, Sparkles, X, Star, Image as ImageIcon } from 'lucide-vue-next';
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useProjectValidation, type Project } from './Composables/useProjectValidation';
 
@@ -234,7 +234,7 @@ const updateProject = (index: number, field: keyof Project, value: any) => {
     }
 };
 
-// Manejar upload de imagen
+// Manejar upload de imagen principal
 const handleImageUpload = (index: number, event: Event) => {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -252,9 +252,25 @@ const handleImageUpload = (index: number, event: Event) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const updated = [...props.modelValue];
+            const newImage = e.target?.result as string;
+            
+            // Si no hay array images, inicializarlo con la nueva imagen
+            let currentImages = updated[index].images || [];
+            
+            // Si la imagen no está en el array, agregarla
+            if (!currentImages.includes(newImage)) {
+                // Si la imagen anterior existe y no está en el array, añadirla primero
+                if (updated[index].image && !currentImages.includes(updated[index].image)) {
+                    currentImages = [updated[index].image, ...currentImages];
+                }
+                // Añadir la nueva al principio
+                currentImages = [newImage, ...currentImages];
+            }
+
             updated[index] = {
                 ...updated[index],
-                image: e.target?.result as string,
+                image: newImage,
+                images: currentImages
             };
             emit('update:modelValue', updated);
         };
@@ -262,11 +278,105 @@ const handleImageUpload = (index: number, event: Event) => {
     }
 };
 
-// Eliminar imagen
+// Eliminar imagen principal
 const removeImage = (index: number) => {
     clearImageError(index);
     const updated = [...props.modelValue];
+    // No eliminamos del array images, solo quitamos la principal visualmente o seteamos otra?
+    // Mejor lógica: set null la image principal.
     updated[index] = { ...updated[index], image: null };
+    emit('update:modelValue', updated);
+};
+
+// Manejar upload de galería (múltiples imágenes)
+const handleGalleryUpload = (index: number, event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+
+    if (!files || files.length === 0) return;
+
+    const id = props.modelValue[index].id;
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
+
+    // Validar y procesar cada archivo
+    const updated = [...props.modelValue];
+    let currentImages = updated[index].images ? [...updated[index].images!] : [];
+    
+    // Si hay una imagen principal y no está en el array, agregarla primero
+    if (updated[index].image && !currentImages.includes(updated[index].image)) {
+        currentImages.unshift(updated[index].image!);
+    }
+
+    let processedCount = 0;
+    const totalFiles = files.length;
+
+    Array.from(files).forEach(file => {
+        if (validateImage(index, file)) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const result = e.target?.result as string;
+                if (!currentImages.includes(result)) {
+                    currentImages.push(result);
+                }
+                
+                processedCount++;
+                
+                // Si es el último archivo procesado, actualizar estado
+                if (processedCount === totalFiles) { // Simplificado: en prod se usaría Promise.all
+                     // Si no había imagen principal, usar la primera de las nuevas
+                    let mainImage = updated[index].image;
+                    if (!mainImage && currentImages.length > 0) {
+                        mainImage = currentImages[0];
+                    }
+
+                    updated[index] = {
+                        ...updated[index],
+                        images: currentImages,
+                        image: mainImage
+                    };
+                    emit('update:modelValue', updated);
+                }
+            };
+            reader.readAsDataURL(file);
+        } else {
+            processedCount++;
+        }
+    });
+};
+
+// Eliminar imagen de la galería
+const removeGalleryImage = (index: number, imgIndex: number) => {
+    const updated = [...props.modelValue];
+    const project = updated[index];
+    const images = project.images ? [...project.images] : [];
+    const removedImage = images[imgIndex];
+    
+    // Eliminar del array
+    images.splice(imgIndex, 1);
+    
+    // Si la imagen eliminada era la principal, asignar otra o null
+    let mainImage = project.image;
+    if (mainImage === removedImage) {
+        mainImage = images.length > 0 ? images[0] : null;
+    }
+
+    updated[index] = {
+        ...project,
+        images: images,
+        image: mainImage
+    };
+    emit('update:modelValue', updated);
+};
+
+// Establecer imagen principal desde la galería
+const setMainImage = (index: number, imgUrl: string) => {
+    const updated = [...props.modelValue];
+    updated[index] = {
+        ...updated[index],
+        image: imgUrl
+    };
     emit('update:modelValue', updated);
 };
 
@@ -456,6 +566,66 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                                 <p v-if="projectErrors[index]?.image" class="mt-1 text-sm text-red-500">
                                     {{ projectErrors[index].image }}
                                 </p>
+                            </div>
+
+                            <!-- Galería de imágenes -->
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Galería de imágenes</label>
+                                <p class="mb-3 text-xs text-gray-500">
+                                    Sube múltiples imágenes para crear una galería. Puedes elegir cuál será la portada haciendo clic en la estrella.
+                                </p>
+                                
+                                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5">
+                                    <!-- Botón Upload -->
+                                    <div class="relative flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400 transition-colors hover:border-[#005aeb] hover:bg-[#005aeb]/5 hover:text-[#005aeb]">
+                                         <input
+                                            type="file"
+                                            multiple
+                                            accept="image/png,image/jpeg,image/gif,image/webp"
+                                            @change="handleGalleryUpload(index, $event)"
+                                            class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                                        />
+                                        <ImageIcon class="mb-1 h-6 w-6" />
+                                        <span class="text-xs font-medium">Agregar</span>
+                                    </div>
+
+                                    <!-- Miniaturas -->
+                                    <div 
+                                         v-for="(img, imgIdx) in (project.images || [])" 
+                                         :key="imgIdx"
+                                         class="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
+                                    >
+                                        <img :src="img" class="h-full w-full object-cover" />
+                                        
+                                        <!-- Overlay Acciones -->
+                                        <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                                            <!-- Hacer Principal -->
+                                            <button
+                                                @click="setMainImage(index, img)"
+                                                type="button"
+                                                class="rounded-full bg-white p-1.5 text-yellow-500 hover:bg-yellow-50 shadow-sm transition-transform hover:scale-110"
+                                                :title="project.image === img ? 'Es la portada actual' : 'Usar como portada'"
+                                            >
+                                                <Star class="h-3.5 w-3.5" :fill="project.image === img ? 'currentColor' : 'none'" />
+                                            </button>
+                                            
+                                            <!-- Eliminar -->
+                                            <button
+                                                @click="removeGalleryImage(index, imgIdx)"
+                                                type="button"
+                                                class="rounded-full bg-white p-1.5 text-red-500 hover:bg-red-50 shadow-sm transition-transform hover:scale-110"
+                                                title="Eliminar imagen"
+                                            >
+                                                <X class="h-3.5 w-3.5" />
+                                            </button>
+                                        </div>
+
+                                         <!-- Badge Portada -->
+                                        <div v-if="project.image === img" class="absolute left-1 top-1 rounded bg-yellow-400 px-1.5 py-0.5 text-[0.6rem] font-bold text-yellow-900 shadow-sm z-10 pointer-events-none">
+                                            PORTADA
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Nombre -->

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Award, Briefcase, Target, TrendingUp, Users, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { ref } from 'vue';
+import ImageGallery from '../Shared/ImageGallery.vue';
 
 const props = defineProps<{
     data: {
@@ -40,6 +41,17 @@ const props = defineProps<{
 // Carousel state
 const projectIndex = ref(0);
 const experienceIndex = ref(0);
+
+// Gallery state
+const galleryOpen = ref(false);
+const galleryImages = ref<string[]>([]);
+const galleryStartIndex = ref(0);
+
+function openGallery(images: string[], startIdx: number = 0) {
+  galleryImages.value = images;
+  galleryStartIndex.value = startIdx;
+  galleryOpen.value = true;
+}
 
 const nextProject = () => {
     if (props.data.projects && projectIndex.value < props.data.projects.length - 1) {
@@ -112,40 +124,41 @@ const calculateDuration = (
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-gray-50 portfolio-container">
         <!-- Header Ejecutivo -->
         <header class="bg-gray-900 text-white">
             <div class="mx-auto max-w-6xl px-4 py-8 md:px-8 md:py-12">
-                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 md:gap-0">
+                <div class="header-content-wrapper">
                     <!-- Información Principal -->
-                    <div class="flex flex-col sm:flex-row flex-1 items-center sm:items-start gap-4 sm:gap-6">
-                        <div v-if="data.personal.photo" class="h-24 w-24 md:h-32 md:w-32 shrink-0 overflow-hidden rounded-lg border-2 border-gray-700 bg-gray-800">
-                             <img :src="data.personal.photo" :alt="data.personal.name" class="h-full w-full object-cover" />
-                        </div>
-                        <div class="text-center sm:text-left">
-                           <h1 class="mb-2 text-2xl md:text-4xl font-bold">
-                                {{ data.personal.name || 'Tu Nombre' }}
-                            </h1>
-                            <p class="mb-4 md:mb-6 text-lg md:text-xl text-gray-300">
-                                {{ data.personal.title || 'Director Ejecutivo' }}
-                            </p>
-                        </div>
-
+                    <div class="flex flex-1 flex-col gap-4">
+                         <div class="header-profile-section">
+                            <div v-if="data.personal.photo" class="h-24 w-24 md:h-32 md:w-32 shrink-0 overflow-hidden rounded-lg border-2 border-gray-700 bg-gray-800">
+                                <img :src="data.personal.photo" :alt="data.personal.name" class="h-full w-full object-cover" />
+                            </div>
+                            <div class="header-text">
+                                <h1 class="mb-2 font-bold header-name">
+                                    {{ data.personal.name || 'Tu Nombre' }}
+                                </h1>
+                                <p class="text-gray-300 header-title">
+                                    {{ data.personal.title || 'Director Ejecutivo' }}
+                                </p>
+                            </div>
+                         </div>
                         <!-- Resumen Ejecutivo -->
                         <p
                             v-if="data.personal.summary"
-                            class="max-w-2xl leading-relaxed text-gray-400 mt-4"
+                            class="max-w-2xl leading-relaxed text-gray-400 header-summary"
                         >
                             {{ data.personal.summary }}
                         </p>
                     </div>
 
                     <!-- Contacto Ejecutivo -->
-                    <div class="text-center md:text-right">
+                    <div class="header-contact">
                         <div class="space-y-2 text-sm">
                             <div
                                 v-if="data.personal.email"
-                                class="flex items-center justify-center md:justify-end"
+                                class="flex items-center contact-item-wrapper"
                             >
                                 <span class="text-gray-300">{{
                                     data.personal.email
@@ -153,7 +166,7 @@ const calculateDuration = (
                             </div>
                             <div
                                 v-if="data.personal.phone"
-                                class="flex items-center justify-center md:justify-end"
+                                class="flex items-center contact-item-wrapper"
                             >
                                 <span class="text-gray-300">{{
                                     data.personal.phone
@@ -161,13 +174,13 @@ const calculateDuration = (
                             </div>
                             <div
                                 v-if="data.personal.location"
-                                class="flex items-center justify-center md:justify-end"
+                                class="flex items-center contact-item-wrapper"
                             >
                                 <span class="text-gray-300">{{
                                     data.personal.location
                                 }}</span>
                             </div>
-                            <div class="flex items-center justify-center md:justify-end gap-4 mt-2">
+                            <div class="flex items-center social-links-wrapper gap-4 mt-2">
                                 <a
                                     v-if="data.personal.linkedin"
                                     :href="ensureUrl(data.personal.linkedin)"
@@ -195,7 +208,7 @@ const calculateDuration = (
 
         <!-- Contenido Principal -->
         <main class="mx-auto max-w-6xl px-4 py-8 md:px-8 md:py-12">
-            <div class="grid gap-8 lg:grid-cols-3">
+            <div class="main-content-grid">
                 <!-- Columna Principal -->
                 <div class="lg:col-span-2">
                     <!-- Experiencia Ejecutiva -->
@@ -213,20 +226,20 @@ const calculateDuration = (
                             <button 
                                 v-if="experienceIndex > 0"
                                 @click="prevExperience"
-                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-blue-200 text-blue-600 shadow-md hover:shadow-lg hover:bg-white hover:border-blue-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-blue-200 text-blue-600 shadow-md hover:shadow-lg hover:bg-white hover:border-blue-400 transition-all duration-300 md:opacity-0 group-hover:opacity-100"
                             >
                                 <ChevronLeft class="h-5 w-5" />
                             </button>
                             <button 
                                 v-if="experienceIndex < data.experience.length - 1"
                                 @click="nextExperience"
-                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-blue-200 text-blue-600 shadow-md hover:shadow-lg hover:bg-white hover:border-blue-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-blue-200 text-blue-600 shadow-md hover:shadow-lg hover:bg-white hover:border-blue-400 transition-all duration-300 md:opacity-0 group-hover:opacity-100"
                             >
                                 <ChevronRight class="h-5 w-5" />
                             </button>
 
                             <!-- Experience Display (2 at a time) -->
-                            <div class="grid gap-4 md:grid-cols-2">
+                            <div class="carousel-card-grid">
                                 <div
                                     v-for="(exp, index) in data.experience.slice(experienceIndex, experienceIndex + 2)"
                                     :key="index"
@@ -311,30 +324,50 @@ const calculateDuration = (
                             <button 
                                 v-if="projectIndex > 0"
                                 @click="prevProject"
-                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-blue-200 text-blue-600 shadow-md hover:shadow-lg hover:bg-white hover:border-blue-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-blue-200 text-blue-600 shadow-md hover:shadow-lg hover:bg-white hover:border-blue-400 transition-all duration-300 md:opacity-0 group-hover:opacity-100"
                             >
                                 <ChevronLeft class="h-5 w-5" />
                             </button>
                             <button 
                                 v-if="projectIndex < data.projects.length - 1"
                                 @click="nextProject"
-                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-blue-200 text-blue-600 shadow-md hover:shadow-lg hover:bg-white hover:border-blue-400 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-blue-200 text-blue-600 shadow-md hover:shadow-lg hover:bg-white hover:border-blue-400 transition-all duration-300 md:opacity-0 group-hover:opacity-100"
                             >
                                 <ChevronRight class="h-5 w-5" />
                             </button>
 
                             <!-- Projects Display (2 at a time) -->
-                            <div class="grid gap-4 md:grid-cols-2">
+                            <div class="carousel-card-grid">
                                 <div
                                     v-for="(project, index) in data.projects.slice(projectIndex, projectIndex + 2)"
                                     :key="index"
                                     class="rounded-lg border border-gray-200 bg-white p-6 transition-all duration-300 hover:shadow-md"
                                 >
+                                    <!-- Multi-image gallery grid -->
+                                    <div v-if="project.images && project.images.length > 1" class="gallery-grid mb-4">
+                                        <img 
+                                            v-for="(img, imgIdx) in project.images.slice(0, 4)" 
+                                            :key="imgIdx" 
+                                            :src="img" 
+                                            :alt="`${project.name} - ${Number(imgIdx) + 1}`"
+                                            class="gallery-thumbnail cursor-pointer"
+                                            @click="openGallery(project.images, Number(imgIdx))"
+                                        />
+                                        <div 
+                                            v-if="project.images.length > 4" 
+                                            class="gallery-more"
+                                            @click="openGallery(project.images, 4)"
+                                        >
+                                            +{{ project.images.length - 4 }}
+                                        </div>
+                                    </div>
+                                    <!-- Single image fallback -->
                                     <img
-                                        v-if="project.image"
+                                        v-else-if="project.image"
                                         :src="project.image"
                                         :alt="project.name"
-                                        class="mb-4 h-48 w-full rounded object-cover"
+                                        class="mb-4 h-48 w-full rounded object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                        @click="openGallery([project.image], 0)"
                                     />
                                     <h3 class="mb-2 font-bold text-gray-900">
                                         {{ project.name }}
@@ -369,6 +402,14 @@ const calculateDuration = (
                             </div>
                         </div>
                     </section>
+
+                    <!-- Image Gallery Modal -->
+                    <ImageGallery 
+                        v-if="galleryOpen" 
+                        :images="galleryImages" 
+                        :initialIndex="galleryStartIndex"
+                        @close="galleryOpen = false"
+                    />
                 </div>
 
                 <!-- Sidebar -->
@@ -544,7 +585,189 @@ const calculateDuration = (
 </template>
 
 <style scoped>
+.portfolio-container {
+    container-type: inline-size;
+}
+
 .transition {
     transition: all 0.3s ease;
+}
+
+/* Gallery Grid for Multiple Images */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    position: relative;
+}
+
+.gallery-thumbnail {
+    width: 100%;
+    height: 6rem;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    border: 1px solid #e5e7eb;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gallery-thumbnail:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-more {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: calc(50% - 0.25rem);
+    height: 6rem;
+    background: rgba(31, 41, 55, 0.8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.gallery-more:hover {
+    background: rgba(31, 41, 55, 0.95);
+}
+
+/* Container Queries for Layout */
+
+/* Header Layout */
+.header-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+@container (min-width: 48rem) {
+    .header-content-wrapper {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0;
+    }
+}
+
+.header-profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+@container (min-width: 30rem) {
+    .header-profile-section {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+}
+
+.header-text {
+    text-align: center;
+}
+
+@container (min-width: 30rem) {
+    .header-text {
+        text-align: left;
+    }
+}
+
+.header-name {
+    font-size: 1.5rem; /* 2xl */
+    line-height: 2rem;
+}
+
+@container (min-width: 48rem) {
+    .header-name {
+        font-size: 2.25rem; /* 4xl */
+        line-height: 2.5rem;
+    }
+}
+
+.header-title {
+    font-size: 1.125rem; /* lg */
+    line-height: 1.75rem;
+}
+
+@container (min-width: 48rem) {
+    .header-title {
+        font-size: 1.25rem; /* xl */
+        line-height: 1.75rem;
+    }
+}
+
+.header-summary {
+    text-align: center;
+}
+
+@container (min-width: 30rem) {
+    .header-summary {
+        text-align: left;
+    }
+}
+
+.header-contact {
+    text-align: center;
+}
+
+@container (min-width: 48rem) {
+    .header-contact {
+        text-align: right;
+    }
+}
+
+.contact-item-wrapper {
+    justify-content: center;
+}
+
+@container (min-width: 48rem) {
+    .contact-item-wrapper {
+        justify-content: flex-end;
+    }
+}
+
+.social-links-wrapper {
+    justify-content: center;
+}
+
+@container (min-width: 48rem) {
+    .social-links-wrapper {
+        justify-content: flex-end;
+    }
+}
+
+/* Main Grid Layout */
+.main-content-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+}
+
+@container (min-width: 64rem) {
+    .main-content-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Carousel Grid Layout */
+.carousel-card-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+}
+
+@container (min-width: 48rem) {
+    .carousel-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 </style>

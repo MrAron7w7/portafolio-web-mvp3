@@ -164,6 +164,7 @@ export function useLoadIAData() {
                     image: proj.image || null,
                     link: proj.link || null,
                     technologies: proj.technologies || [],
+                    images: proj.images || [],
                 }));
                 console.log(`✅ [MAPPING] ${formData.projects.length} proyectos mapeados`);
             }

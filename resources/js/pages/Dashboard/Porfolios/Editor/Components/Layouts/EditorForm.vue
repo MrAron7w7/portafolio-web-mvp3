@@ -12,7 +12,6 @@ import ExperienceSection from '@/pages/Dashboard/Porfolios/Components/Experience
 import SkillsSection from '@/pages/Dashboard/Porfolios/Components/SkillsSection.vue';
 import ProjectsSection from '@/pages/Dashboard/Porfolios/Components/ProjectsSection.vue';
 import SocialSection from '@/pages/Dashboard/Porfolios/Components/SocialSection.vue';
-import ConfigSection from '@/pages/Dashboard/Porfolios/Components/ConfigSection.vue';
 
 interface Props {
     formData: any;
@@ -91,8 +90,6 @@ defineEmits<{
                     <SocialSection v-if="currentStep === 8" :model-value="formData.social"
                         @update:model-value="formData.social = $event" :validation="socialValidation" />
 
-                    <ConfigSection v-if="currentStep === 9" :model-value="formData.config"
-                        @update:model-value="formData.config = $event" />
                 </div>
             </Transition>
 
