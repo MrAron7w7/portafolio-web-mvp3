@@ -191,84 +191,117 @@ const getPortfolioUrl = (portfolio: Portfolio | null) => {
                     </div>
                 </div>
 
-                <!-- Rating Gate -->
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10 mb-8">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-900">Califica la publicación</h2>
-                            <p class="text-gray-500 mt-1">
-                                Para acceder al hilo necesitas calificar este portafolio. Tu voto ayuda a destacar lo mejor de la comunidad.
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="flex items-center gap-1">
-                                <button
-                                    v-for="i in 5"
-                                    :key="i"
-                                    type="button"
-                                    class="transition-colors"
-                                    :class="i <= ratingForm.rating ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-300'"
-                                    :disabled="ratingForm.processing"
-                                    @click="setRating(i)"
-                                >
-                                    <svg class="h-7 w-7 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="text-sm text-gray-500">
-                                <div class="font-semibold text-gray-900">{{ props.averageRating.toFixed(1) }}</div>
-                                <div>{{ props.post.ratings_count ?? 0 }} votos</div>
+                <!-- Interaction & Discussion Section -->
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-8 md:p-10">
+                        <div class="flex items-center justify-between mb-8">
+                            <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                                <MessageSquare class="h-6 w-6 text-indigo-600" />
+                                Conversación <span class="text-gray-400 text-lg font-normal">({{ post.comments_count }})</span>
+                            </h2>
+                            <div class="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
+                                <span class="font-bold text-gray-900 flex items-center gap-1">
+                                    {{ props.averageRating.toFixed(1) }}
+                                    <svg class="h-4 w-4 text-yellow-400 fill-current" viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                </span>
+                                <span class="w-px h-3 bg-gray-300 mx-1"></span>
+                                <span>{{ props.post.ratings_count ?? 0 }} votos</span>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Discussion Section -->
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-                        <MessageSquare class="h-6 w-6 text-indigo-600" />
-                        Conversación <span class="text-gray-400 text-lg font-normal">({{ post.comments_count }})</span>
-                    </h2>
+                        <!-- Unified Interaction Area -->
+                        <div class="mb-10 bg-gray-50/50 rounded-2xl border border-gray-100 p-6 md:p-8 transition-all hover:border-indigo-100 hover:shadow-sm">
+                            <!-- Rating Section -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                                <div>
+                                    <h3 class="text-base font-semibold text-gray-900">Tu calificación</h3>
+                                    <p class="text-sm text-gray-500 mt-0.5">Ayuda a la comunidad con tu voto</p>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center gap-1">
+                                        <button
+                                            v-for="i in 5"
+                                            :key="i"
+                                            type="button"
+                                            class="transition-all transform hover:scale-110 focus:outline-none"
+                                            :class="i <= ratingForm.rating ? 'text-yellow-400' : 'text-gray-200 hover:text-yellow-300'"
+                                            :disabled="ratingForm.processing"
+                                            @click="setRating(i)"
+                                        >
+                                            <svg class="h-8 w-8 fill-current drop-shadow-sm" viewBox="0 0 24 24">
+                                                <path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <span class="text-2xl font-bold text-gray-700 w-12 text-center" v-if="ratingForm.rating > 0">
+                                        {{ ratingForm.rating.toFixed(1) }}
+                                    </span>
+                                    <span class="text-xl font-bold text-gray-300 w-12 text-center" v-else>
+                                        0.0
+                                    </span>
+                                </div>
+                            </div>
 
-                    <!-- New Comment Form -->
-                    <div v-if="!props.hasRated" class="mb-12 rounded-2xl border border-dashed border-indigo-200 bg-indigo-50 p-6 text-indigo-700">
-                        <p class="font-semibold">Primero califica esta publicación.</p>
-                        <p class="text-sm mt-1">Después de votar podrás ver el hilo completo y comentar.</p>
-                    </div>
-                    <form v-else @submit.prevent="submitComment" class="mb-12 bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Participa en la discusión</label>
-                        <div class="space-y-4">
-                            <Textarea 
-                                v-model="form.content" 
-                                placeholder="Comparte tu feedback, haz preguntas o felicita al autor..." 
-                                rows="3"
-                                class="bg-white"
-                                required
+                            <!-- Comment Form (Blocked if not rated) -->
+                            <div v-if="!props.hasRated" class="relative">
+                                <div class="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-xl border border-dashed border-gray-200">
+                                    <div class="text-center p-4">
+                                        <p class="text-sm font-medium text-gray-500">Califica la publicación para unirte al debate</p>
+                                    </div>
+                                </div>
+                                <div class="opacity-40 pointer-events-none">
+                                    <Textarea 
+                                        placeholder="Comparte tu feedback..." 
+                                        rows="3"
+                                        class="bg-white border-gray-200"
+                                        disabled
+                                    />
+                                    <div class="flex justify-end mt-3">
+                                        <Button disabled variant="secondary">Comentar</Button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <form v-else @submit.prevent="submitComment">
+                                <div class="space-y-4">
+                                    <Textarea 
+                                        v-model="form.content" 
+                                        placeholder="Escribe un comentario constructivo..." 
+                                        rows="3"
+                                        class="bg-white border-gray-200 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100 transition-all resize-y min-h-[100px]"
+                                        required
+                                    />
+                                    <div class="flex items-center justify-end gap-3">
+                                        <span class="text-xs text-gray-400 hidden sm:inline-block">Presiona Enter para nueva línea</span>
+                                        <Button 
+                                            type="submit" 
+                                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 rounded-xl shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all hover:-translate-y-0.5"
+                                            :disabled="form.processing"
+                                        >
+                                            <Send class="h-4 w-4 mr-2" /> 
+                                            Publicar comentario
+                                        </Button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Threads List -->
+                        <div class="space-y-8 pl-0 md:pl-2">
+                            <CommentItem 
+                                v-for="comment in comments" 
+                                :key="comment.id" 
+                                :comment="comment" 
+                                :postId="post.id"
                             />
-                            <div class="flex justify-end">
-                                <Button 
-                                    type="submit" 
-                                    class="bg-indigo-600 hover:bg-indigo-700 text-white"
-                                    :disabled="form.processing"
-                                >
-                                    <Send class="h-4 w-4 mr-2" /> Comentar
-                                </Button>
+                            
+                            <div v-if="props.hasRated && comments.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+                                <div class="bg-gray-50 p-4 rounded-full mb-3">
+                                    <MessageSquare class="h-6 w-6 text-gray-300" />
+                                </div>
+                                <p class="text-gray-500 font-medium">Aún no hay comentarios</p>
+                                <p class="text-sm text-gray-400">Sé el primero en compartir tu opinión</p>
                             </div>
-                        </div>
-                    </form>
-
-                    <!-- Threads -->
-                    <div class="space-y-8">
-                        <CommentItem 
-                            v-for="comment in comments" 
-                            :key="comment.id" 
-                            :comment="comment" 
-                            :postId="post.id"
-                        />
-                        
-                        <div v-if="props.hasRated && comments.length === 0" class="text-center py-10 text-gray-400 italic">
-                            Aún no hay comentarios. Sé el primero en iniciar la conversación.
                         </div>
                     </div>
                 </div>

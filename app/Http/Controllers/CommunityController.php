@@ -121,11 +121,18 @@ class CommunityController extends Controller
         
         $comments = collect();
         if ($hasRated) {
+            $userWithRating = function ($query) use ($post) {
+                $query->select('id', 'first_name', 'last_name', 'profile_photo_path')
+                      ->with(['communityPostRatings' => function ($q) use ($post) {
+                          $q->where('community_post_id', $post->id)->select('user_id', 'rating');
+                      }]);
+            };
+
             $comments = $post->comments()
-                ->with('user:id,first_name,last_name,profile_photo_path')
+                ->with(['user' => $userWithRating])
                 ->whereNull('parent_id') // Top level
-                ->with('replies.user:id,first_name,last_name,profile_photo_path') // Second level
-                ->with('replies.replies.user:id,first_name,last_name,profile_photo_path') // Third level (optional depth)
+                ->with(['replies.user' => $userWithRating]) // Second level
+                ->with(['replies.replies.user' => $userWithRating]) // Third level
                 ->latest()
                 ->get();
         }

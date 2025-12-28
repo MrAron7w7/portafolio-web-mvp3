@@ -67,6 +67,11 @@ class User extends Authenticatable
         return $this->hasMany(Portfolio::class);
     }
 
+    public function communityPostRatings(): HasMany
+    {
+        return $this->hasMany(CommunityPostRating::class);
+    }
+
     // Accessor para obtener el nombre completo
     public function getFullNameAttribute(): string
     {

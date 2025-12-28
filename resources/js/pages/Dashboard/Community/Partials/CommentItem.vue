@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
-import { MessageSquare, Reply, User as UserIcon } from 'lucide-vue-next';
+import { MessageSquare, Reply, User as UserIcon, Pencil, Trash2, X } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea/index';
 import { route } from '@/utils/route';
@@ -11,6 +11,7 @@ interface User {
     first_name: string;
     last_name: string;
     profile_photo_path?: string;
+    community_post_ratings?: { rating: number }[];
 }
 
 interface Comment {
@@ -30,6 +31,10 @@ const props = defineProps<{
 
 const page = usePage();
 const isOwner = computed(() => page.props?.auth?.user?.id === props.comment.user_id);
+const userRating = computed(() => {
+    const ratings = props.comment.user.community_post_ratings;
+    return ratings && ratings.length > 0 ? ratings[0].rating : null;
+});
 
 const depthLevel = props.depth || 0;
 const isReplying = ref(false);
@@ -105,31 +110,41 @@ const deleteComment = () => {
 
             <div class="flex-1 space-y-2">
                 <div class="flex items-center justify-between">
-                    <div>
-                        <span class="font-bold text-gray-900 text-sm mr-2">{{ comment.user.first_name }} {{ comment.user.last_name }}</span>
-                        <span class="text-xs text-gray-500">{{ formatDate(comment.created_at) }}</span>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-gray-900 text-sm">{{ comment.user.first_name }} {{ comment.user.last_name }}</span>
+                        
+                        <div v-if="userRating" class="flex items-center gap-0.5 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-100" title="Calificación del usuario">
+                            <span class="text-xs font-bold text-yellow-700">{{ userRating.toFixed(1) }}</span>
+                            <svg class="h-3 w-3 text-yellow-500 fill-current" viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        </div>
+
+                        <span class="text-xs text-gray-500">• {{ formatDate(comment.created_at) }}</span>
                     </div>
-                    <div v-if="isOwner" class="flex items-center gap-2 text-xs">
-                        <button 
-                            v-if="!isEditing" 
-                            @click="startEditing" 
-                            class="text-gray-500 hover:text-indigo-600 transition-colors"
-                        >
-                            Editar
-                        </button>
+                    <div v-if="isOwner" class="flex items-center gap-1">
+                        <template v-if="!isEditing">
+                            <button 
+                                @click="startEditing" 
+                                class="p-1.5 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-all"
+                                title="Editar comentario"
+                            >
+                                <Pencil class="h-3.5 w-3.5" />
+                            </button>
+                            <button 
+                                @click="deleteComment" 
+                                :disabled="deleteForm.processing"
+                                class="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-all disabled:opacity-50"
+                                title="Eliminar comentario"
+                            >
+                                <Trash2 class="h-3.5 w-3.5" />
+                            </button>
+                        </template>
                         <button 
                             v-else 
                             @click="isEditing = false" 
-                            class="text-gray-500 hover:text-gray-700 transition-colors"
+                            class="p-1.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all"
+                            title="Cancelar edición"
                         >
-                            Cancelar
-                        </button>
-                        <button 
-                            @click="deleteComment" 
-                            :disabled="deleteForm.processing"
-                            class="text-red-500 hover:text-red-600 transition-colors disabled:opacity-60"
-                        >
-                            Eliminar
+                            <X class="h-3.5 w-3.5" />
                         </button>
                     </div>
                 </div>
