@@ -29,8 +29,14 @@ Route::middleware(['auth', 'verified'])
         Route::delete('/comunidad/{id}', [\App\Http\Controllers\CommunityController::class, 'destroy'])->name('community.destroy');
         Route::post('/comunidad/{id}/calificar', [\App\Http\Controllers\CommunityController::class, 'rate'])->name('community.rate');
         Route::post('/comunidad/{postId}/comentar', [\App\Http\Controllers\CommunityCommentController::class, 'store'])->name('community.comment.store');
-        Route::put('/comunidad/comentarios/{comment}', [\App\Http\Controllers\CommunityCommentController::class, 'update'])->name('community.comment.update');
+        Route::post('/comunidad/comentarios/{comment}', [\App\Http\Controllers\CommunityCommentController::class, 'update'])->name('community.comment.update');
         Route::delete('/comunidad/comentarios/{comment}', [\App\Http\Controllers\CommunityCommentController::class, 'destroy'])->name('community.comment.destroy');
+
+        // Herramientas (Tools)
+        Route::get('/herramientas', [\App\Http\Controllers\ToolsController::class, 'index'])->name('tools');
+        Route::post('/herramientas/analyze-skills', [\App\Http\Controllers\ToolsController::class, 'analyzeSkillsMatch'])->name('tools.analyze-skills');
+        Route::post('/herramientas/interview-questions', [\App\Http\Controllers\ToolsController::class, 'generateInterviewQuestions'])->name('tools.interview-questions');
+        Route::post('/herramientas/ats-scan', [\App\Http\Controllers\ToolsController::class, 'scanATS'])->name('tools.ats-scan');
 
         // Incluir otras rutas del dashboard
         require __DIR__.'/template.php';

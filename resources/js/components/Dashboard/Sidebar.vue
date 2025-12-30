@@ -79,8 +79,8 @@ const menuItems = computed(() => [
     {
         name: 'Herramientas',
         icon: Wrench,
-        href: '#',
-        active: false
+        href: '/dashboard/herramientas',
+        active: page.url.includes('/dashboard/herramientas')
     },
     {
         name: 'Comunidad',

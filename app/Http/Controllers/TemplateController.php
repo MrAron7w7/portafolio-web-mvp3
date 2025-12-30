@@ -369,27 +369,43 @@ public function viewPortfolio(Portfolio $portfolio)
         }
 
         $templateData = $request->template_data;
+        $hasNewImages = false;
 
         // ✅ Procesar foto de perfil
         if (isset($templateData['personal']['photo']) && $templateData['personal']['photo']) {
+            $originalPhoto = $templateData['personal']['photo'];
             $templateData['personal']['photo'] = $this->saveProfilePhoto(
                 $templateData['personal']['photo'],
                 $portfolio->id
             );
+            // Si cambió (era base64 y ahora es ruta), marcar cambio
+            if ($originalPhoto !== $templateData['personal']['photo']) {
+                $hasNewImages = true;
+            }
         }
 
         // ✅ Procesar fotos de proyectos
         if (isset($templateData['projects']) && is_array($templateData['projects'])) {
+            $projectsBefore = $templateData['projects'];
             $templateData['projects'] = $this->saveProjectPhotos(
                 $templateData['projects'],
                 $portfolio->id
             );
         
-            // 🔥 Limpiar imágenes que ya no se usan
-            $this->cleanupOldProjectPhotos($portfolio->id, $templateData['projects']);
+            // 🔥 OPTIMIZACIÓN: Solo limpiar disco si hubo imágenes nuevas (base64 detectado)
+            // Verificamos si algún proyecto tenía imagen en base64
+            foreach ($projectsBefore as $p) {
+                if (isset($p['image']) && strpos($p['image'], 'data:image') === 0) {
+                    $hasNewImages = true;
+                    break;
+                }
+            }
+
+            if ($hasNewImages) {
+                $this->cleanupOldProjectPhotos($portfolio->id, $templateData['projects']);
+            }
         }
         
-
         // Actualizar el portfolio
         $dataToUpdate = [
             'template_data' => $templateData,
@@ -397,12 +413,20 @@ public function viewPortfolio(Portfolio $portfolio)
             'title' => $request->config['title'] ?? $portfolio->title,
         ];
         
-        // 👉 Solo agregar si el parámetro llega
         if (isset($request->config['is_completed'])) {
             $dataToUpdate['is_completed'] = $request->config['is_completed'];
         }
         
         $portfolio->update($dataToUpdate);
+
+        // 🔥 OPTIMIZACIÓN: Retornar JSON para evitar recarga de página lenta con Inertia
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Guardado correctamente',
+                'portfolio' => $portfolio // Opcional, solo si el front lo necesita
+            ]);
+        }
 
         return back()->with('success', 'Portfolio actualizado correctamente');
     }
