@@ -11,6 +11,7 @@ interface User {
     first_name: string;
     last_name: string;
     profile_photo_path?: string;
+    avatar_url?: string; // Add this
     community_post_ratings?: { rating: number }[];
 }
 
@@ -99,11 +100,11 @@ const deleteComment = () => {
         <div v-if="depthLevel > 0" class="absolute -left-4 top-0 bottom-0 w-px bg-gray-200"></div>
         
         <div class="flex gap-4 group">
-             <div class="flex-shrink-0">
-                <div v-if="comment.user.profile_photo_path" class="h-10 w-10 rounded-full overflow-hidden border border-gray-200">
-                    <img :src="comment.user.profile_photo_path" :alt="comment.user.first_name" class="h-full w-full object-cover">
+            <div class="flex-shrink-0">
+                <div v-if="comment.user.avatar_url" class="h-10 w-10 rounded-full overflow-hidden border border-gray-200">
+                    <img :src="comment.user.avatar_url" :alt="comment.user.first_name" class="h-full w-full object-cover">
                 </div>
-                <div v-else class="h-10 w-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-500 font-bold shadow-inner">
+                <div v-else class="h-10 w-10 rounded-full bg-linear-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold shadow-md">
                     {{ comment.user.first_name.charAt(0) }}
                 </div>
             </div>

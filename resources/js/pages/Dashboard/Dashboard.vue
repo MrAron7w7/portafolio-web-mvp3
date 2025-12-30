@@ -6,7 +6,7 @@
  * - Sofisticación Cromática (Slate-900, Slate-50, Indigo-600 to Violet-600)
  * - Geometría Orgánica (rounded-[32px], rounded-[40px])
  */
-import dashboard from '@/routes/dashboard';
+// import dashboard from '@/routes/dashboard';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import {
     Calendar,
@@ -42,6 +42,7 @@ const props = defineProps<{
         title: string;
         description: string;
         template_type: string;
+        template_data?: any;
         createdAt: string;
         status: string;
         statusColor: string;
@@ -202,14 +203,14 @@ const previewComponents: Record<string, any> = {
 // Preview data (Mock data for previews)
 const previewData = {
     personal: {
-        name: 'Juan Pérez',
-        title: 'Desarrollador Full Stack',
-        email: 'juan@ejemplo.com',
-        phone: '+51 999 888 777',
-        location: 'Lima, Perú',
-        linkedin: 'https://linkedin.com/in/juanperez',
-        github: 'https://github.com/juanperez',
-        summary: 'Desarrollador apasionado con 5+ años de experiencia en crear soluciones web innovadoras y escalables.',
+        name: 'Tu Nombre',
+        title: 'Tu Título Profesional',
+        email: 'tu.email@ejemplo.com',
+        phone: '+00 000 000 000',
+        location: 'Tu Ciudad, País',
+        linkedin: '',
+        github: '',
+        summary: 'Aquí aparecerá tu resumen profesional una vez que completes tu perfil.',
     },
     experience: [
         {
@@ -255,8 +256,30 @@ const previewData = {
     ],
 };
 
-const getTemplateData = () => {
-    return JSON.parse(JSON.stringify(previewData));
+const getTemplateData = (portfolio: any = null) => {
+    // 1. Si el portafolio tiene datos reales, usarlos
+    // 1. Si el portafolio tiene datos reales, usarlos
+    if (portfolio && portfolio.template_data) {
+        const data = portfolio.template_data;
+        // Fix: Asegurar que personal.name existe (algunos registros solo tienen firstName/lastName)
+        if (data.personal && !data.personal.name && data.personal.firstName) {
+            data.personal.name = `${data.personal.firstName} ${data.personal.lastName || ''}`.trim();
+        }
+        return data;
+    }
+
+    // 2. Si no, construir preview usando datos del AUTENTICADO (no Juan Pérez)
+    const fallbackData = JSON.parse(JSON.stringify(previewData)); // Copia base
+    
+    // Sobrescribir con datos del usuario real (si existen)
+    if (user.value) {
+        fallbackData.personal.name = user.value.full_name || 'Mi Nombre';
+        fallbackData.personal.email = user.value.email || '';
+        fallbackData.personal.title = 'Mi Profesión'; // Placeholder neutro
+        // Mantener otros datos mock para estructura visual
+    }
+    
+    return fallbackData;
 };
 const getPreviewComponent = (type: string) => {
     if (!type) return null;
@@ -298,9 +321,9 @@ const getPreviewComponent = (type: string) => {
                 <!-- Go to Home Button -->
                 <Link href="/">
                     <button
-                        class="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 flex items-center gap-2">
+                        class="group relative overflow-hidden rounded-2xl bg-linear-to-r from-indigo-600 to-violet-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 flex items-center gap-2">
                         <!-- Shine effect -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                        <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                         <Home class="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
                         <span class="relative z-10 hidden sm:inline">Ir a Inicio</span>
                     </button>
@@ -322,11 +345,11 @@ const getPreviewComponent = (type: string) => {
                 </div>
 
                 <!-- CTA Button with shine effect -->
-                <Link :href="dashboard.template.url()">
+                <Link href="/dashboard/plantillas">
                     <button
-                        class="group relative overflow-hidden rounded-[20px] bg-gradient-to-r from-indigo-600 to-violet-600 px-7 py-4 font-bold text-white shadow-xl shadow-indigo-500/25 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-1 flex items-center gap-3">
+                        class="group relative overflow-hidden rounded-[20px] bg-linear-to-r from-indigo-600 to-violet-600 px-7 py-4 font-bold text-white shadow-xl shadow-indigo-500/25 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-1 flex items-center gap-3">
                         <!-- Periodic shine sweep -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-shine"></div>
+                        <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-shine"></div>
                         <Sparkles class="h-5 w-5" />
                         <span class="relative z-10">Crear con IA</span>
                         <Plus class="h-5 w-5 transition-transform duration-300 group-hover:rotate-90" />
@@ -355,14 +378,14 @@ const getPreviewComponent = (type: string) => {
                         >
                             <component 
                                 :is="metric.icon" 
-                                :class="['h-6 w-6 bg-gradient-to-br', metric.gradient]"
+                                :class="['h-6 w-6 bg-linear-to-br', metric.gradient]"
                                 style="background-clip: text; -webkit-background-clip: text; color: transparent; stroke: url(#gradient);"
                                 class="text-indigo-600"
                             />
                         </div>
                     </div>
                     <!-- Subtle gradient overlay on hover -->
-                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-violet-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none rounded-[24px]"></div>
+                    <div class="absolute inset-0 bg-linear-to-br from-indigo-500/5 to-violet-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none rounded-[24px]"></div>
                 </div>
             </div>
 
@@ -382,7 +405,7 @@ const getPreviewComponent = (type: string) => {
                     class="rounded-[32px] border-2 border-dashed border-slate-200 bg-white p-16 text-center">
                     <div class="mx-auto max-w-md">
                         <!-- Floating animated icon -->
-                        <div class="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-[28px] bg-gradient-to-br from-indigo-600 to-violet-600 shadow-xl shadow-indigo-500/30 float-animation">
+                        <div class="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-[28px] bg-linear-to-br from-indigo-600 to-violet-600 shadow-xl shadow-indigo-500/30 float-animation">
                             <Folder class="h-12 w-12 text-white" />
                         </div>
                         <h3 class="mb-4 text-2xl font-black tracking-tight text-slate-900">
@@ -392,8 +415,8 @@ const getPreviewComponent = (type: string) => {
                             Comienza creando tu primer portafolio profesional. 
                             Nuestra IA te ayudará a destacar.
                         </p>
-                        <Link :href="dashboard.template.url()">
-                            <button class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3 font-bold text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+                        <Link href="/dashboard/plantillas">
+                            <button class="inline-flex items-center gap-2 rounded-2xl bg-linear-to-r from-indigo-600 to-violet-600 px-6 py-3 font-bold text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
                                 <Sparkles class="h-5 w-5" />
                                 Crear mi primer portafolio
                             </button>
@@ -425,14 +448,14 @@ const getPreviewComponent = (type: string) => {
                             >
                                 <component
                                     :is="getPreviewComponent(portfolio.template_type)"
-                                    :data="getTemplateData()"
+                                    :data="getTemplateData(portfolio)"
                                 />
                             </div>
 
                             <!-- Fallback Generic Gradient -->
                             <div 
                                 v-else 
-                                class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-600 to-violet-600"
+                                class="absolute inset-0 flex items-center justify-center bg-linear-to-br from-indigo-600 to-violet-600"
                             >
                                 <span class="text-5xl font-black text-white/20">
                                     {{ getTemplateInitial(portfolio.template_type) }}
@@ -526,7 +549,7 @@ const getPreviewComponent = (type: string) => {
                                 </div>
                                 <button 
                                     @click="deletePortfolio(portfolio.id)"
-                                    class="rounded-xl p-2 text-slate-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500"
+                                    class="rounded-xl p-2 text-red-500 transition-all duration-200 hover:bg-red-50"
                                     title="Eliminar"
                                 >
                                     <Trash2 class="h-4 w-4" />

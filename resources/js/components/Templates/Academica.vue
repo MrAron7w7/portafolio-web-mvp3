@@ -27,8 +27,8 @@ const props = defineProps<{
         }>;
         education: Array<any>;
         skills: {
-            technical: string[];
-            soft: string[];
+            technical: Array<string | { name: string; level?: number }>;
+            soft: Array<string | { name: string; level?: number }>;
         };
         projects: Array<any>;
         certifications: Array<any>;
@@ -470,15 +470,15 @@ const ensureUrl = (url: string) => {
                         </h2>
                         <div class="space-y-2">
                             <div
-                                v-for="skill in data.skills.technical"
-                                :key="skill"
+                                v-for="(skill, index) in data.skills.technical"
+                                :key="typeof skill === 'string' ? skill : skill.name || index"
                                 class="flex items-center"
                             >
                                 <div
                                     class="mr-2 h-2 w-2 rounded-full bg-blue-600"
                                 ></div>
                                 <span class="text-sm text-gray-700">{{
-                                    skill
+                                    typeof skill === 'string' ? skill : skill.name
                                 }}</span>
                             </div>
                         </div>

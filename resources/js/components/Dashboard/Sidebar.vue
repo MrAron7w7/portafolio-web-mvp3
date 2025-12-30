@@ -6,7 +6,7 @@
  * - Navegación simplificada
  */
 import { Link, usePage } from '@inertiajs/vue3';
-import dashboard from '@/routes/dashboard';
+// import dashboard from '@/routes/dashboard';
 import { computed } from 'vue';
 import {
     Folder,
@@ -73,8 +73,8 @@ const menuItems = computed(() => [
     {
         name: 'Plantillas',
         icon: LayoutTemplate,
-        href: dashboard.template.url(),
-        active: page.url.includes(dashboard.template.url())
+        href: '/dashboard/plantillas',
+        active: page.url.includes('/dashboard/plantillas')
     },
     {
         name: 'Herramientas',
@@ -108,10 +108,10 @@ const settingsItems = computed(() => [
         <!-- Logo Area -->
         <div class="flex h-16 items-center justify-between border-b border-slate-100 px-6">
             <div class="flex items-center gap-3 group cursor-pointer">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-[360deg]">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-360">
                     <Sparkles class="h-5 w-5 text-white" />
                 </div>
-                <span class="text-lg font-black tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+                <span class="text-lg font-black tracking-tight bg-linear-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
                     PortafolioAI
                 </span>
             </div>
@@ -245,7 +245,7 @@ const settingsItems = computed(() => [
                             >
                             <div 
                                 v-if="!user.avatar_url"
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-semibold text-white shadow-sm transition-transform duration-200 group-hover:scale-105"
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 text-sm font-semibold text-white shadow-sm transition-transform duration-200 group-hover:scale-105"
                             >
                                 {{ user.initials }}
                             </div>

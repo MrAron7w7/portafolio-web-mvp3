@@ -18,9 +18,9 @@ class DashboardController extends Controller
 
         $portfolios = Portfolio::where('user_id', Auth::id())
             ->latest()
-            ->get(['id', 'title', 'description', 'template_type', 'is_public', 'is_completed', 'created_at'])
+            ->get(['id', 'title', 'description', 'template_type', 'template_data', 'is_public', 'is_completed', 'created_at'])
             ->map(fn ($p) => [
-                ...$p->only(['id', 'title', 'description', 'template_type', 'is_public', 'is_completed']),
+                ...$p->only(['id', 'title', 'description', 'template_type', 'template_data', 'is_public', 'is_completed']),
                 'createdAt' => $p->created_at->format('d M Y'),
                 'is_published_in_community' => in_array($p->id, $publishedPortfolioIds),
                 'status' => match(true) {

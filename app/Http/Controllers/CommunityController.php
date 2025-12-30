@@ -17,12 +17,12 @@ class CommunityController extends Controller
     public function index()
     {
         $posts = CommunityPost::with([
-                'user:id,first_name,last_name,profile_photo_path',
-                'portfolio:id,title,slug,theme_settings',
+                'user:id,first_name,last_name,avatar_url',
+                'portfolio:id,title,slug,theme_settings,template_data',
                 'comments' => function ($query) {
                     $query->latest()
                         ->take(2)
-                        ->with('user:id,first_name,last_name,profile_photo_path');
+                        ->with('user:id,first_name,last_name,avatar_url');
                 }
             ])
             ->withCount(['comments', 'ratings'])
@@ -42,7 +42,7 @@ class CommunityController extends Controller
      */
     public function dashboardIndex()
     {
-        $posts = CommunityPost::with(['user:id,first_name,last_name,profile_photo_path', 'portfolio:id,title,slug,user_id,theme_settings'])
+        $posts = CommunityPost::with(['user:id,first_name,last_name,avatar_url', 'portfolio:id,title,slug,user_id,theme_settings,template_data'])
             ->withCount(['comments', 'ratings'])
             ->withAvg('ratings', 'rating')
             ->orderByDesc('ratings_avg_rating')
@@ -119,7 +119,7 @@ class CommunityController extends Controller
         $comments = collect();
         if ($hasRated) {
             $userWithRating = function ($query) use ($post) {
-                $query->select('id', 'first_name', 'last_name', 'profile_photo_path')
+                $query->select('id', 'first_name', 'last_name', 'avatar_url')
                       ->with(['communityPostRatings' => function ($q) use ($post) {
                           $q->where('community_post_id', $post->id)->select('user_id', 'rating');
                       }]);
@@ -131,7 +131,10 @@ class CommunityController extends Controller
                 ->with(['replies.user' => $userWithRating]) // Second level
                 ->with(['replies.replies.user' => $userWithRating]) // Third level
                 ->latest()
-                ->get();
+                ->paginate(10);
+        } else {
+            // Return empty paginator structure
+            $comments = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
         }
 
         return Inertia::render('Dashboard/Community/Show', [

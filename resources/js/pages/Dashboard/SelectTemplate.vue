@@ -21,7 +21,7 @@ import ModernaPreview from '@/components/Templates/Moderna.vue';
 import TecnologicaPreview from '@/components/Templates/Tecnologica.vue';
 
 // Portfolio routes
-import portfolio from '@/routes/dashboard/portfolio';
+// import portfolio from '@/routes/dashboard/portfolio';
 
 const props = defineProps<{
     templates: Array<{
@@ -153,7 +153,7 @@ const createPortfolio = () => {
     isCreating.value = true;
 
     router.post(
-        portfolio.create().url,
+        '/dashboard/portfolio/crear',
         { template_type: selectedTemplate.value },
         {
             onSuccess: () => {},
@@ -202,10 +202,10 @@ const selectedTemplateData = computed(() => {
 
                             <!-- Logo -->
                             <div class="flex items-center gap-2.5">
-                                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25">
                                     <LayoutTemplate class="h-5 w-5 text-white" />
                                 </div>
-                                <span class="text-xl font-black tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+                                <span class="text-xl font-black tracking-tight bg-linear-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
                                     PortafolioAI
                                 </span>
                             </div>
@@ -237,7 +237,7 @@ const selectedTemplateData = computed(() => {
                 <div class="mb-16 text-center">
                     <h1 class="mb-4 text-4xl font-black tracking-tighter text-slate-900 sm:text-5xl lg:text-6xl">
                         Elige tu identidad
-                        <span class="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent"> digital</span>
+                        <span class="bg-linear-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent"> digital</span>
                     </h1>
                     <p class="mx-auto max-w-2xl text-lg text-slate-500 leading-relaxed">
                         Selecciona el diseño perfecto para tu perfil. Todas las plantillas son 
@@ -353,12 +353,13 @@ const selectedTemplateData = computed(() => {
                                 Cancelar
                             </button>
                             <button 
+                            <button 
                                 @click="createPortfolio"
                                 :disabled="isCreating"
-                                class="group relative flex-1 md:flex-none flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-4 font-bold text-white shadow-xl shadow-indigo-500/25 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
+                                class="w-full flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 py-4 font-bold text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 <!-- Shine effect -->
-                                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                                 <Sparkles v-if="!isCreating" class="h-5 w-5" />
                                 <div v-if="isCreating" class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                                 <span v-if="isCreating" class="relative z-10">Creando...</span>
@@ -386,7 +387,7 @@ const selectedTemplateData = computed(() => {
                         @click="closePreview"
                     >
                         <!-- Backdrop -->
-                        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+                        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-60" @click="closePreview"></div>
                         
                         <!-- Modal Content -->
                         <div 
@@ -409,7 +410,7 @@ const selectedTemplateData = computed(() => {
 
                             <!-- Preview Container -->
                             <div class="flex-1 overflow-auto bg-slate-100 p-4 md:p-8 custom-scrollbar">
-                                <div class="mx-auto max-w-6xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+                                <div class="relative w-full overflow-hidden rounded-t-[28px] md:scale-100 md:rounded-[28px] aspect-16/10 bg-white shadow-2xl">
                                     <component
                                         v-if="previewModal.template"
                                         :is="previewComponents[previewModal.template.preview_component]"
