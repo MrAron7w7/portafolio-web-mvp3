@@ -49,9 +49,8 @@ class CommunityController extends Controller
             ->orderByDesc('created_at')
             ->paginate(12);
 
-        // Get user's eligible portfolios for posting (must be public and not already posted)
+        // Get user's eligible portfolios for posting (not already posted)
         $userPortfolios = Portfolio::where('user_id', Auth::id())
-            ->where('is_public', true)
             ->whereDoesntHave('communityPost')
             ->select('id', 'title')
             ->get();
@@ -69,14 +68,12 @@ class CommunityController extends Controller
     {
         $validated = $request->validate([
             'portfolio_id' => 'required|exists:portfolios,id',
-            'title' => 'required|string|max:255',
             'content' => 'required|string|max:5000',
         ]);
 
-        // Verify ownership and public status
+        // Verify ownership
         $portfolio = Portfolio::where('id', $validated['portfolio_id'])
             ->where('user_id', Auth::id())
-            ->where('is_public', true)
             ->firstOrFail();
 
         // Verify uniqueness (one post per portfolio)
@@ -87,7 +84,7 @@ class CommunityController extends Controller
         CommunityPost::create([
             'user_id' => Auth::id(),
             'portfolio_id' => $portfolio->id,
-            'title' => $validated['title'],
+            'title' => $portfolio->title,
             'content' => $validated['content'],
             'views_count' => 0,
         ]);

@@ -72,6 +72,16 @@ class TemplateController extends Controller
                 'popular' => true,
                 'features' => ['Tech', 'Desarrollo', 'Moderno'],
                 'preview_component' => 'Tecnologica'
+            ],
+            [
+                'id' => 'academica',
+                'name' => 'Académica',
+                'description' => 'Ideal para investigadores, docentes y profesionales académicos',
+                'category' => 'Académico',
+                'color' => 'from-emerald-600 to-teal-600',
+                'popular' => false,
+                'features' => ['Investigación', 'Publicaciones', 'Educación'],
+                'preview_component' => 'Academica'
             ]
         ];
 

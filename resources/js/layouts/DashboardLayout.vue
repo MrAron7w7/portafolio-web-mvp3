@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * Dashboard Layout - Filosofía "Claridad Vibrante"
+ * - Estructura fluida y responsiva
+ * - Transiciones suaves
+ * - Custom scrollbar integrado
+ */
 import Sidebar from '@/components/Dashboard/Sidebar.vue';
 import { Menu } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -11,29 +17,55 @@ const toggleSidebar = () => {
 </script>
 
 <template>
-    <div class="flex h-screen overflow-hidden bg-gray-50/50">
+    <div class="flex h-screen overflow-hidden bg-slate-50">
         <!-- Sidebar -->
         <Sidebar :is-open="sidebarOpen" @close="sidebarOpen = false" />
 
-        <!-- Sidebar Overlay para móvil -->
-        <div
-            v-if="sidebarOpen"
-            class="bg-opacity-50 fixed inset-0 z-40 bg-black lg:hidden"
-            @click="sidebarOpen = false"
-        ></div>
+        <!-- Sidebar Overlay for mobile -->
+        <Transition
+            enter-active-class="transition-opacity duration-300"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition-opacity duration-200"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div
+                v-if="sidebarOpen"
+                class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden"
+                @click="sidebarOpen = false"
+            ></div>
+        </Transition>
 
-        <!-- Contenido principal -->
-        <div class="flex min-w-0 flex-1 flex-col overflow-y-auto transition-all duration-300 ease-in-out w-full">
+        <!-- Main Content Area -->
+        <div class="flex min-w-0 flex-1 flex-col overflow-y-auto">
             <slot :toggle-sidebar="toggleSidebar" :is-sidebar-open="sidebarOpen" />
-            
-            <!-- Botón flotante para móvil si no hay header que lo contenga (opcional, por ahora confiamos en que las páginas lo implementen o usen el slot) -->
-            <button
-                v-if="!sidebarOpen"
-                @click="sidebarOpen = true"
-                class="fixed bottom-4 right-4 z-50 rounded-full bg-[#005aeb] p-3 text-white shadow-lg lg:hidden"
-            >
-                <Menu class="h-6 w-6" />
-            </button>
         </div>
     </div>
 </template>
+
+<style scoped>
+/* Custom scrollbar for the entire layout */
+:deep(*) {
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+}
+
+:deep(*)::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+:deep(*)::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+:deep(*)::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 3px;
+}
+
+:deep(*)::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+</style>
