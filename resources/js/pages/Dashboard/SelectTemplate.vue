@@ -331,7 +331,7 @@ const selectedTemplateData = computed(() => {
             >
                 <div 
                     v-if="selectedTemplate" 
-                    class="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200/60 bg-white/90 p-4 backdrop-blur-lg shadow-[0_-10px_40px_rgba(0,0,0,0.1)] sm:p-6"
+                    class="fixed bottom-0 left-0 right-0 z-[999] border-t border-slate-200/60 bg-white/90 p-4 backdrop-blur-lg shadow-[0_-10px_40px_rgba(0,0,0,0.1)] sm:p-6"
                 >
                     <div class="mx-auto flex max-w-4xl items-center justify-between gap-4">
                         <!-- Selected Template Info -->
@@ -387,11 +387,11 @@ const selectedTemplateData = computed(() => {
                         @click="closePreview"
                     >
                         <!-- Backdrop -->
-                        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-60" @click="closePreview"></div>
+                        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" @click="closePreview"></div>
                         
                         <!-- Modal Content -->
                         <div 
-                            class="relative flex h-full max-h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl"
+                            class="relative z-10 flex h-full max-h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl"
                             @click.stop
                         >
                             <!-- Modal Header -->
