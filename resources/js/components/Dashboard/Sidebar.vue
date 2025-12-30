@@ -260,7 +260,7 @@ const settingsItems = computed(() => [
                             :href="logout()" 
                             method="post" 
                             as="button"
-                            class="rounded-xl p-2 text-slate-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500"
+                            class="rounded-xl p-2 text-red-500 bg-red-50 transition-all duration-200 hover:bg-red-100 hover:text-red-700"
                             title="Cerrar sesión"
                         >
                             <LogOut class="h-5 w-5" />
