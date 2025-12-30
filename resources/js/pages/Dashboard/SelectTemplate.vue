@@ -320,56 +320,33 @@ const selectedTemplateData = computed(() => {
                 </div>
             </main>
 
-            <!-- Floating Action Bar -->
-            <Transition
-                enter-active-class="transform transition duration-300 ease-out"
-                enter-from-class="translate-y-full opacity-0"
-                enter-to-class="translate-y-0 opacity-100"
-                leave-active-class="transform transition duration-200 ease-in"
-                leave-from-class="translate-y-0 opacity-100"
-                leave-to-class="translate-y-full opacity-0"
+            <!-- Floating Action Button (Restored Logic) -->
+            <div
+                v-if="selectedTemplate"
+                class="fixed bottom-8 left-1/2 z-[999] -translate-x-1/2 transform"
             >
-                <div 
-                    v-if="selectedTemplate" 
-                    class="fixed bottom-0 left-0 right-0 z-[999] border-t border-slate-200/60 bg-white/90 p-4 backdrop-blur-lg shadow-[0_-10px_40px_rgba(0,0,0,0.1)] sm:p-6"
+                <button
+                    @click="createPortfolio"
+                    :disabled="isCreating"
+                    class="group flex items-center gap-3 rounded-[24px] bg-linear-to-r from-indigo-600 to-violet-600 pl-8 pr-6 py-4 text-lg font-bold text-white shadow-xl shadow-indigo-500/40 transition-all duration-300 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/50"
                 >
-                    <div class="mx-auto flex max-w-4xl items-center justify-between gap-4">
-                        <!-- Selected Template Info -->
-                        <div class="hidden flex-col md:flex">
-                            <span class="text-xs font-medium uppercase tracking-wider text-slate-400">
-                                Plantilla seleccionada
-                            </span>
-                            <span class="text-lg font-bold text-slate-900">
-                                {{ selectedTemplateData?.name }}
-                            </span>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex w-full items-center gap-3 md:w-auto">
-                            <button 
-                                @click="selectedTemplate = null"
-                                class="rounded-2xl px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all hidden sm:block"
-                            >
-                                Cancelar
-                            </button>
-                            <button 
-                            <button 
-                                @click="createPortfolio"
-                                :disabled="isCreating"
-                                class="w-full flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 py-4 font-bold text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                <!-- Shine effect -->
-                                <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                                <Sparkles v-if="!isCreating" class="h-5 w-5" />
-                                <div v-if="isCreating" class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                                <span v-if="isCreating" class="relative z-10">Creando...</span>
-                                <span v-else class="relative z-10">Continuar</span>
-                                <ArrowRight v-if="!isCreating" class="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-                            </button>
-                        </div>
+                    <!-- Shine effect -->
+                    <div class="absolute inset-0 overflow-hidden rounded-[24px]">
+                        <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                     </div>
-                </div>
-            </Transition>
+
+                    <div v-if="isCreating" class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    <Sparkles v-else class="h-5 w-5" />
+                    
+                    <span class="relative z-10">
+                        {{ isCreating ? 'Creando portafolio...' : 'Continuar con selección' }}
+                    </span>
+                    
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-transform duration-300 group-hover:translate-x-1">
+                        <ArrowRight class="h-4 w-4" />
+                    </div>
+                </button>
+            </div>
 
             <!-- Preview Modal -->
             <Teleport to="body">

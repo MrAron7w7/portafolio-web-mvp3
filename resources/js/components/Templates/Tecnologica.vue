@@ -117,8 +117,8 @@ const techIcons: { [key: string]: any } = {
             <div class="bg-grid-white absolute inset-0 opacity-5"></div>
 
             <div class="relative mx-auto max-w-6xl">
-                <div class="header-layout">
-                    <div class="header-text-section">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
+                    <div class="text-left md:flex-1">
                         <h1
                             class="mb-2 md:mb-3 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-3xl md:text-5xl font-bold text-transparent"
                         >
@@ -149,42 +149,43 @@ const techIcons: { [key: string]: any } = {
                         </div>
                     </div>
 
-                   <!-- Profile Photo -->
-                    <div v-if="data.personal.photo" class="banner-photo">
-                        <div class="relative h-40 w-40">
-                             <div class="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 blur-lg opacity-50"></div>
-                             <div class="relative h-full w-full overflow-hidden rounded-full border-2 border-cyan-500/50 p-1 bg-gray-900">
-                                <img 
-                                    :src="data.personal.photo" 
-                                    :alt="data.personal.name" 
-                                    class="h-full w-full rounded-full object-cover"
-                                />
-                             </div>
+                    <!-- Contacto Tecnológico & Photo -->
+                    <div class="text-left md:text-right md:flex-1 flex flex-col items-center md:items-end gap-6">
+                        
+                        <!-- Profile Photo -->
+                        <div v-if="data.personal.photo" class="flex-shrink-0">
+                            <div class="relative h-32 w-32 md:h-40 md:w-40">
+                                 <div class="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 blur-lg opacity-50"></div>
+                                 <div class="relative h-full w-full overflow-hidden rounded-full border-2 border-cyan-500/50 p-1 bg-gray-900">
+                                    <img 
+                                        :src="data.personal.photo" 
+                                        :alt="data.personal.name" 
+                                        class="h-full w-full rounded-full object-cover"
+                                    />
+                                 </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Contacto Tecnológico -->
-                    <div class="header-contact-section">
-                        <div class="space-y-2 text-sm text-gray-300">
+                        <div class="space-y-2 text-sm text-gray-300 flex flex-col md:items-end">
                             <div
                                 v-if="data.personal.email"
-                                class="contact-item-row"
+                                class="flex items-center md:justify-end"
                             >
                                 <span>{{ data.personal.email }}</span>
                             </div>
                             <div
                                 v-if="data.personal.phone"
-                                class="contact-item-row"
+                                class="flex items-center md:justify-end"
                             >
                                 <span>{{ data.personal.phone }}</span>
                             </div>
                             <div
                                 v-if="data.personal.location"
-                                class="contact-item-row"
+                                class="flex items-center md:justify-end"
                             >
                                 <span>{{ data.personal.location }}</span>
                             </div>
-                            <div class="social-links-row">
+                            <div class="flex gap-3 mt-3 md:justify-end">
                                 <a
                                     v-if="data.personal.github"
                                     :href="ensureUrl(data.personal.github)"
@@ -254,7 +255,7 @@ const techIcons: { [key: string]: any } = {
                             </button>
 
                             <!-- Experience Display (2 at a time on lg) -->
-                            <div class="cards-grid">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div
                                     v-for="(exp, index) in data.experience.slice(experienceIndex, experienceIndex + 2)"
                                     :key="index"
@@ -354,7 +355,7 @@ const techIcons: { [key: string]: any } = {
                             </button>
 
                            <!-- Projects Display (2 at a time) -->
-                            <div class="cards-grid">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div
                                     v-for="(project, index) in data.projects.slice(projectIndex, projectIndex + 2)"
                                     :key="index"
@@ -614,9 +615,7 @@ const techIcons: { [key: string]: any } = {
 
 <style scoped>
 .bg-grid-white {
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
     background-size: 50px 50px;
 }
 
@@ -624,58 +623,7 @@ const techIcons: { [key: string]: any } = {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Gallery Grid for Multiple Images */
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-    position: relative;
-}
-
-.gallery-thumbnail {
-    width: 100%;
-    height: 6rem;
-    object-fit: cover;
-    border-radius: 0.5rem;
-    border: 1px solid rgba(34, 211, 238, 0.3);
-    transition: transform 0.2s, border-color 0.2s;
-}
-
-.gallery-thumbnail:hover {
-    transform: scale(1.03);
-    border-color: rgba(34, 211, 238, 0.6);
-}
-
-.gallery-more {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: calc(50% - 0.25rem);
-    height: 6rem;
-    background: rgba(0, 0, 0, 0.7);
-    color: #22d3ee;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 700;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.gallery-more:hover {
-    background: rgba(0, 0, 0, 0.85);
-}
-.portfolio-container {
-    container-type: inline-size;
-}
-
-.bg-grid-white {
-    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
-}
-
-/* Gallery Grid for Multiple Images */
+/* Gallery Grid */
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -688,13 +636,13 @@ const techIcons: { [key: string]: any } = {
     height: 6rem;
     object-fit: cover;
     border-radius: 0.25rem;
-    border: 1px solid rgba(56, 189, 248, 0.3); /* sky-400/30 */
+    border: 1px solid rgba(56, 189, 248, 0.3);
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .gallery-thumbnail:hover {
     transform: scale(1.02);
-    box-shadow: 0 0 15px rgba(34, 211, 238, 0.2); /* cyan-400/20 */
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
     border-color: rgba(34, 211, 238, 0.6);
 }
 
@@ -704,7 +652,7 @@ const techIcons: { [key: string]: any } = {
     right: 0;
     width: calc(50% - 0.25rem);
     height: 6rem;
-    background: rgba(15, 23, 42, 0.8); /* slate-900/80 */
+    background: rgba(15, 23, 42, 0.8);
     color: white;
     display: flex;
     align-items: center;
@@ -718,96 +666,6 @@ const techIcons: { [key: string]: any } = {
 
 .gallery-more:hover {
     background: rgba(15, 23, 42, 0.95);
-}
-
-/* Container Queries */
-.header-layout {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-@container (min-width: 64rem) { /* lg equivalent */
-    .header-layout {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0;
-    }
-}
-
-.header-text-section {
-    text-align: left;
-}
-
-.header-contact-section {
-    text-align: left;
-}
-
-@container (min-width: 64rem) {
-    .header-contact-section {
-        text-align: right;
-    }
-}
-
-.banner-photo {
-    display: block;
-    margin: 1.5rem auto;
-    flex-shrink: 0;
-}
-
-@container (min-width: 64rem) {
-    .banner-photo {
-        margin: 0 2rem;
-    }
-}
-
-.contact-item-row {
-    display: flex;
-    align-items: center;
-}
-
-@container (min-width: 64rem) {
-    .contact-item-row {
-        justify-content: flex-end;
-    }
-}
-
-.social-links-row {
-    margin-top: 0.75rem;
-    display: flex;
-    gap: 0.75rem;
-}
-
-@container (min-width: 64rem) {
-    .social-links-row {
-        justify-content: flex-end;
-    }
-}
-
-/* Grids */
-.main-grid {
-    display: grid;
-    gap: 2rem;
-    grid-template-columns: 1fr;
-}
-
-@container (min-width: 64rem) {
-    .main-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-.cards-grid {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: 1fr;
-}
-
-@container (min-width: 48rem) {
-    .cards-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
 }
 </style>
 ```
