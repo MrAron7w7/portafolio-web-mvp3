@@ -14,7 +14,9 @@ const props = defineProps<{
             email: string;
             role: string;
             created_at: string;
+            created_at_iso: string;
             status: string;
+            avatar_url?: string | null;
             portfolios_count: number;
         }>;
         links: any;
@@ -88,6 +90,46 @@ const filteredUsers = computed(() => {
     // Filtro por estado
     if (statusFilter.value !== 'all') {
         result = result.filter(user => user.status === statusFilter.value);
+    }
+    
+    // Filtro por fecha
+    if (dateFilter.value !== 'all') {
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 00:00:00 hoy local
+
+        result = result.filter(user => {
+            let userDate;
+            
+            if (user.created_at_iso) {
+                userDate = new Date(user.created_at_iso);
+            } else {
+                // Fallback robusto: intentar parsear la fecha formateada (ej: "30 Dec 2025")
+                userDate = new Date(user.created_at);
+            }
+
+            // Si la fecha no es válida, no mostrar
+            if (isNaN(userDate.getTime())) return false;
+            
+            if (dateFilter.value === 'today') {
+                return userDate >= startOfDay;
+            }
+            if (dateFilter.value === 'week') {
+                const weekAgo = new Date(startOfDay);
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return userDate >= weekAgo;
+            }
+            if (dateFilter.value === 'month') {
+                const monthAgo = new Date(startOfDay);
+                monthAgo.setMonth(monthAgo.getMonth() - 1);
+                return userDate >= monthAgo;
+            }
+            if (dateFilter.value === '3months') {
+                const threeMonthsAgo = new Date(startOfDay);
+                threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+                return userDate >= threeMonthsAgo;
+            }
+            return true;
+        });
     }
     
     return result;
@@ -249,7 +291,13 @@ const getStatusBadgeClass = (status: string) => {
                         <tr v-for="user in filteredUsers" :key="user.id" class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#005aeb] text-white font-medium">
+                                    <img 
+                                        v-if="user.avatar_url" 
+                                        :src="user.avatar_url" 
+                                        :alt="user.name"
+                                        class="h-10 w-10 rounded-full object-cover"
+                                    />
+                                    <div v-else class="flex h-10 w-10 items-center justify-center rounded-full bg-[#005aeb] text-white font-medium">
                                         {{ user.first_name?.charAt(0) }}{{ user.last_name?.charAt(0) }}
                                     </div>
                                     <div class="ml-4">

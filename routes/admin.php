@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         
         // Dashboard de admin
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/export', [AdminDashboardController::class, 'export'])->name('export');
         
         // Gestión de usuarios (CRUD)
         Route::resource('users', AdminUserController::class)->except(['create', 'store']);

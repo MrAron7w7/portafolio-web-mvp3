@@ -27,7 +27,9 @@ class AdminUserController extends Controller
                 'email' => $user->email,
                 'role' => $user->roles->first()?->name ?? 'user',
                 'created_at' => $user->created_at->format('d M Y'),
+                'created_at_iso' => $user->created_at->toISOString(),
                 'status' => $user->status ?? 'active',
+                'avatar_url' => $user->avatar_url,
                 'portfolios_count' => $user->portfolios()->count(),
             ]);
 

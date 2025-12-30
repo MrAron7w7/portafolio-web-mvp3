@@ -178,6 +178,7 @@ const settingsItems = computed(() => [
                         </Link>
 
                         <!-- Notificaciones -->
+                        <!-- Notificaciones (Comentado temporalmente)
                         <Link 
                             href="#"
                             class="group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-50 hover:text-slate-900"
@@ -188,6 +189,7 @@ const settingsItems = computed(() => [
                                 3
                             </span>
                         </Link>
+                        -->
 
                         <!-- Configuración (Floating Dropdown) -->
                         <DropdownMenu>
