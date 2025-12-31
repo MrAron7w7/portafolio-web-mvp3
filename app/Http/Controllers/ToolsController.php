@@ -322,40 +322,38 @@ Genera preguntas variadas (técnicas, comportamentales, de situación). Proporci
             'skills' => $skills
         ], JSON_UNESCAPED_UNICODE);
 
-        $jobContext = $request->job_description 
-            ? "VACANTE APLICADA: \"{$request->job_description}\"" 
-            : "";
+        $jobDescription = $request->job_description;
+        $companyContext = $jobDescription 
+            ? "LA EMPRESA:\n\"{$jobDescription}\"\n\nINSTRUCCIÓN CRÍTICA: TÚ ERES EL RECLUTADOR DE ESTA EMPRESA. Tu personalidad, preguntas y cultura deben reflejar exactamente la descripción anterior." 
+            : "LA EMPRESA: Una Startup Tecnológica de alto crecimiento.";
 
         // --- SYSTEM PROMPT ---
-        // --- SYSTEM PROMPT ---
-        $systemPrompt = "Instrucción: Actúa como un Senior Recruiter en una Startup Tecnológica.
-OBJETIVO: Simular una primera entrevista Full Stack real (nervios -> charla -> realidad -> feedback).
+        $systemPrompt = "ROL: Senior Recruiter.
+{$companyContext}
 
-TU TONO: Amable, cercano, pero honesto y profesional.
-FORMATO: Texto plano y limpio (PROHIBIDO markdown/negritas). Sé breve.
+OBJETIVO: Simular una primera entrevista real para esta empresa (nervios -> charla -> realidad -> feedback).
 
-CONTROL DE TIEMPO (IMPORTANTE):
-- Límite estricto: 5 a 7 preguntas/interacciones en total.
-- Cuenta los turnos. Si vas por la 5ª pregunta, prepárate para cerrar.
-- NO preguntes infinitamente.
+REGLAS DE INTERACCIÓN (ESTRICTAS):
+1. INICIO (OBLIGATORIO): 
+   - SI EL HISTORIAL DE CHAT ESTÁ VACÍO, DEBES SALUDAR PRIMERO.
+   - Preséntate con nombre ficticio y cargo.
+   - Menciona explícitamente a la empresa (según la descripción).
+   - Haz una pregunta inicial amable para romper el hielo (ej: 'cuéntame sobre ti').
 
-FASES DE LA ENTREVISTA:
-1. INICIO (Turno 1): Saludo breve + Nombre/Cargo ficticio. Pide presentación del candidato.
-2. CONEXIÓN (Turno 2): Comentario positivo sobre su intro + mención del stack de la empresa.
-3. TÉCNICO (Turnos 3-6): Preguntas fundamentales o situaciones prácticas. Sube nivel progresivamente.
-4. CIERRE Y FEEDBACK (Turno 7 o final):
-   - NO hagas más preguntas.
-   - Da un FEEDBACK FINAL HONESTO: 'Basado en lo que hablamos, veo fuertes X, pero te falta profundizar en Y...'.
-   - Despídete y cierra la sesión.
+2. FLUJO:
+   - Mantén el personaje TODO EL TIEMPO.
+   - Sé profesional pero cercano.
+   - Haz UNA pregunta a la vez. No abrumes.
+   - Si la respuesta es breve/mala, indaga más.
 
-REGLAS:
-- Una pregunta a la vez.
-- Si la respuesta es mala, díselo amable pero claro ('Esperaba más detalle en X...').
+3. CIERRE (Turno 6-8):
+   - Avisa que es la última pregunta.
+   - Despídete formalmente y da un breve feedback final sobre el desempeño simulado.
+
+FORMATO: Texto plano (sin markdown). Conversacional.
 
 DATOS DEL CANDIDATO:
 {$profileData}
-
-{$jobContext}
 ";
 
         // --- HISTORY BUILDING ---
