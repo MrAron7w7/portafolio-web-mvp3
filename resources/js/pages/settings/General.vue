@@ -1,7 +1,23 @@
 <script setup lang="ts">
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { useAppearance } from '@/composables/useAppearance';
+import { 
+    User as UserIcon, 
+    Globe, 
+    Bell, 
+    Lock, 
+    Palette, 
+    Settings, 
+    Trash2, 
+    ShieldCheck,
+    Moon,
+    Sun,
+    Layers as IntegrationIcon
+} from 'lucide-vue-next';
+
+const { appearance, updateAppearance } = useAppearance();
 
 interface User {
     id: number;
@@ -26,14 +42,14 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// Estado para controlar qué sección está en modo edición
+// UI State
 const editingProfile = ref(false);
 const editingPreferences = ref(false);
 const editingNotifications = ref(false);
 const showDeleteModal = ref(false);
 const avatarPreview = ref<string | null>(null);
 
-// Formulario de perfil
+// Forms
 const profileForm = useForm({
     first_name: props.user.first_name,
     last_name: props.user.last_name,
@@ -41,35 +57,30 @@ const profileForm = useForm({
     avatar: null as File | null,
 });
 
-// Formulario de preferencias
 const preferencesForm = useForm({
     language: props.user.language,
     timezone: props.user.timezone,
 });
 
-// Formulario de notificaciones
 const notificationsForm = useForm({
     email_notifications: props.user.email_notifications,
     marketing_emails: props.user.marketing_emails,
 });
 
-// Formulario de eliminación de cuenta
 const deleteForm = useForm({
     password: '',
 });
 
+// Methods
 const handleAvatarChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
     
     if (file) {
-        // Validar tamaño (8MB)
         if (file.size > 8 * 1024 * 1024) {
             alert('La imagen no debe superar los 8MB');
             return;
         }
-
-        // Validar tipo
         if (!['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(file.type)) {
             alert('Solo se permiten imágenes JPG, PNG o GIF');
             return;
@@ -104,12 +115,7 @@ const toggleEditPreferences = () => {
     editingPreferences.value = !editingPreferences.value;
 };
 
-const toggleEditNotifications = () => {
-    editingNotifications.value = !editingNotifications.value;
-};
-
 const submitProfile = () => {
-    // Para archivos, Laravel requiere POST con _method spoofing
     profileForm.post('/settings/general', {
         forceFormData: true,
         preserveScroll: true,
@@ -117,7 +123,6 @@ const submitProfile = () => {
             editingProfile.value = false;
             avatarPreview.value = null;
             profileForm.avatar = null;
-            // Recargar para ver la nueva imagen
             window.location.reload();
         },
     });
@@ -174,520 +179,462 @@ const removeAvatar = () => {
     <Head title="Configuración General" />
 
     <DashboardLayout>
-        <div class="p-6 max-w-5xl mx-auto">
+        <div class="p-6 max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
-            <!-- Header -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Configuración General</h1>
-                <p class="text-gray-500 mt-1">Administra tu cuenta, preferencias y configuración de la aplicación.</p>
+            <!-- Header Section -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        Configuración General
+                    </h1>
+                    <p class="text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
+                        Administra tu perfil, preferencias de idioma y personalización para que tu experiencia sea única.
+                    </p>
+                </div>
             </div>
 
-            <!-- Success Message -->
-            <div 
-                v-if="status === 'general-updated'" 
-                class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3"
+            <!-- Success Alert -->
+            <Transition
+                enter-active-class="transition duration-300 ease-out"
+                enter-from-class="transform -translate-y-2 opacity-0"
+                enter-to-class="transform translate-y-0 opacity-100"
+                leave-active-class="transition duration-200 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
             >
-                <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                <span class="text-green-800 font-medium">Cambios guardados correctamente</span>
-            </div>
+                <div 
+                    v-if="status === 'general-updated'" 
+                    class="p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl flex items-center gap-3"
+                >
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                        <ShieldCheck class="w-5 h-5" />
+                    </div>
+                    <span class="text-emerald-800 dark:text-emerald-400 font-medium">Cambios guardados correctamente</span>
+                </div>
+            </Transition>
 
-            <div class="space-y-6">
+            <div class="grid grid-cols-1 gap-8">
                 
                 <!-- 1. PERFIL DE USUARIO -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                </svg>
+                <section class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
+                    <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                <UserIcon class="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900">Perfil de Usuario</h3>
-                                <p class="text-sm text-gray-500">Tu información personal y datos de contacto</p>
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white">Perfil de Usuario</h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Tus datos personales básicos</p>
                             </div>
                         </div>
                         <button 
                             @click="toggleEditProfile"
                             type="button"
-                            class="px-4 py-2 text-sm font-medium rounded-lg transition"
+                            class="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all active:scale-95 flex items-center gap-2"
                             :class="editingProfile 
-                                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
-                                : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'"
+                                ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600' 
+                                : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 dark:shadow-none'"
                         >
-                            {{ editingProfile ? 'Cancelar' : 'Editar' }}
+                            {{ editingProfile ? 'Cancelar' : 'Editar Perfil' }}
                         </button>
                     </div>
 
-                    <form @submit.prevent="submitProfile" class="p-6">
-                        <!-- Avatar Section -->
-                        <div class="mb-6 flex items-center gap-6">
-                            <div class="relative">
-                                <img 
-                                    :src="avatarPreview || user.avatar_url" 
-                                    alt="Avatar" 
-                                    class="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-                                    @error="handleImageError"
-                                >
-                                <div 
-                                    v-if="editingProfile"
-                                    class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 rounded-full opacity-0 hover:opacity-100 transition cursor-pointer"
-                                >
-                                    <label class="cursor-pointer flex flex-col items-center">
-                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        </svg>
-                                        <span class="text-xs text-white mt-1">Cambiar</span>
-                                        <input 
-                                            type="file" 
-                                            accept="image/*"
-                                            @change="handleAvatarChange"
-                                            class="hidden"
+                    <form @submit.prevent="submitProfile" class="p-8">
+                        <div class="flex flex-col md:flex-row gap-10">
+                            <!-- Avatar Column -->
+                            <div class="flex flex-col items-center gap-4">
+                                <div class="relative group">
+                                    <div class="w-32 h-32 rounded-full p-1 bg-linear-to-tr from-indigo-500 to-violet-500 shadow-xl">
+                                        <img 
+                                            :src="avatarPreview || user.avatar_url" 
+                                            alt="Avatar" 
+                                            class="w-full h-full rounded-full object-cover border-4 border-white dark:border-slate-900"
+                                            @error="handleImageError"
                                         >
+                                    </div>
+                                    <label v-if="editingProfile" class="absolute inset-x-0 bottom-0 top-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer backdrop-blur-[2px]">
+                                        <div class="flex flex-col items-center text-white">
+                                            <Camera class="w-6 h-6 mb-1" />
+                                            <span class="text-[10px] font-bold uppercase tracking-wider">Cambiar</span>
+                                        </div>
+                                        <input type="file" accept="image/*" @change="handleAvatarChange" class="hidden">
                                     </label>
                                 </div>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-medium text-gray-900">Foto de perfil</h4>
-                                <p class="text-sm text-gray-500">JPG, PNG o GIF. Máx 8MB</p>
-                                <p v-if="avatarPreview" class="text-xs text-green-600 mt-1">✓ Nueva imagen seleccionada</p>
                                 
-                                <!-- Botón para eliminar imagen -->
                                 <button 
                                     v-if="editingProfile && user.avatar_url && !user.avatar_url.includes('ui-avatars.com')"
                                     @click="removeAvatar"
                                     type="button"
-                                    class="mt-2 text-xs text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
+                                    class="text-xs text-red-500 hover:text-red-700 font-bold transition-colors"
                                 >
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                    </svg>
-                                    Eliminar foto de perfil
+                                    Eliminar foto
                                 </button>
                             </div>
-                        </div>
 
-                        <div class="space-y-5">
-                            <!-- Nombre -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Nombre
-                                </label>
-                                <input 
-                                    v-if="editingProfile"
-                                    v-model="profileForm.first_name"
-                                    type="text" 
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                                    :class="{ 'border-red-500': profileForm.errors.first_name }"
+                            <!-- Fields Column -->
+                            <div class="flex-1 space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Nombre</label>
+                                        <input 
+                                            v-if="editingProfile"
+                                            v-model="profileForm.first_name"
+                                            type="text" 
+                                            class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition dark:text-white"
+                                            :class="{ 'border-red-500': profileForm.errors.first_name }"
+                                        >
+                                        <p v-else class="text-slate-900 dark:text-white font-medium py-1 px-1">{{ user.first_name }}</p>
+                                        <p v-if="profileForm.errors.first_name" class="text-xs text-red-500">{{ profileForm.errors.first_name }}</p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Apellido</label>
+                                        <input 
+                                            v-if="editingProfile"
+                                            v-model="profileForm.last_name"
+                                            type="text" 
+                                            class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition dark:text-white"
+                                            :class="{ 'border-red-500': profileForm.errors.last_name }"
+                                        >
+                                        <p v-else class="text-slate-900 dark:text-white font-medium py-1 px-1">{{ user.last_name }}</p>
+                                        <p v-if="profileForm.errors.last_name" class="text-xs text-red-500">{{ profileForm.errors.last_name }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Correo Electrónico</label>
+                                    <input 
+                                        v-if="editingProfile"
+                                        v-model="profileForm.email"
+                                        type="email" 
+                                        class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition dark:text-white"
+                                        :class="{ 'border-red-500': profileForm.errors.email }"
+                                    >
+                                    <p v-else class="text-slate-900 dark:text-white font-medium py-1 px-1">{{ user.email }}</p>
+                                    <p v-if="profileForm.errors.email" class="text-xs text-red-500">{{ profileForm.errors.email }}</p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                                    <div class="space-y-1">
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase">Miembro desde</span>
+                                        <p class="text-slate-600 dark:text-slate-400 text-sm">{{ user.created_at }}</p>
+                                    </div>
+                                    <div v-if="user.last_login_at" class="space-y-1">
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase">Último acceso</span>
+                                        <p class="text-slate-600 dark:text-slate-400 text-sm">{{ user.last_login_at }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Form Actions -->
+                                <Transition
+                                    enter-active-class="transition duration-300"
+                                    enter-from-class="opacity-0 translate-y-2"
+                                    enter-to-class="opacity-100 translate-y-0"
                                 >
-                                <p v-else class="text-gray-900 py-2">{{ user.first_name }}</p>
-                                <p v-if="profileForm.errors.first_name" class="mt-1 text-sm text-red-600">
-                                    {{ profileForm.errors.first_name }}
-                                </p>
+                                    <div v-if="editingProfile" class="flex justify-end pt-4">
+                                        <button 
+                                            type="submit"
+                                            class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 dark:shadow-none disabled:opacity-50 flex items-center gap-2"
+                                            :disabled="profileForm.processing"
+                                        >
+                                            <Settings v-if="profileForm.processing" class="animate-spin w-4 h-4" />
+                                            {{ profileForm.processing ? 'Guardando...' : 'Guardar Cambios' }}
+                                        </button>
+                                    </div>
+                                </Transition>
                             </div>
-
-                            <!-- Apellido -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Apellido
-                                </label>
-                                <input 
-                                    v-if="editingProfile"
-                                    v-model="profileForm.last_name"
-                                    type="text" 
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                                    :class="{ 'border-red-500': profileForm.errors.last_name }"
-                                >
-                                <p v-else class="text-gray-900 py-2">{{ user.last_name }}</p>
-                                <p v-if="profileForm.errors.last_name" class="mt-1 text-sm text-red-600">
-                                    {{ profileForm.errors.last_name }}
-                                </p>
-                            </div>
-
-                            <!-- Email -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Correo electrónico
-                                </label>
-                                <input 
-                                    v-if="editingProfile"
-                                    v-model="profileForm.email"
-                                    type="email" 
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                                    :class="{ 'border-red-500': profileForm.errors.email }"
-                                >
-                                <p v-else class="text-gray-900 py-2">{{ user.email }}</p>
-                                <p v-if="profileForm.errors.email" class="mt-1 text-sm text-red-600">
-                                    {{ profileForm.errors.email }}
-                                </p>
-                            </div>
-
-                            <!-- Fecha de registro -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Miembro desde
-                                </label>
-                                <p class="text-gray-900 py-2">{{ user.created_at }}</p>
-                            </div>
-
-                            <!-- Last Login -->
-                            <div v-if="user.last_login_at">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Último acceso
-                                </label>
-                                <p class="text-gray-900 py-2">{{ user.last_login_at }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Botón guardar -->
-                        <div v-if="editingProfile" class="mt-6 flex justify-end gap-3">
-                            <button 
-                                type="button"
-                                @click="toggleEditProfile"
-                                class="px-5 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
-                                :disabled="profileForm.processing"
-                            >
-                                Cancelar
-                            </button>
-                            <button 
-                                type="submit"
-                                class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 flex items-center gap-2"
-                                :disabled="profileForm.processing"
-                            >
-                                <svg v-if="profileForm.processing" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                {{ profileForm.processing ? 'Guardando...' : 'Guardar cambios' }}
-                            </button>
                         </div>
                     </form>
-                </div>
+                </section>
 
-                <!-- 2. PREFERENCIAS DE IDIOMA Y REGIÓN -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd"/>
-                                </svg>
+                <!-- 2. IDIOMA Y REGIÓN -->
+                <section class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
+                    <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                                <Globe class="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900">Idioma y Región</h3>
-                                <p class="text-sm text-gray-500">Configura tu idioma y zona horaria</p>
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white">Idioma y Región</h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Localización y formato</p>
                             </div>
                         </div>
                         <button 
                             @click="toggleEditPreferences"
                             type="button"
-                            class="px-4 py-2 text-sm font-medium rounded-lg transition"
+                            class="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all active:scale-95"
                             :class="editingPreferences 
-                                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
-                                : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'"
+                                ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600' 
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
                         >
-                            {{ editingPreferences ? 'Cancelar' : 'Editar' }}
+                            {{ editingPreferences ? 'Cancelar' : 'Cambiar' }}
                         </button>
                     </div>
 
-                    <form @submit.prevent="submitPreferences" class="p-6 space-y-5">
-                        <!-- Idioma -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Idioma de la aplicación
-                            </label>
-                            <select 
-                                v-if="editingPreferences"
-                                v-model="preferencesForm.language"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                            >
-                                <option value="es">Español</option>
-                                <option value="en">English</option>
-                                <option value="pt">Português</option>
-                            </select>
-                            <p v-else class="text-gray-900 py-2">
-                                {{ user.language === 'es' ? 'Español' : user.language === 'en' ? 'English' : 'Português' }}
-                            </p>
+                    <form @submit.prevent="submitPreferences" class="p-8 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Idioma</label>
+                                <select 
+                                    v-if="editingPreferences"
+                                    v-model="preferencesForm.language"
+                                    class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition dark:text-white"
+                                >
+                                    <option value="es" class="dark:bg-slate-900">Español</option>
+                                    <option value="en" class="dark:bg-slate-900">English</option>
+                                    <option value="pt" class="dark:bg-slate-900">Português</option>
+                                </select>
+                                <div v-else class="flex items-center gap-3">
+                                    <span class="text-2xl">🇪🇸</span>
+                                    <p class="text-slate-900 dark:text-white font-medium">
+                                        {{ user.language === 'es' ? 'Español' : user.language === 'en' ? 'English' : 'Português' }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Zona Horaria</label>
+                                <select 
+                                    v-if="editingPreferences"
+                                    v-model="preferencesForm.timezone"
+                                    class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition dark:text-white"
+                                >
+                                    <option value="America/Lima" class="dark:bg-slate-900">Lima (GMT-5)</option>
+                                    <option value="America/Mexico_City" class="dark:bg-slate-900">Ciudad de México (GMT-6)</option>
+                                    <option value="America/New_York" class="dark:bg-slate-900">Nueva York (GMT-5)</option>
+                                    <option value="Europe/Madrid" class="dark:bg-slate-900">Madrid (GMT+1)</option>
+                                </select>
+                                <div v-else class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                    <p class="text-slate-900 dark:text-white font-medium">{{ user.timezone }}</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Zona horaria -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Zona horaria
-                            </label>
-                            <select 
-                                v-if="editingPreferences"
-                                v-model="preferencesForm.timezone"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                            >
-                                <option value="America/Lima">Lima (GMT-5)</option>
-                                <option value="America/Mexico_City">Ciudad de México (GMT-6)</option>
-                                <option value="America/New_York">Nueva York (GMT-5)</option>
-                                <option value="Europe/Madrid">Madrid (GMT+1)</option>
-                            </select>
-                            <p v-else class="text-gray-900 py-2">{{ user.timezone }}</p>
-                        </div>
-
-                        <div v-if="editingPreferences" class="pt-4 flex justify-end gap-3">
-                            <button 
-                                type="button"
-                                @click="toggleEditPreferences"
-                                class="px-5 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
-                            >
-                                Cancelar
-                            </button>
-                            <button 
-                                type="submit"
-                                class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition"
-                            >
-                                Guardar preferencias
-                            </button>
-                        </div>
+                        <Transition
+                            enter-active-class="transition duration-300"
+                            enter-from-class="opacity-0 translate-y-2"
+                            enter-to-class="opacity-100 translate-y-0"
+                        >
+                            <div v-if="editingPreferences" class="flex justify-end">
+                                <button 
+                                    type="submit"
+                                    class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 dark:shadow-none"
+                                >
+                                    Guardar Preferencias
+                                </button>
+                            </div>
+                        </Transition>
                     </form>
-                </div>
+                </section>
 
-                <!-- 3. NOTIFICACIONES -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="px-6 py-5 border-b border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
-                                </svg>
+                <!-- 3. APARIENCIA / TEMA -->
+                <section class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
+                    <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                <Palette class="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900">Notificaciones</h3>
-                                <p class="text-sm text-gray-500">Administra cómo y cuándo recibes notificaciones</p>
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white">Apariencia</h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Personaliza tu entorno de trabajo</p>
                             </div>
                         </div>
                     </div>
 
-                    <form @submit.prevent="submitNotifications" class="p-6 space-y-4">
-                        <!-- Toggle de notificaciones por email -->
-                        <div class="flex items-center justify-between py-3 border-b border-gray-100">
-                            <div>
-                                <p class="font-medium text-gray-900">Notificaciones por email</p>
-                                <p class="text-sm text-gray-500">Recibe actualizaciones importantes por correo</p>
+                    <div class="p-8">
+                        <div class="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                                    <Moon v-if="appearance === 'dark'" class="w-6 h-6 text-indigo-500" />
+                                    <Sun v-else class="w-6 h-6 text-amber-500" />
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-900 dark:text-white">Modo Oscuro</p>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">Reduce el cansancio visual y ahorra energía.</p>
+                                </div>
                             </div>
+                            
                             <button 
-                                @click="notificationsForm.email_notifications = !notificationsForm.email_notifications"
+                                @click="updateAppearance(appearance === 'dark' ? 'light' : 'dark')"
                                 type="button"
-                                class="relative inline-flex h-6 w-11 items-center rounded-full transition"
-                                :class="notificationsForm.email_notifications ? 'bg-indigo-600' : 'bg-gray-200'"
+                                class="relative inline-flex h-8 w-14 items-center rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+                                :class="appearance === 'dark' ? 'bg-indigo-600' : 'bg-slate-200'"
                             >
                                 <span 
-                                    class="inline-block h-4 w-4 transform rounded-full bg-white transition"
-                                    :class="notificationsForm.email_notifications ? 'translate-x-6' : 'translate-x-1'"
+                                    class="inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-spring"
+                                    :class="appearance === 'dark' ? 'translate-x-7' : 'translate-x-1'"
                                 ></span>
                             </button>
                         </div>
+                    </div>
+                </section>
 
-                        <!-- Toggle de marketing -->
-                        <div class="flex items-center justify-between py-3">
-                            <div>
-                                <p class="font-medium text-gray-900">Notificaciones de marketing</p>
-                                <p class="text-sm text-gray-500">Recibe noticias y ofertas especiales</p>
+                <!-- 4. NOTIFICACIONES -->
+                <section class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
+                    <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                <Bell class="w-6 h-6" />
                             </div>
-                            <button 
-                                @click="notificationsForm.marketing_emails = !notificationsForm.marketing_emails"
-                                type="button"
-                                class="relative inline-flex h-6 w-11 items-center rounded-full transition"
-                                :class="notificationsForm.marketing_emails ? 'bg-indigo-600' : 'bg-gray-200'"
-                            >
-                                <span 
-                                    class="inline-block h-4 w-4 transform rounded-full bg-white transition"
-                                    :class="notificationsForm.marketing_emails ? 'translate-x-6' : 'translate-x-1'"
-                                ></span>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white">Notificaciones</h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Canales y alertas del sistema</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form @submit.prevent="submitNotifications" class="p-8 space-y-2">
+                        <!-- Email Notify -->
+                        <div class="group flex items-center justify-between p-4 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-all cursor-pointer" @click="notificationsForm.email_notifications = !notificationsForm.email_notifications">
+                            <div>
+                                <p class="font-bold text-slate-900 dark:text-white transition-colors">Alertas por Email</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Cambios importantes en tu cuenta.</p>
+                            </div>
+                            <button type="button" class="relative inline-flex h-6 w-11 items-center rounded-full transition" :class="notificationsForm.email_notifications ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'">
+                                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition" :class="notificationsForm.email_notifications ? 'translate-x-6' : 'translate-x-1'"></span>
                             </button>
                         </div>
 
-                        <div v-if="notificationsForm.isDirty" class="pt-4 flex justify-end">
-                            <button 
-                                type="submit"
-                                class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition"
-                            >
-                                Guardar notificaciones
+                        <!-- Marketing Notify -->
+                        <div class="group flex items-center justify-between p-4 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-all cursor-pointer" @click="notificationsForm.marketing_emails = !notificationsForm.marketing_emails">
+                            <div>
+                                <p class="font-bold text-slate-900 dark:text-white transition-colors">Marketing y Sugerencias</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Noticias y consejos del editor.</p>
+                            </div>
+                            <button type="button" class="relative inline-flex h-6 w-11 items-center rounded-full transition" :class="notificationsForm.marketing_emails ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'">
+                                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition" :class="notificationsForm.marketing_emails ? 'translate-x-6' : 'translate-x-1'"></span>
                             </button>
                         </div>
+
+                        <Transition
+                            enter-active-class="transition duration-300"
+                            enter-from-class="opacity-0 translate-y-2"
+                            enter-to-class="opacity-100 translate-y-0"
+                        >
+                            <div v-if="notificationsForm.isDirty" class="flex justify-end pt-6">
+                                <button 
+                                    type="submit"
+                                    class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 dark:shadow-none"
+                                >
+                                    Guardar Notificaciones
+                                </button>
+                            </div>
+                        </Transition>
                     </form>
+                </section>
+
+                <!-- 5. ACCESOS RÁPIDOS (Gid) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button type="button" class="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center gap-4 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left">
+                        <div class="h-10 w-10 rounded-xl bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-400 shrink-0">
+                            <Lock class="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-900 dark:text-white">Cambiar Contraseña</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Seguridad de la cuenta</p>
+                        </div>
+                    </button>
+
+                    <button type="button" class="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center gap-4 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left">
+                        <div class="h-10 w-10 rounded-xl bg-teal-100 dark:bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                            <ShieldCheck class="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-900 dark:text-white">Doble Factor (2FA)</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Protección avanzada</p>
+                        </div>
+                    </button>
                 </div>
 
-                <!-- 4. ACCESOS RÁPIDOS -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="px-6 py-5 border-b border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-                                </svg>
+                <!-- 6. ZONA DE PELIGRO -->
+                <section class="bg-red-50/30 dark:bg-red-950/20 rounded-3xl border border-red-100 dark:border-red-900/30 overflow-hidden">
+                    <div class="p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="flex items-center gap-5">
+                            <div class="w-16 h-16 rounded-2xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0">
+                                <Trash2 class="w-8 h-8" />
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900">Accesos Rápidos</h3>
-                                <p class="text-sm text-gray-500">Enlaces a otras configuraciones importantes</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <button 
-                            type="button"
-                            class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition group text-left"
-                        >
-                            <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center group-hover:bg-orange-200 transition">
-                                <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Cambiar contraseña</p>
-                                <p class="text-sm text-gray-500">Actualiza tu contraseña</p>
-                            </div>
-                        </button>
-
-                        <button 
-                            type="button"
-                            class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition group text-left"
-                        >
-                            <div class="w-10 h-10 rounded-lg bg-pink-100 flex items-center justify-center group-hover:bg-pink-200 transition">
-                                <svg class="w-5 h-5 text-pink-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Apariencia</p>
-                                <p class="text-sm text-gray-500">Tema y personalización</p>
-                            </div>
-                        </button>
-
-                        <button 
-                            type="button"
-                            class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition group text-left"
-                        >
-                            <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition">
-                                <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Autenticación 2FA</p>
-                                <p class="text-sm text-gray-500">Seguridad adicional</p>
-                            </div>
-                        </button>
-
-                        <button 
-                            type="button"
-                            class="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition group text-left"
-                        >
-                            <div class="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center group-hover:bg-teal-200 transition">
-                                <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"/>
-                                    <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">Integraciones</p>
-                                <p class="text-sm text-gray-500">Apps conectadas</p>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 5. ZONA DE PELIGRO -->
-                <div class="bg-white rounded-xl shadow-sm border border-red-200">
-                    <div class="px-6 py-5 border-b border-red-100 bg-red-50">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-red-900">Zona de Peligro</h3>
-                                <p class="text-sm text-red-600">Acciones irreversibles para tu cuenta</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-6">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <h4 class="font-semibold text-gray-900">Eliminar cuenta</h4>
-                                <p class="text-sm text-gray-600 mt-1">
-                                    Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, ten cuidado.
+                                <h4 class="text-xl font-bold text-red-900 dark:text-red-300">Eliminar Cuenta</h4>
+                                <p class="text-sm text-red-600/80 dark:text-red-400/80 mt-1 max-w-md">
+                                    Esta acción eliminará todos tus portafolios, datos y configuraciones. No se puede deshacer.
                                 </p>
                             </div>
-                            <button 
-                                @click="openDeleteModal"
-                                type="button"
-                                class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition ml-4"
-                            >
-                                Eliminar cuenta
-                            </button>
                         </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Modal de confirmación de eliminación -->
-            <div 
-                v-if="showDeleteModal" 
-                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-                @click.self="closeDeleteModal"
-            >
-                <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900">¿Estás seguro?</h3>
-                            <p class="text-sm text-gray-500">Esta acción no se puede deshacer</p>
-                        </div>
-                    </div>
-
-                    <form @submit.prevent="deleteAccount">
-                        <p class="text-sm text-gray-600 mb-4">
-                            Para confirmar la eliminación de tu cuenta, ingresa tu contraseña:
-                        </p>
-                        
-                        <input 
-                            v-model="deleteForm.password"
-                            type="password" 
-                            placeholder="Tu contraseña"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent mb-1"
-                            :class="{ 'border-red-500': deleteForm.errors.password }"
+                        <button 
+                            @click="openDeleteModal"
+                            type="button"
+                            class="px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition active:scale-95 flex-shrink-0"
                         >
-                        <p v-if="deleteForm.errors.password" class="text-sm text-red-600 mb-4">
-                            {{ deleteForm.errors.password }}
-                        </p>
+                            Eliminar definitivamente
+                        </button>
+                    </div>
+                </section>
 
-                        <div class="flex gap-3 mt-6">
-                            <button 
-                                type="button"
-                                @click="closeDeleteModal"
-                                class="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
-                                :disabled="deleteForm.processing"
-                            >
-                                Cancelar
-                            </button>
-                            <button 
-                                type="submit"
-                                class="flex-1 px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition disabled:opacity-50"
-                                :disabled="deleteForm.processing"
-                            >
-                                {{ deleteForm.processing ? 'Eliminando...' : 'Eliminar cuenta' }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
             </div>
+
+            <!-- Delete Confirmation Modal -->
+            <Transition
+                enter-active-class="transition duration-300 ease-out"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition duration-200 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+            >
+                <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="closeDeleteModal"></div>
+                    
+                    <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+                        <div class="p-8">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-600 dark:text-red-400">
+                                    <Trash2 class="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">¿Estás seguro?</h3>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400 tracking-tight">Escribe tu contraseña para confirmar</p>
+                                </div>
+                            </div>
+
+                            <form @submit.prevent="deleteAccount" class="space-y-6">
+                                <input 
+                                    v-model="deleteForm.password"
+                                    type="password" 
+                                    placeholder="Confirmar con contraseña"
+                                    class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-red-500 transition-all dark:text-white"
+                                    autofocus
+                                >
+                                <p v-if="deleteForm.errors.password" class="text-xs text-red-500 font-bold px-1">{{ deleteForm.errors.password }}</p>
+
+                                <div class="flex gap-4">
+                                    <button 
+                                        type="button"
+                                        @click="closeDeleteModal"
+                                        class="flex-1 px-4 py-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button 
+                                        type="submit"
+                                        class="flex-1 px-4 py-4 bg-red-600 text-white font-bold rounded-2xl hover:bg-red-700 shadow-xl shadow-red-200 dark:shadow-none transition disabled:opacity-50"
+                                        :disabled="deleteForm.processing"
+                                    >
+                                        {{ deleteForm.processing ? 'Eliminando...' : 'Eliminar' }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </Transition>
 
         </div>
     </DashboardLayout>
 </template>
+
+<style scoped>
+.ease-spring {
+    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+</style>

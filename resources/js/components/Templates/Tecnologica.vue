@@ -153,7 +153,7 @@ const techIcons: { [key: string]: any } = {
                     <div class="text-left md:text-right md:flex-1 flex flex-col items-center md:items-end gap-6">
                         
                         <!-- Profile Photo -->
-                        <div v-if="data.personal.photo" class="flex-shrink-0">
+                        <div v-if="data.personal.photo" class="shrink-0">
                             <div class="relative h-32 w-32 md:h-40 md:w-40">
                                  <div class="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 blur-lg opacity-50"></div>
                                  <div class="relative h-full w-full overflow-hidden rounded-full border-2 border-cyan-500/50 p-1 bg-gray-900">

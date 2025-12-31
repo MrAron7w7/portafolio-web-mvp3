@@ -37,39 +37,39 @@ const isActive = (href: string) => {
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-gray-50">
+    <div class="flex min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <!-- Mobile Sidebar Overlay -->
         <div 
             v-if="mobileSidebarOpen" 
-            class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            class="fixed inset-0 z-40 bg-black/50 lg:hidden backdrop-blur-sm"
             @click="mobileSidebarOpen = false"
         ></div>
 
         <!-- Sidebar -->
         <aside :class="[
-            'fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
+            'fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300',
             sidebarOpen ? 'w-64' : 'w-20',
             mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         ]">
             <!-- Logo -->
-            <div class="flex h-16 items-center justify-between px-4 border-b border-gray-100">
+            <div class="flex h-16 items-center justify-between px-4 border-b border-slate-100 dark:border-slate-800">
                 <Link href="/admin" class="flex items-center space-x-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#005aeb] to-[#3b82f6] shadow-lg shadow-blue-500/30">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-[#005aeb] to-[#3b82f6] shadow-lg shadow-blue-500/30">
                         <LayoutDashboard class="h-5 w-5 text-white" />
                     </div>
-                    <span v-if="sidebarOpen" class="text-lg font-bold text-gray-900">Admin</span>
+                    <span v-if="sidebarOpen" class="text-lg font-bold text-slate-900 dark:text-white">Admin</span>
                 </Link>
                 <button 
                     @click="mobileSidebarOpen = false" 
-                    class="lg:hidden rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+                    class="lg:hidden rounded-lg p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                     <X class="h-5 w-5" />
                 </button>
             </div>
 
             <!-- Navigation -->
-            <nav class="flex-1 space-y-1 px-3 py-4">
-                <p v-if="sidebarOpen" class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            <nav class="flex-1 space-y-1 px-3 py-4 overflow-y-auto overflow-x-hidden custom-scrollbar">
+                <p v-if="sidebarOpen" class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
                     Menú Principal
                 </p>
                 <Link
@@ -79,29 +79,29 @@ const isActive = (href: string) => {
                     :class="[
                         'flex items-center space-x-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200',
                         isActive(item.href)
-                            ? 'bg-blue-50 text-[#005aeb] shadow-sm'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            ? 'bg-blue-50 dark:bg-blue-900/20 text-[#005aeb] dark:text-blue-400 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200'
                     ]"
                 >
                     <component 
                         :is="item.icon" 
                         :class="[
-                            'h-5 w-5 flex-shrink-0 transition-colors',
-                            isActive(item.href) ? 'text-[#005aeb]' : 'text-gray-400'
+                            'h-5 w-5 shrink-0 transition-colors',
+                            isActive(item.href) ? 'text-[#005aeb] dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'
                         ]" 
                     />
-                    <span v-if="sidebarOpen">{{ item.name }}</span>
+                    <span v-if="sidebarOpen" class="truncate">{{ item.name }}</span>
                 </Link>
             </nav>
 
             <!-- Footer -->
-            <div class="border-t border-gray-100 p-4">
+            <div class="border-t border-slate-100 dark:border-slate-800 p-4">
                 <Link
                     href="/dashboard"
-                    class="flex items-center space-x-3 rounded-xl px-3 py-3 text-sm font-medium text-gray-600 transition-all hover:bg-gray-50 hover:text-gray-900"
+                    class="flex items-center space-x-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 transition-all hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200"
                 >
-                    <ChevronLeft class="h-5 w-5 text-gray-400" />
-                    <span v-if="sidebarOpen">Volver al Dashboard</span>
+                    <ChevronLeft class="h-5 w-5 text-slate-400 dark:text-slate-500" />
+                    <span v-if="sidebarOpen" class="truncate">Dashboard</span>
                 </Link>
             </div>
         </aside>
@@ -112,21 +112,21 @@ const isActive = (href: string) => {
             sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'
         ]">
             <!-- Header -->
-            <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-6 shadow-sm">
+            <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 lg:px-6 shadow-sm">
                 <div class="flex items-center space-x-4">
                     <!-- Mobile menu button -->
                     <button 
                         @click="mobileSidebarOpen = true"
-                        class="lg:hidden rounded-lg p-2 text-gray-400 hover:bg-gray-100"
+                        class="lg:hidden rounded-lg p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                     >
                         <Menu class="h-5 w-5" />
                     </button>
                     
                     <!-- Breadcrumb -->
                     <div class="flex items-center space-x-2 text-sm">
-                        <span class="text-gray-400">Home</span>
-                        <span class="text-gray-300">/</span>
-                        <span class="font-medium text-gray-900">{{ title || 'Dashboard' }}</span>
+                        <span class="text-slate-400 dark:text-slate-500">Home</span>
+                        <span class="text-slate-300 dark:text-slate-700">/</span>
+                        <span class="font-medium text-slate-900 dark:text-white">{{ title || 'Dashboard' }}</span>
                     </div>
                 </div>
 
@@ -134,12 +134,12 @@ const isActive = (href: string) => {
                     <!-- User -->
                     <div class="flex items-center space-x-3">
                         <div class="hidden sm:block text-right">
-                            <p class="text-sm font-medium text-gray-900">
+                            <p class="text-sm font-medium text-slate-900 dark:text-white">
                                 {{ user.first_name }} {{ user.last_name }}
                             </p>
-                            <p class="text-xs text-gray-500">Administrador</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Administrador</p>
                         </div>
-                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#3b82f6] text-white text-sm font-medium shadow-lg shadow-blue-500/20">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-[#005aeb] to-[#3b82f6] text-white text-sm font-medium shadow-lg shadow-blue-500/20">
                             {{ user.first_name?.charAt(0) }}{{ user.last_name?.charAt(0) }}
                         </div>
                     </div>
@@ -147,7 +147,7 @@ const isActive = (href: string) => {
             </header>
 
             <!-- Page Content -->
-            <main class="p-4 lg:p-6">
+            <main class="p-4 lg:p-6 min-h-[calc(100vh-4rem)]">
                 <slot />
             </main>
         </div>

@@ -2,10 +2,6 @@
 /**
  * Vista de selección de plantillas.
  * Filosofía de Diseño: "Claridad Vibrante" - Vitrina de Productos de Lujo
- * - Tipografía de Impacto (font-black, tracking-tighter)
- * - Visualización Bento Style con mockups
- * - Barra de Acción Flotante
- * - Feedback de Selección con ring luminoso
  */
 import { router } from '@inertiajs/vue3';
 import { ArrowRight, Check, Eye, Sparkles, Star, X, Menu, LayoutTemplate, ArrowLeft } from 'lucide-vue-next';
@@ -19,9 +15,6 @@ import EjecutivaPreview from '@/components/Templates/Ejecutiva.vue';
 import MinimalistaPreview from '@/components/Templates/Minimalista.vue';
 import ModernaPreview from '@/components/Templates/Moderna.vue';
 import TecnologicaPreview from '@/components/Templates/Tecnologica.vue';
-
-// Portfolio routes
-// import portfolio from '@/routes/dashboard/portfolio';
 
 const props = defineProps<{
     templates: Array<{
@@ -76,15 +69,7 @@ const previewData = {
             endDate: '',
             current: true,
             description: 'Liderando equipo de desarrollo de aplicaciones empresariales con Laravel y Vue.js.',
-        },
-        {
-            company: 'Startup Innovadora',
-            position: 'Full Stack Developer',
-            startDate: '2018-06',
-            endDate: '2019-12',
-            current: false,
-            description: 'Desarrollo de MVP y features para plataforma SaaS.',
-        },
+        }
     ],
     education: [
         {
@@ -99,47 +84,32 @@ const previewData = {
         technical: [
             { name: 'Laravel', level: 90 },
             { name: 'Vue.js', level: 85 },
-            { name: 'PHP', level: 88 },
-            { name: 'JavaScript', level: 85 },
-            { name: 'MySQL', level: 80 },
-            { name: 'Tailwind CSS', level: 82 },
         ],
         soft: [
             { name: 'Liderazgo', level: 90 },
-            { name: 'Trabajo en equipo', level: 95 },
-            { name: 'Comunicación', level: 88 },
-            { name: 'Resolución de problemas', level: 92 },
         ],
     },
     projects: [
         {
             name: 'Sistema de Gestión',
             description: 'Plataforma completa para gestión empresarial',
-            technologies: ['Laravel', 'Vue.js', 'MySQL'],
+            technologies: ['Laravel', 'Vue.js'],
         },
     ],
     certifications: [],
-    languages: [
-        { name: 'Español', level: 'Nativo' },
-        { name: 'Inglés', level: 'Avanzado' },
-    ],
+    languages: [{ name: 'Español', level: 'Nativo' }],
 };
 
-// Get template data
 const getTemplateData = (componentName: string) => {
     return JSON.parse(JSON.stringify(previewData));
 };
 
-// Actions
 const selectTemplate = (templateId: string) => {
     selectedTemplate.value = templateId;
 };
 
 const openPreview = (template: any) => {
-    previewModal.value = {
-        open: true,
-        template,
-    };
+    previewModal.value = { open: true, template };
     document.body.classList.add('overflow-hidden');
 };
 
@@ -151,61 +121,35 @@ const closePreview = () => {
 const createPortfolio = () => {
     if (!selectedTemplate.value) return;
     isCreating.value = true;
-
-    router.post(
-        '/dashboard/portfolio/crear',
-        { template_type: selectedTemplate.value },
-        {
-            onSuccess: () => {},
-            onError: () => {
-                isCreating.value = false;
-                console.log('Error al crear el portafolio');
-            },
-        },
-    );
+    router.post('/dashboard/portfolio/crear', { template_type: selectedTemplate.value }, {
+        onSuccess: () => {},
+        onError: () => { isCreating.value = false; }
+    });
 };
 
-const goBack = () => {
-    router.visit('/dashboard');
-};
-
-// Computed
-const selectedTemplateData = computed(() => {
-    return props.templates.find(t => t.id === selectedTemplate.value);
-});
+const goBack = () => router.visit('/dashboard');
 </script>
 
 <template>
     <DashboardLayout v-slot="{ toggleSidebar }">
-        <div class="min-h-screen bg-slate-50">
+        <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
             <!-- Header Glassmorphism -->
-            <header class="sticky top-0 z-40 border-b border-slate-200/60 bg-white/80 backdrop-blur-md">
+            <header class="sticky top-0 z-40 border-b border-slate-200/60 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md transition-colors duration-300">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center justify-between py-4">
-                        <!-- Left side -->
                         <div class="flex items-center gap-4">
-                            <button 
-                                @click="toggleSidebar" 
-                                class="rounded-2xl p-2.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all lg:hidden"
-                            >
+                            <button @click="toggleSidebar" class="rounded-2xl p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden transition-all">
                                 <Menu class="h-5 w-5" />
                             </button>
-                            
-                            <!-- Back button -->
-                            <button 
-                                @click="goBack"
-                                class="hidden sm:flex items-center gap-2 rounded-2xl px-4 py-2 text-slate-600 hover:bg-slate-100 transition-all"
-                            >
+                            <button @click="goBack" class="hidden sm:flex items-center gap-2 rounded-2xl px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
                                 <ArrowLeft class="h-4 w-4" />
                                 <span class="text-sm font-medium">Volver</span>
                             </button>
-
-                            <!-- Logo -->
                             <div class="flex items-center gap-2.5">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25">
                                     <LayoutTemplate class="h-5 w-5 text-white" />
                                 </div>
-                                <span class="text-xl font-black tracking-tight bg-linear-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+                                <span class="text-xl font-black tracking-tight bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
                                     PortafolioAI
                                 </span>
                             </div>
@@ -214,105 +158,55 @@ const selectedTemplateData = computed(() => {
                         <!-- Steps Indicator -->
                         <div class="hidden items-center gap-4 sm:flex">
                             <div class="flex items-center gap-2">
-                                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-violet-600 text-xs font-bold text-white shadow-lg shadow-indigo-500/25">
-                                    1
-                                </span>
-                                <span class="text-sm font-semibold text-slate-900">Plantilla</span>
+                                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-linear-to-br from-indigo-600 to-violet-600 text-xs font-bold text-white shadow-lg shadow-indigo-500/25">1</span>
+                                <span class="text-sm font-semibold text-slate-900 dark:text-white">Plantilla</span>
                             </div>
-                            <div class="h-px w-8 bg-slate-300"></div>
+                            <div class="h-px w-8 bg-slate-300 dark:bg-slate-700"></div>
                             <div class="flex items-center gap-2 opacity-50">
-                                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-200 text-xs font-medium text-slate-500">
-                                    2
-                                </span>
-                                <span class="text-sm text-slate-500">Personalizar</span>
+                                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-xs font-medium text-slate-500">2</span>
+                                <span class="text-sm text-slate-500 dark:text-slate-400">Personalizar</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <!-- Main Content -->
             <main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 pb-32">
-                <!-- Hero Section -->
                 <div class="mb-16 text-center">
-                    <h1 class="mb-4 text-4xl font-black tracking-tighter text-slate-900 sm:text-5xl lg:text-6xl">
-                        Elige tu identidad
-                        <span class="bg-linear-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent"> digital</span>
+                    <h1 class="mb-4 text-4xl font-black tracking-tighter text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
+                        Elige tu identidad <span class="bg-linear-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">digital</span>
                     </h1>
-                    <p class="mx-auto max-w-2xl text-lg text-slate-500 leading-relaxed">
-                        Selecciona el diseño perfecto para tu perfil. Todas las plantillas son 
-                        <span class="font-semibold text-indigo-600">100% responsivas</span> y optimizadas para impresionar.
+                    <p class="mx-auto max-w-2xl text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Selecciona el diseño perfecto. Todas las plantillas son <span class="font-semibold text-indigo-600 dark:text-indigo-400">responsivas</span> y optimizadas.
                     </p>
                 </div>
 
-                <!-- Templates Grid - Minimalist -->
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                     <div
                         v-for="template in templates"
                         :key="template.id"
                         @click="selectTemplate(template.id)"
-                        class="group relative cursor-pointer overflow-hidden rounded-2xl border bg-white transition-all duration-200 hover:-translate-y-1"
-                        :class="[
-                            selectedTemplate === template.id 
-                                ? 'border-indigo-500 ring-4 ring-indigo-100 shadow-lg' 
-                                : 'border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300'
-                        ]"
+                        class="group relative cursor-pointer overflow-hidden rounded-2xl border bg-white dark:bg-slate-900 transition-all duration-200 hover:-translate-y-1"
+                        :class="[selectedTemplate === template.id ? 'border-indigo-500 ring-4 ring-indigo-100 dark:ring-indigo-900/30' : 'border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700']"
                     >
-                        <!-- Preview Image -->
-                        <div 
-                            class="relative aspect-[16/10] overflow-hidden bg-slate-50"
-                            @click.stop="openPreview(template)"
-                        >
+                        <div class="relative aspect-[16/10] overflow-hidden bg-slate-50 dark:bg-slate-950" @click.stop="openPreview(template)">
                             <div class="absolute inset-0 h-[220%] w-[220%] origin-top-left scale-[0.45] pointer-events-none">
-                                <component
-                                    v-if="previewComponents[template.preview_component]"
-                                    :is="previewComponents[template.preview_component]"
-                                    :data="getTemplateData(template.preview_component)"
-                                />
-                                <div v-else class="flex h-full w-full items-center justify-center bg-slate-100">
-                                    <LayoutTemplate class="h-16 w-16 text-slate-300" />
-                                </div>
+                                <component v-if="previewComponents[template.preview_component]" :is="previewComponents[template.preview_component]" :data="getTemplateData(template.preview_component)" />
+                                <div v-else class="flex h-full w-full items-center justify-center"><LayoutTemplate class="h-16 w-16 text-slate-300 dark:text-slate-700" /></div>
                             </div>
                         </div>
 
-                        <!-- Card Footer - Clean -->
                         <div class="p-4">
                             <div class="flex items-center justify-between mb-3">
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-base font-semibold text-slate-900">{{ template.name }}</h3>
-                                    <span 
-                                        v-if="template.popular" 
-                                        class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700"
-                                    >
-                                        Popular
-                                    </span>
+                                    <h3 class="text-base font-semibold text-slate-900 dark:text-white">{{ template.name }}</h3>
+                                    <span v-if="template.popular" class="rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-400">Popular</span>
                                 </div>
-                                <!-- Selection Check -->
-                                <div 
-                                    class="flex h-5 w-5 items-center justify-center rounded-full border transition-all"
-                                    :class="[
-                                        selectedTemplate === template.id 
-                                            ? 'border-indigo-500 bg-indigo-500' 
-                                            : 'border-slate-300'
-                                    ]"
-                                >
-                                    <Check 
-                                        v-if="selectedTemplate === template.id" 
-                                        class="h-3 w-3 text-white" 
-                                    />
+                                <div class="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 dark:border-slate-700" :class="[selectedTemplate === template.id ? 'border-indigo-500 bg-indigo-500' : '']">
+                                    <Check v-if="selectedTemplate === template.id" class="h-3 w-3 text-white" />
                                 </div>
                             </div>
-
-                            <!-- Select Button -->
-                            <button 
-                                @click.stop="selectTemplate(template.id)"
-                                class="w-full rounded-xl py-2.5 text-sm font-medium transition-all"
-                                :class="[
-                                    selectedTemplate === template.id 
-                                        ? 'bg-indigo-600 text-white' 
-                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                ]"
-                            >
+                            <button @click.stop="selectTemplate(template.id)" class="w-full rounded-xl py-2.5 text-sm font-medium transition-all" :class="[selectedTemplate === template.id ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
                                 {{ selectedTemplate === template.id ? 'Seleccionada' : 'Seleccionar' }}
                             </button>
                         </div>
@@ -320,96 +214,34 @@ const selectedTemplateData = computed(() => {
                 </div>
             </main>
 
-            <!-- Floating Action Button (Restored Logic) -->
-            <div
-                v-if="selectedTemplate"
-                class="fixed bottom-8 left-1/2 z-[999] -translate-x-1/2 transform"
-            >
-                <button
-                    @click="createPortfolio"
-                    :disabled="isCreating"
-                    class="group flex items-center gap-3 rounded-[24px] bg-linear-to-r from-indigo-600 to-violet-600 pl-8 pr-6 py-4 text-lg font-bold text-white shadow-xl shadow-indigo-500/40 transition-all duration-300 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/50"
-                >
-                    <!-- Shine effect -->
-                    <div class="absolute inset-0 overflow-hidden rounded-[24px]">
-                        <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                    </div>
-
+            <!-- Floating Action Button -->
+            <div v-if="selectedTemplate" class="fixed bottom-8 left-1/2 z-[60] -translate-x-1/2 transform">
+                <button @click="createPortfolio" :disabled="isCreating" class="group flex items-center gap-3 rounded-[24px] bg-linear-to-r from-indigo-600 to-violet-600 pl-8 pr-6 py-4 text-lg font-bold text-white shadow-xl shadow-indigo-500/40 transition-all duration-300 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl">
                     <div v-if="isCreating" class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                     <Sparkles v-else class="h-5 w-5" />
-                    
-                    <span class="relative z-10">
-                        {{ isCreating ? 'Creando portafolio...' : 'Continuar con selección' }}
-                    </span>
-                    
-                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-transform duration-300 group-hover:translate-x-1">
-                        <ArrowRight class="h-4 w-4" />
-                    </div>
+                    <span class="relative z-10">{{ isCreating ? 'Creando...' : 'Continuar' }}</span>
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm group-hover:translate-x-1 transition-transform"><ArrowRight class="h-4 w-4" /></div>
                 </button>
             </div>
 
             <!-- Preview Modal -->
             <Teleport to="body">
-                <Transition
-                    enter-active-class="transition duration-300 ease-out"
-                    enter-from-class="opacity-0"
-                    enter-to-class="opacity-100"
-                    leave-active-class="transition duration-200 ease-in"
-                    leave-from-class="opacity-100"
-                    leave-to-class="opacity-0"
-                >
-                    <div 
-                        v-if="previewModal.open" 
-                        class="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6"
-                        @click="closePreview"
-                    >
-                        <!-- Backdrop -->
-                        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" @click="closePreview"></div>
-                        
-                        <!-- Modal Content -->
-                        <div 
-                            class="relative z-10 flex h-full max-h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl"
-                            @click.stop
-                        >
-                            <!-- Modal Header -->
-                            <div class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
-                                <div>
-                                    <h2 class="text-xl font-bold text-slate-900">{{ previewModal.template?.name }}</h2>
-                                    <p class="text-sm text-slate-500">{{ previewModal.template?.category }}</p>
-                                </div>
-                                <button 
-                                    @click="closePreview" 
-                                    class="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600"
-                                >
-                                    <X class="h-5 w-5" />
-                                </button>
+                <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                    <div v-if="previewModal.open" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+                        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="closePreview"></div>
+                        <div class="relative z-10 flex h-full max-h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-[28px] bg-white dark:bg-slate-950 shadow-2xl transition-colors" @click.stop>
+                            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-4">
+                                <div><h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ previewModal.template?.name }}</h2><p class="text-sm text-slate-500 dark:text-slate-400">{{ previewModal.template?.category }}</p></div>
+                                <button @click="closePreview" class="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"><X class="h-5 w-5" /></button>
                             </div>
-
-                            <!-- Preview Container -->
-                            <div class="flex-1 overflow-auto bg-slate-100 p-4 md:p-8 custom-scrollbar">
-                                <div class="relative w-full overflow-hidden rounded-t-[28px] md:scale-100 md:rounded-[28px] aspect-16/10 bg-white shadow-2xl">
-                                    <component
-                                        v-if="previewModal.template"
-                                        :is="previewComponents[previewModal.template.preview_component]"
-                                        :data="getTemplateData(previewModal.template.preview_component)"
-                                    />
+                            <div class="flex-1 overflow-auto bg-slate-100 dark:bg-slate-900 p-4 md:p-8 custom-scrollbar">
+                                <div class="relative w-full overflow-hidden rounded-[28px] aspect-16/10 bg-white dark:bg-slate-950 shadow-2xl">
+                                    <component v-if="previewModal.template" :is="previewComponents[previewModal.template.preview_component]" :data="getTemplateData(previewModal.template.preview_component)" />
                                 </div>
                             </div>
-
-                            <!-- Modal Footer -->
-                            <div class="flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-4">
-                                <button 
-                                    @click="closePreview" 
-                                    class="rounded-2xl px-5 py-2.5 font-medium text-slate-600 transition-all hover:bg-slate-100"
-                                >
-                                    Cerrar
-                                </button>
-                                <button 
-                                    @click="selectTemplate(previewModal.template?.id); closePreview();"
-                                    class="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-2.5 font-bold text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:-translate-y-0.5"
-                                >
-                                    Elegir plantilla
-                                </button>
+                            <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-4">
+                                <button @click="closePreview" class="rounded-2xl px-5 py-2.5 font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">Cerrar</button>
+                                <button @click="selectTemplate(previewModal.template?.id); closePreview();" class="rounded-2xl bg-linear-to-r from-indigo-600 to-violet-600 px-6 py-2.5 font-bold text-white shadow-lg">Elegir plantilla</button>
                             </div>
                         </div>
                     </div>
@@ -420,36 +252,9 @@ const selectedTemplateData = computed(() => {
 </template>
 
 <style scoped>
-/* Line clamp */
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* Custom scrollbar */
-.custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: #e2e8f0 transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #cbd5e1;
-}
+.custom-scrollbar { scrollbar-width: thin; scrollbar-color: #e2e8f0 transparent; }
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+.animate-shine { animation: shine 3s ease-in-out infinite; }
+@keyframes shine { 0% { transform: translateX(-100%); } 50%, 100% { transform: translateX(100%); } }
 </style>

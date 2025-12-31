@@ -21,10 +21,6 @@ import TecnologicaPreview from '@/components/Templates/Tecnologica.vue';
 
 import type { User, Portfolio, Comment, Post, PaginatedComments } from '@/types/community';
 
-
-
-
-
 const props = defineProps<{
     post: Post;
     comments: PaginatedComments;
@@ -179,13 +175,13 @@ const getPreviewComponent = (type: string) => {
     <DashboardLayout>
         <Head :title="post.title" />
 
-        <div class="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8">
+        <div class="min-h-screen bg-slate-50/50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
             <div class="max-w-5xl mx-auto space-y-8">
                 
                 <!-- Navigation -->
                 <div class="flex items-center justify-between">
-                    <Link :href="route('community')" class="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
-                        <div class="p-1 rounded-lg bg-white border border-slate-200 group-hover:border-slate-300 transition-colors shadow-sm">
+                    <Link :href="route('community')" class="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                        <div class="p-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 group-hover:border-slate-300 dark:group-hover:border-slate-600 transition-colors shadow-sm">
                             <ArrowLeft class="h-4 w-4" />
                         </div>
                         Volver a la Comunidad
@@ -194,7 +190,7 @@ const getPreviewComponent = (type: string) => {
                     <button 
                         v-if="isAuthor" 
                         type="button" 
-                        class="inline-flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors"
+                        class="inline-flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-700 bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20 px-3 py-1.5 rounded-lg transition-colors border border-transparent dark:border-red-900/30"
                         :disabled="deletePostForm.processing"
                         @click="deletePost"
                     >
@@ -204,13 +200,13 @@ const getPreviewComponent = (type: string) => {
                 </div>
 
                 <!-- Hero Card -->
-                <div class="bg-white rounded-[24px] border border-slate-200/60 shadow-xl shadow-slate-200/40 overflow-hidden">
+                <div class="bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200/60 dark:border-slate-800/60 shadow-xl shadow-slate-200/40 dark:shadow-none overflow-hidden transition-colors">
                     <div class="flex flex-col md:flex-row">
                         
                         <!-- Left: Content & Info -->
                         <div class="flex-1 p-8 md:p-10 flex flex-col justify-center relative">
                             <!-- Background Decoration -->
-                            <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-linear-to-br from-indigo-50 to-violet-50 blur-3xl opacity-50 pointer-events-none"></div>
+                            <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-linear-to-br from-indigo-50 to-violet-50 dark:from-indigo-900/10 dark:to-violet-900/10 blur-3xl opacity-50 pointer-events-none"></div>
 
                             <!-- Author Meta -->
                             <div class="relative z-10 flex items-center gap-4 mb-6">
@@ -218,25 +214,25 @@ const getPreviewComponent = (type: string) => {
                                     <div class="absolute -inset-0.5 bg-linear-to-br from-indigo-500 to-violet-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-sm"></div>
                                     <div 
                                         v-if="post.user.avatar_url" 
-                                        class="relative h-12 w-12 rounded-full ring-2 ring-white overflow-hidden shadow-sm"
+                                        class="relative h-12 w-12 rounded-full ring-2 ring-white dark:ring-slate-800 overflow-hidden shadow-sm"
                                     >
                                         <img :src="post.user.avatar_url" :alt="post.user.first_name" class="h-full w-full object-cover">
                                     </div>
                                     <div 
                                         v-else 
-                                        class="relative h-12 w-12 rounded-full ring-2 ring-white bg-linear-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold text-lg shadow-sm"
+                                        class="relative h-12 w-12 rounded-full ring-2 ring-white dark:ring-slate-800 bg-linear-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold text-lg shadow-sm"
                                     >
                                         {{ post.user.first_name.charAt(0) }}
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-slate-900 leading-tight">
+                                    <h3 class="font-bold text-slate-900 dark:text-white leading-tight">
                                         {{ post.user.first_name }} {{ post.user.last_name }}
                                     </h3>
-                                    <div class="flex items-center gap-2 text-xs font-medium text-slate-500 mt-0.5">
+                                    <div class="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
                                         <span>{{ formatDate(post.created_at) }}</span>
                                         <span>•</span>
-                                        <span class="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full text-slate-600">
+                                        <span class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-600 dark:text-slate-300">
                                             <Eye class="h-3 w-3" />
                                             {{ post.views_count }}
                                         </span>
@@ -246,10 +242,10 @@ const getPreviewComponent = (type: string) => {
 
                             <!-- Title & Pitch -->
                             <div class="relative z-10 mb-8">
-                                <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-4 leading-tight">
+                                <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-4 leading-tight">
                                     {{ post.title }}
                                 </h1>
-                                <p class="text-lg text-slate-600 leading-relaxed font-light text-pretty">
+                                <p class="text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-light text-pretty">
                                     {{ post.content }}
                                 </p>
                             </div>
@@ -260,7 +256,7 @@ const getPreviewComponent = (type: string) => {
                                     v-if="post.portfolio" 
                                     :href="getPortfolioUrl(post.portfolio)" 
                                     target="_blank" 
-                                    class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                                    class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                                 >
                                     Ver Portafolio Completo
                                     <ExternalLink class="h-4 w-4" />
@@ -269,24 +265,24 @@ const getPreviewComponent = (type: string) => {
                         </div>
 
                         <!-- Right: Visual Preview -->
-                        <div class="w-full md:w-[45%] bg-slate-50 border-t md:border-t-0 md:border-l border-slate-100 p-8 flex items-center justify-center relative overflow-hidden group">
+                        <div class="w-full md:w-[45%] bg-slate-50 dark:bg-slate-950 border-t md:border-t-0 md:border-l border-slate-100 dark:border-slate-800 p-8 flex items-center justify-center relative overflow-hidden group">
                             <!-- Background Pattern -->
-                             <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#6366f1 1px, transparent 1px); background-size: 20px 20px;"></div>
+                             <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" style="background-image: radial-gradient(#6366f1 1px, transparent 1px); background-size: 20px 20px;"></div>
                             
                             <!-- Perspective Container -->
                              <div class="relative w-full max-w-sm perspective-1000">
-                                <div class="relative aspect-3/4 w-full bg-white rounded-2xl shadow-2xl transition-transform duration-500 group-hover:rotate-y-2 group-hover:rotate-x-2 transform-style-3d border-[6px] border-slate-900/5 overflow-hidden">
+                                <div class="relative aspect-3/4 w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl transition-transform duration-500 group-hover:rotate-y-2 group-hover:rotate-x-2 transform-style-3d border-[6px] border-slate-900/5 dark:border-white/5 overflow-hidden">
                                      <!-- Scaling Wrapper for Template -->
                                     <div 
                                         v-if="post.portfolio && getPreviewComponent(post.portfolio.template_type)" 
-                                        class="absolute inset-0 h-[250%] w-[250%] origin-top-left scale-[0.4] pointer-events-none select-none bg-white"
+                                        class="absolute inset-0 h-[250%] w-[250%] origin-top-left scale-[0.4] pointer-events-none select-none bg-white dark:bg-slate-900"
                                     >
                                         <component
                                             :is="getPreviewComponent(post.portfolio.template_type)"
                                             :data="getTemplateData(post.portfolio)"
                                         />
                                     </div>
-                                    <div v-else class="flex h-full w-full items-center justify-center bg-slate-100 text-slate-400">
+                                    <div v-else class="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500">
                                         <span class="text-sm font-medium">Vista previa no disponible</span>
                                     </div>
 
@@ -297,7 +293,7 @@ const getPreviewComponent = (type: string) => {
                                         target="_blank"
                                         class="absolute inset-0 flex items-center justify-center bg-slate-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 cursor-pointer"
                                     >
-                                        <div class="bg-white text-slate-900 px-6 py-3 rounded-full font-bold shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 flex items-center gap-2">
+                                        <div class="bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-6 py-3 rounded-full font-bold shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 flex items-center gap-2">
                                             Explorar
                                             <ExternalLink class="h-4 w-4" />
                                         </div>
@@ -308,15 +304,15 @@ const getPreviewComponent = (type: string) => {
                     </div>
                     
                     <!-- Footer Info -->
-                    <div class="px-8 py-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-sm">
-                        <div class="text-slate-500">
+                    <div class="px-8 py-4 bg-slate-50/80 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-sm">
+                        <div class="text-slate-500 dark:text-slate-400">
                             Publicado el {{ formatDate(post.created_at) }}
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="font-medium text-slate-700">Calificación Global:</span>
-                            <div class="flex items-center gap-1 bg-white px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+                            <span class="font-medium text-slate-700 dark:text-slate-300">Calificación Global:</span>
+                            <div class="flex items-center gap-1 bg-white dark:bg-slate-800 px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm">
                                 <Star class="h-4 w-4 text-amber-400 fill-amber-400" />
-                                <span class="font-bold text-slate-900">{{ averageRating.toFixed(1) }}</span>
+                                <span class="font-bold text-slate-900 dark:text-white">{{ averageRating.toFixed(1) }}</span>
                                 <span class="text-slate-400 text-xs">({{ post.ratings_count ?? 0 }})</span>
                             </div>
                         </div>
@@ -327,18 +323,17 @@ const getPreviewComponent = (type: string) => {
                 <div class="space-y-8">
                     
                     <!-- Feedback Section -->
-                    <!-- Feedback Section -->
-                    <div class="bg-white rounded-[24px] border border-slate-200 p-6 shadow-sm">
+                    <div class="bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200 dark:border-slate-800 p-6 shadow-sm transition-colors">
                         <form @submit.prevent="submitFeedback" class="space-y-6">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div>
-                                    <h3 class="text-lg font-bold text-slate-900">Tu Opinión</h3>
-                                    <p class="text-sm text-slate-500">¿Qué te pareció este portafolio?</p>
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Tu Opinión</h3>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">¿Qué te pareció este portafolio?</p>
                                 </div>
 
                                 <!-- Interactive Stars -->
                                 <div class="flex items-center gap-3">
-                                    <div class="flex items-center gap-1 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700">
                                         <button
                                             v-for="i in 5"
                                             :key="i"
@@ -350,12 +345,12 @@ const getPreviewComponent = (type: string) => {
                                                 class="h-6 w-6 transition-all duration-200" 
                                                 :class="i <= selectedRating 
                                                     ? 'text-amber-400 fill-amber-400 drop-shadow-sm' 
-                                                    : 'text-slate-900 group-hover:text-slate-700'"
+                                                    : 'text-slate-900 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300'"
                                             />
                                         </button>
                                     </div>
                                     
-                                    <div v-if="selectedRating > 0" class="flex items-center justify-center h-11 w-14 bg-amber-50/50 rounded-xl border border-amber-100 transition-all animate-in fade-in slide-in-from-left-2">
+                                    <div v-if="selectedRating > 0" class="flex items-center justify-center h-11 w-14 bg-amber-50/50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-900/30 transition-all animate-in fade-in slide-in-from-left-2">
                                         <span class="text-lg font-black text-amber-500">{{ selectedRating }}.0</span>
                                     </div>
                                 </div>
@@ -365,17 +360,17 @@ const getPreviewComponent = (type: string) => {
                                 v-model="form.content" 
                                 placeholder="Comparte tus comentarios constructivos..." 
                                 rows="3"
-                                class="w-full bg-white border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl resize-none text-sm shadow-sm"
+                                class="w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl resize-none text-sm shadow-sm text-slate-900 dark:text-white placeholder:text-slate-400"
                             />
 
-                            <div v-if="props.hasRated" class="text-xs text-emerald-600 font-medium bg-emerald-50 py-2 px-4 rounded-lg border border-emerald-100 inline-block">
+                            <div v-if="props.hasRated" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-900/20 py-2 px-4 rounded-lg border border-emerald-100 dark:border-emerald-900/30 inline-block">
                                 ✨ Ya enviaste una calificación
                             </div>
 
                             <div class="flex justify-end">
                                 <Button 
                                     type="submit" 
-                                    class="bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-2 px-6 shadow-lg shadow-slate-900/10 transition-all active:scale-[0.98]"
+                                    class="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 rounded-xl py-2 px-6 shadow-lg shadow-slate-900/10 transition-all active:scale-[0.98]"
                                     :disabled="isSubmitting || (selectedRating === 0 && !form.content.trim())"
                                 >
                                     <span v-if="isSubmitting" class="flex items-center gap-2">
@@ -392,13 +387,13 @@ const getPreviewComponent = (type: string) => {
                     </div>
 
                     <!-- Comments Section -->
-                    <div class="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
-                        <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <div class="bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
+                        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                 <MessageSquare class="h-5 w-5 text-indigo-500" />
                                 Comentarios
                             </h3>
-                            <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <span class="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2.5 py-1 rounded-full">
                                 {{ post.comments_count }}
                             </span>
                         </div>
@@ -413,20 +408,20 @@ const getPreviewComponent = (type: string) => {
                                 />
                                 
                                 <div v-if="comments.data.length === 0" class="py-12 flex flex-col items-center justify-center text-center">
-                                    <div class="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                                        <MessageSquare class="h-8 w-8 text-slate-300" />
+                                    <div class="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                                        <MessageSquare class="h-8 w-8 text-slate-300 dark:text-slate-600" />
                                     </div>
-                                    <p class="text-slate-900 font-medium">Sé el primero en comentar</p>
-                                    <p class="text-slate-500 text-sm mt-1">Comparte tu opinión con la comunidad</p>
+                                    <p class="text-slate-900 dark:text-white font-medium">Sé el primero en comentar</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Comparte tu opinión con la comunidad</p>
                                 </div>
 
                                 <!-- Pagination Controls -->
                                 <div v-if="comments.links.length > 3" class="mt-8 flex justify-center">
-                                    <div class="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                                    <div class="flex items-center gap-1 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
                                         <template v-for="(link, k) in comments.links" :key="k">
                                             <div 
                                                 v-if="link.url === null"  
-                                                class="px-3 py-1.5 text-xs text-slate-400 font-medium"
+                                                class="px-3 py-1.5 text-xs text-slate-400 dark:text-slate-500 font-medium"
                                                 v-html="link.label"
                                             />
                                             <Link 
@@ -434,8 +429,8 @@ const getPreviewComponent = (type: string) => {
                                                 :href="link.url" 
                                                 class="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border"
                                                 :class="link.active 
-                                                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700' 
-                                                    : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+                                                    ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300' 
+                                                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-200'"
                                                 v-html="link.label"
                                                 preserve-scroll
                                             />

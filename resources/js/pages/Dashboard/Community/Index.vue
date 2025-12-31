@@ -102,7 +102,7 @@ watch(() => page.props.flash.success, (msg) => {
     <DashboardLayout>
         <Head title="Comunidad" />
 
-        <div class="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
             <!-- Toast -->
             <transition 
                 enter-active-class="transition ease-out duration-300" 
@@ -123,13 +123,13 @@ watch(() => page.props.flash.success, (msg) => {
                 <!-- Header - Clean & Minimal -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 class="text-2xl font-bold text-slate-900">Comunidad</h1>
-                        <p class="text-slate-500 text-sm mt-1">Descubre portafolios y conecta con creadores</p>
+                        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Comunidad</h1>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Descubre portafolios y conecta con creadores</p>
                     </div>
                     
                     <button 
                         @click="isCreateModalOpen = true"
-                        class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-indigo-700"
+                        class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/20"
                     >
                         <Plus class="h-4 w-4" />
                         Publicar
@@ -142,7 +142,7 @@ watch(() => page.props.flash.success, (msg) => {
                         v-for="post in posts.data" 
                         :key="post.id" 
                         :href="route('community.show', post.id)"
-                        class="group bg-white rounded-xl border border-slate-200 overflow-hidden transition-all duration-200 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5"
+                        class="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 hover:-translate-y-0.5"
                     >
                         <!-- Preview -->
                         <div 
@@ -168,7 +168,7 @@ watch(() => page.props.flash.success, (msg) => {
                             </div>
 
                             <!-- Views badge -->
-                            <div class="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs text-slate-600">
+                            <div class="absolute top-3 right-3 flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs text-slate-600 dark:text-slate-300 shadow-sm">
                                 <Eye class="h-3 w-3" />
                                 {{ post.views_count }}
                             </div>
@@ -176,16 +176,16 @@ watch(() => page.props.flash.success, (msg) => {
 
                         <!-- Content -->
                         <div class="p-4">
-                            <h3 class="font-semibold text-slate-900 text-sm leading-tight mb-1 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                            <h3 class="font-semibold text-slate-900 dark:text-white text-sm leading-tight mb-1 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                 {{ post.title }}
                             </h3>
                             
-                            <p class="text-slate-500 text-xs mb-3 line-clamp-2">
+                            <p class="text-slate-500 dark:text-slate-400 text-xs mb-3 line-clamp-2">
                                 {{ post.content }}
                             </p>
 
                             <!-- Footer -->
-                            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                                 <div class="flex items-center gap-2">
                                     <div 
                                         class="h-5 w-5 rounded-full flex items-center justify-center text-white text-[9px] font-semibold"
@@ -193,11 +193,11 @@ watch(() => page.props.flash.success, (msg) => {
                                     >
                                         {{ post.user.first_name.charAt(0) }}
                                     </div>
-                                    <span class="text-xs text-slate-500 truncate max-w-[60px]">
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[60px]">
                                         {{ post.user.first_name }}
                                     </span>
                                 </div>
-                                <div class="flex items-center gap-2 text-xs text-slate-400">
+                                <div class="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
                                     <span class="flex items-center gap-0.5">
                                         <Star class="h-3 w-3 text-amber-400 fill-amber-400" />
                                         {{ Number(post.ratings_avg_rating ?? 0).toFixed(1) }}
@@ -215,16 +215,16 @@ watch(() => page.props.flash.success, (msg) => {
 
                 <!-- Empty State -->
                 <div v-else class="text-center py-16">
-                    <div class="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                        <MessageSquare class="h-8 w-8 text-slate-400" />
+                    <div class="h-16 w-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
+                        <MessageSquare class="h-8 w-8 text-slate-400 dark:text-slate-500" />
                     </div>
-                    <h3 class="text-lg font-semibold text-slate-900 mb-1">Sin publicaciones</h3>
-                    <p class="text-slate-500 text-sm max-w-sm mx-auto mb-6">
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-1">Sin publicaciones</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto mb-6">
                         Sé el primero en compartir tu portafolio con la comunidad.
                     </p>
                     <button 
                         @click="isCreateModalOpen = true"
-                        class="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:bg-slate-200"
+                        class="inline-flex items-center gap-2 rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-200 dark:hover:bg-slate-700"
                     >
                         <Plus class="h-4 w-4" />
                         Publicar ahora
@@ -236,7 +236,7 @@ watch(() => page.props.flash.success, (msg) => {
                     <template v-for="(link, key) in posts.links" :key="key">
                         <span 
                             v-if="link.url === null" 
-                            class="px-3 py-1.5 text-xs text-slate-400 rounded-lg" 
+                            class="px-3 py-1.5 text-xs text-slate-400 dark:text-slate-600 rounded-lg" 
                             v-html="link.label" 
                         />
                         <Link 
@@ -245,7 +245,7 @@ watch(() => page.props.flash.success, (msg) => {
                             class="px-3 py-1.5 text-xs rounded-lg transition-colors"
                             :class="link.active 
                                 ? 'bg-indigo-600 text-white' 
-                                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'"
+                                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'"
                             v-html="link.label" 
                         />
                     </template>
@@ -256,10 +256,10 @@ watch(() => page.props.flash.success, (msg) => {
 
         <!-- Create Post Modal -->
         <Dialog v-model:open="isCreateModalOpen">
-            <DialogContent class="sm:max-w-md">
+            <DialogContent class="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                 <DialogHeader>
-                    <DialogTitle class="text-lg font-semibold">Publicar Portafolio</DialogTitle>
-                    <DialogDescription class="text-sm text-slate-500">
+                    <DialogTitle class="text-lg font-semibold text-slate-900 dark:text-white">Publicar Portafolio</DialogTitle>
+                    <DialogDescription class="text-sm text-slate-500 dark:text-slate-400">
                         Comparte tu trabajo con la comunidad.
                     </DialogDescription>
                 </DialogHeader>
@@ -267,19 +267,20 @@ watch(() => page.props.flash.success, (msg) => {
                 <form @submit.prevent="submitPost" class="space-y-4 py-2">
                     <div class="space-y-3">
                         <div class="space-y-1.5">
-                            <Label class="text-sm">Portafolio</Label>
-                            <div v-if="eligiblePortfolios.length === 0" class="p-3 bg-amber-50 text-amber-700 rounded-lg text-xs">
+                            <Label class="text-sm text-slate-700 dark:text-slate-300">Portafolio</Label>
+                            <div v-if="eligiblePortfolios.length === 0" class="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-lg text-xs">
                                 No tienes portafolios disponibles para publicar.
                             </div>
                             <Select v-else v-model="form.portfolio_id">
-                                <SelectTrigger class="h-9">
+                                <SelectTrigger class="h-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
                                     <SelectValue placeholder="Seleccionar..." />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent class="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                                     <SelectItem 
                                         v-for="portfolio in eligiblePortfolios" 
                                         :key="portfolio.id" 
                                         :value="String(portfolio.id)"
+                                        class="text-slate-700 dark:text-slate-200 focus:bg-slate-100 dark:focus:bg-slate-800"
                                     >
                                         {{ portfolio.title }}
                                     </SelectItem>
@@ -289,19 +290,20 @@ watch(() => page.props.flash.success, (msg) => {
                         </div>
 
                         <div class="space-y-1.5">
-                            <Label class="text-sm">Descripción</Label>
+                            <Label class="text-sm text-slate-700 dark:text-slate-300">Descripción</Label>
                             <Textarea 
                                 v-model="form.content" 
                                 placeholder="Cuéntanos sobre tu proyecto..." 
                                 rows="3"
                                 required
+                                class="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400"
                             />
                             <p class="text-xs text-red-500" v-if="form.errors.content">{{ form.errors.content }}</p>
                         </div>
                     </div>
 
                     <DialogFooter class="gap-2">
-                        <Button type="button" variant="ghost" size="sm" @click="isCreateModalOpen = false">
+                        <Button type="button" variant="ghost" size="sm" @click="isCreateModalOpen = false" class="text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200">
                             Cancelar
                         </Button>
                         <Button 

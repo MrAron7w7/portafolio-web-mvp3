@@ -262,7 +262,7 @@
                         >
                             <div class="flex flex-1 items-center gap-3 text-left">
                                 <ChevronDown
-                                    class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
+                                    class="h-5 w-5 shrink-0 text-gray-600 transition-transform duration-400 ease-out"
                                     :class="{ 'rotate-180 transform': expandedSkill === skill.id }"
                                 />
                                 
@@ -300,7 +300,7 @@
                             <button
                                 @click.stop="removeSkill('technical', index)"
                                 type="button"
-                                class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
+                                class="shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
                             >
                                 <Trash2 class="h-4 w-4" />
                             </button>
@@ -417,7 +417,7 @@
                         >
                             <div class="flex flex-1 items-center gap-3 text-left">
                                 <ChevronDown
-                                    class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
+                                    class="h-5 w-5 shrink-0 text-gray-600 transition-transform duration-400 ease-out"
                                     :class="{ 'rotate-180 transform': expandedSkill === skill.id }"
                                 />
                                 
@@ -455,7 +455,7 @@
                             <button
                                 @click.stop="removeSkill('soft', index)"
                                 type="button"
-                                class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
+                                class="shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
                             >
                                 <Trash2 class="h-4 w-4" />
                             </button>

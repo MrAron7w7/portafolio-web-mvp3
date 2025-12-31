@@ -23,12 +23,12 @@ import { Form, Head } from '@inertiajs/vue3';
         >
             <div class="space-y-6">
                 <div class="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" class="dark:text-slate-300">Password</Label>
                     <Input
                         id="password"
                         type="password"
                         name="password"
-                        class="mt-1 block w-full"
+                        class="mt-1 block w-full dark:bg-slate-950 dark:border-slate-800"
                         required
                         autocomplete="current-password"
                         autofocus
@@ -39,7 +39,7 @@ import { Form, Head } from '@inertiajs/vue3';
 
                 <div class="flex items-center">
                     <Button
-                        class="w-full"
+                        class="w-full bg-slate-900 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
                         :disabled="processing"
                         data-test="confirm-password-button"
                     >

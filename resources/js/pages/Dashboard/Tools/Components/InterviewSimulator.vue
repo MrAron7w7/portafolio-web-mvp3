@@ -46,25 +46,31 @@ const togglePracticed = (index: number) => {
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-8">
         <!-- Controls -->
-        <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <div class="flex-1">
-                <label class="block text-sm font-medium text-slate-700 mb-1">Selecciona tu Portafolio</label>
-                <select 
-                    v-model="selectedPortfolioId"
-                    class="w-full rounded-lg border-slate-300 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                >
-                    <option v-for="p in portfolios" :key="p.id" :value="p.id">{{ p.title }}</option>
-                </select>
+        <div class="flex flex-wrap items-end gap-6 p-6 bg-white dark:bg-slate-800/40 rounded-3xl border border-gray-200 dark:border-slate-700/50 backdrop-blur-sm">
+            <div class="flex-1 min-w-[250px]">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">Selecciona tu Portafolio</label>
+                <div class="relative">
+                    <select 
+                        v-model="selectedPortfolioId"
+                        class="w-full rounded-xl border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 py-3 pl-4 pr-10 text-gray-900 dark:text-white focus:border-violet-500 focus:ring-violet-500 appearance-none transition-colors"
+                    >
+                        <option v-for="p in portfolios" :key="p.id" :value="p.id" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">{{ p.title }}</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500 dark:text-slate-400">
+                        <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                    </div>
+                </div>
             </div>
             <button
                 @click="generateQuestions"
                 :disabled="isGenerating || !selectedPortfolioId"
-                class="mt-6 px-6 py-2 bg-violet-600 text-white rounded-lg font-medium hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+                class="px-8 py-3.5 bg-violet-600 text-white rounded-xl font-bold hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 hover:-translate-y-0.5"
             >
-                <Loader2 v-if="isGenerating" class="w-4 h-4 animate-spin" />
-                <span v-else>Generar Preguntas</span>
+                <Loader2 v-if="isGenerating" class="w-5 h-5 animate-spin" />
+                <Brain v-else class="w-5 h-5" />
+                <span>{{ isGenerating ? 'Generando...' : 'Generar Preguntas' }}</span>
             </button>
         </div>
 
@@ -73,46 +79,52 @@ const togglePracticed = (index: number) => {
             <div 
                 v-for="(q, index) in questions" 
                 :key="index"
-                class="bg-white p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-md"
-                :class="practicedQuestions.has(index) ? 'border-green-200 bg-green-50/30' : 'border-slate-100'"
+                class="group bg-white dark:bg-slate-800/40 p-6 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:bg-gray-50 dark:hover:bg-slate-800/80"
+                :class="practicedQuestions.has(index) ? 'border-green-500/30' : 'border-gray-200 dark:border-slate-700/50 hover:border-violet-400 dark:hover:border-violet-500/50'"
             >
-                <div class="flex items-start gap-4">
+                <div class="flex items-start gap-5">
                     <div class="shrink-0 mt-1">
-                        <div 
+                        <button 
                             @click="togglePracticed(index)"
-                            class="w-6 h-6 rounded-full border-2 flex items-center justify-center cursor-pointer transition-colors"
-                            :class="practicedQuestions.has(index) ? 'bg-green-500 border-green-500' : 'border-slate-300 hover:border-violet-500'"
+                            class="w-8 h-8 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all duration-300"
+                            :class="practicedQuestions.has(index) ? 'bg-green-500 border-green-500 scale-110' : 'border-gray-300 dark:border-slate-600 hover:border-violet-500 hover:text-violet-400 text-transparent'"
                         >
-                            <Check v-if="practicedQuestions.has(index)" class="w-4 h-4 text-white" />
-                        </div>
+                            <Check class="w-4 h-4 text-white" />
+                        </button>
                     </div>
                     <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="flex flex-wrap items-center gap-3 mb-3">
                             <span 
-                                class="px-2 py-0.5 rounded text-xs font-medium uppercase tracking-wider"
+                                class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border"
                                 :class="{
-                                    'bg-blue-100 text-blue-700': q.category === 'técnica',
-                                    'bg-purple-100 text-purple-700': q.category === 'comportamental',
-                                    'bg-amber-100 text-amber-700': q.category === 'situacional'
+                                    'bg-blue-500/10 text-blue-400 border-blue-500/20': q.category === 'técnica',
+                                    'bg-purple-500/10 text-purple-400 border-purple-500/20': q.category === 'comportamental',
+                                    'bg-amber-500/10 text-amber-400 border-amber-500/20': q.category === 'situacional'
                                 }"
                             >
                                 {{ q.category }}
                             </span>
-                            <span class="text-xs text-slate-400">• {{ q.difficulty }}</span>
+                            <span class="text-xs font-medium text-gray-500 dark:text-slate-500">• {{ q.difficulty }}</span>
                         </div>
-                        <p class="text-slate-800 font-medium text-lg">{{ q.question }}</p>
+                        <p class="text-gray-900 dark:text-white font-medium text-lg leading-relaxed">{{ q.question }}</p>
                     </div>
                 </div>
+            </div>
+            
+            <div class="text-center pt-4">
+                <p class="text-gray-500 dark:text-slate-500 text-sm">
+                    Has practicado <span class="font-bold text-violet-600 dark:text-violet-400">{{ practicedQuestions.size }}</span> de <span class="text-gray-900 dark:text-white">{{ questions.length }}</span> preguntas
+                </p>
             </div>
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="!isGenerating" class="text-center py-12">
-            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MessageSquare class="w-8 h-8 text-slate-400" />
+        <div v-else-if="!isGenerating" class="text-center py-16 border-2 border-dashed border-gray-300 dark:border-slate-800 rounded-3xl bg-gray-50 dark:bg-slate-900/20">
+            <div class="w-20 h-20 bg-white dark:bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm dark:shadow-xl dark:shadow-indigo-500/5">
+                <MessageSquare class="w-10 h-10 text-gray-400 dark:text-slate-500" />
             </div>
-            <h3 class="text-lg font-medium text-slate-900">Listo para practicar</h3>
-            <p class="text-slate-500 max-w-sm mx-auto mt-1">Selecciona un portafolio y genera preguntas personalizadas para tu próxima entrevista.</p>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Listo para practicar</h3>
+            <p class="text-gray-500 dark:text-slate-400 max-w-md mx-auto">Selecciona un portafolio y genera preguntas personalizadas con IA para simular tu próxima entrevista técnica.</p>
         </div>
     </div>
 </template>

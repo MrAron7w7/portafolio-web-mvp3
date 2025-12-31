@@ -17,7 +17,7 @@ const toggleSidebar = () => {
 </script>
 
 <template>
-    <div class="flex h-screen overflow-hidden bg-slate-50">
+    <div class="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <!-- Sidebar -->
         <Sidebar :is-open="sidebarOpen" @close="sidebarOpen = false" />
 

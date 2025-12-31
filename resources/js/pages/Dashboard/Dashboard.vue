@@ -2,11 +2,7 @@
 /**
  * Vista principal del Dashboard de usuario.
  * Filosofía de Diseño: "Claridad Vibrante" - Hi-Fi Design System
- * - Minimalismo Funcional
- * - Sofisticación Cromática (Slate-900, Slate-50, Indigo-600 to Violet-600)
- * - Geometría Orgánica (rounded-[32px], rounded-[40px])
  */
-// import dashboard from '@/routes/dashboard';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import {
     Calendar,
@@ -83,21 +79,21 @@ const metrics = computed(() => [
         value: props.portfolios.length.toString(),
         icon: Folder,
         gradient: 'from-indigo-500 to-violet-500',
-        bgLight: 'bg-indigo-50',
+        bgLight: 'bg-indigo-50 dark:bg-indigo-500/10',
     },
     {
         title: 'Publicados',
         value: props.portfolios.filter(p => p.is_public).length.toString(),
         icon: TrendingUp,
         gradient: 'from-emerald-500 to-teal-500',
-        bgLight: 'bg-emerald-50',
+        bgLight: 'bg-emerald-50 dark:bg-emerald-500/10',
     },
     {
         title: 'En progreso',
         value: props.portfolios.filter(p => p.status === 'borrador').length.toString(),
         icon: LayoutGrid,
         gradient: 'from-amber-500 to-orange-500',
-        bgLight: 'bg-amber-50',
+        bgLight: 'bg-amber-50 dark:bg-amber-500/10',
     },
 ]);
 
@@ -126,9 +122,7 @@ const viewPortfolio = (portfolioId: number) => {
     router.visit(`/dashboard/portfolio/${portfolioId}/view`);
 };
 
-// ========================================
-// EDICIÓN DE TÍTULOS INLINE
-// ========================================
+// Inline Editing
 const editingTitleId = ref<number | null>(null);
 const editingTitleValue = ref('');
 
@@ -173,20 +167,19 @@ const handleTitleKeydown = (event: KeyboardEvent, portfolioId: number) => {
     }
 };
 
-// Obtener inicial del template
 const getTemplateInitial = (templateType: string) => {
     return templateType?.charAt(0)?.toUpperCase() || 'P';
 };
 
-// Obtener color del status badge
+// Status classes
 const getStatusClasses = (status: string) => {
     switch (status) {
         case 'publicado':
-            return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            return 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20';
         case 'borrador':
-            return 'bg-slate-100 text-slate-600 border-slate-200';
+            return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700';
         default:
-            return 'bg-slate-100 text-slate-600 border-slate-200';
+            return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700';
     }
 };
 
@@ -200,7 +193,7 @@ const previewComponents: Record<string, any> = {
     Tecnologica: TecnologicaPreview,
 };
 
-// Preview data (Mock data for previews)
+// Fallback data
 const previewData = {
     personal: {
         name: 'Tu Nombre',
@@ -208,112 +201,61 @@ const previewData = {
         email: 'tu.email@ejemplo.com',
         phone: '+00 000 000 000',
         location: 'Tu Ciudad, País',
-        linkedin: '',
-        github: '',
         summary: 'Aquí aparecerá tu resumen profesional una vez que completes tu perfil.',
     },
-    experience: [
-        {
-            company: 'Tech Solutions SAC',
-            position: 'Senior Developer',
-            startDate: '2020-01',
-            endDate: '',
-            current: true,
-            description: 'Liderando equipo de desarrollo de aplicaciones empresariales con Laravel y Vue.js.',
-        },
-    ],
-    education: [
-        {
-            institution: 'Universidad Nacional',
-            degree: 'Ingeniería de Sistemas',
-            field: 'Ciencias de la Computación',
-            startDate: '2014-03',
-            endDate: '2018-12',
-        },
-    ],
-    skills: {
-        technical: [
-            { name: 'Laravel', level: 90 },
-            { name: 'Vue.js', level: 85 },
-            { name: 'Tailwind CSS', level: 82 },
-        ],
-        soft: [
-            { name: 'Liderazgo', level: 90 },
-            { name: 'Comunicación', level: 88 },
-        ],
-    },
-    projects: [
-        {
-            name: 'Sistema de Gestión',
-            description: 'Plataforma completa para gestión empresarial',
-            technologies: ['Laravel', 'Vue.js', 'MySQL'],
-        },
-    ],
+    experience: [],
+    education: [],
+    skills: { technical: [], soft: [] },
+    projects: [],
     certifications: [],
-    languages: [
-        { name: 'Español', level: 'Nativo' },
-        { name: 'Inglés', level: 'Avanzado' },
-    ],
+    languages: [],
 };
 
 const getTemplateData = (portfolio: any = null) => {
-    // 1. Si el portafolio tiene datos reales, usarlos
-    // 1. Si el portafolio tiene datos reales, usarlos
     if (portfolio && portfolio.template_data) {
         const data = portfolio.template_data;
-        // Fix: Asegurar que personal.name existe (algunos registros solo tienen firstName/lastName)
         if (data.personal && !data.personal.name && data.personal.firstName) {
             data.personal.name = `${data.personal.firstName} ${data.personal.lastName || ''}`.trim();
         }
         return data;
     }
-
-    // 2. Si no, construir preview usando datos del AUTENTICADO (no Juan Pérez)
-    const fallbackData = JSON.parse(JSON.stringify(previewData)); // Copia base
-    
-    // Sobrescribir con datos del usuario real (si existen)
+    const fallbackData = JSON.parse(JSON.stringify(previewData));
     if (user.value) {
         fallbackData.personal.name = user.value.full_name || 'Mi Nombre';
         fallbackData.personal.email = user.value.email || '';
-        fallbackData.personal.title = 'Mi Profesión'; // Placeholder neutro
-        // Mantener otros datos mock para estructura visual
+        fallbackData.personal.title = 'Mi Profesión';
     }
-    
     return fallbackData;
 };
+
 const getPreviewComponent = (type: string) => {
     if (!type) return null;
-    // Try exact match
-    if (previewComponents[type]) return previewComponents[type];
-    // Try capitalized match
     const capitalized = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
-    if (previewComponents[capitalized]) return previewComponents[capitalized];
-    return null;
+    return previewComponents[capitalized] || previewComponents[type] || null;
 };
 </script>
 
 <template>
     <DashboardLayout v-slot="{ toggleSidebar }">
         <!-- Header Glassmorphism -->
-        <header class="sticky top-0 z-30 border-b border-slate-200/60 bg-white/80 backdrop-blur-md">
+        <header class="sticky top-0 z-30 border-b border-slate-200/60 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md transition-colors duration-300">
             <div class="flex items-center justify-between px-6 py-4">
-                <!-- Mobile menu + Search -->
                 <div class="flex flex-1 items-center gap-4">
                     <button @click="toggleSidebar"
-                        class="rounded-2xl p-2.5 text-slate-500 transition-all duration-200 hover:bg-slate-100 hover:text-slate-700 lg:hidden">
+                        class="rounded-2xl p-2.5 text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden">
                         <Menu class="h-5 w-5" />
                     </button>
 
                     <!-- Search Bar -->
                     <div class="relative max-w-md flex-1">
                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                            <Search class="h-4 w-4 text-slate-400" />
+                            <Search class="h-4 w-4 text-slate-400 dark:text-slate-500" />
                         </div>
                         <input 
                             v-model="searchQuery"
                             type="text" 
                             placeholder="Buscar portafolios..."
-                            class="w-full rounded-2xl border-0 bg-slate-100/80 py-3 pr-4 pl-11 text-sm text-slate-900 placeholder-slate-400 ring-1 ring-transparent transition-all duration-200 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" 
+                            class="w-full rounded-2xl border-0 bg-slate-100/80 dark:bg-slate-900 py-3 pr-4 pl-11 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ring-1 ring-transparent transition-all duration-200 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none" 
                         />
                     </div>
                 </div>
@@ -321,10 +263,9 @@ const getPreviewComponent = (type: string) => {
                 <!-- Go to Home Button -->
                 <Link href="/">
                     <button
-                        class="group relative overflow-hidden rounded-2xl bg-linear-to-r from-indigo-600 to-violet-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5 flex items-center gap-2">
-                        <!-- Shine effect -->
+                        class="group relative overflow-hidden rounded-2xl bg-linear-to-r from-indigo-600 to-violet-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2">
                         <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                        <Home class="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
+                        <Home class="h-4 w-4" />
                         <span class="relative z-10 hidden sm:inline">Ir a Inicio</span>
                     </button>
                 </Link>
@@ -332,23 +273,21 @@ const getPreviewComponent = (type: string) => {
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto p-6 lg:p-8">
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 transition-colors duration-300">
             <!-- Hero Section -->
             <div class="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div class="flex-1 space-y-2">
-                    <h1 class="text-3xl font-black tracking-tight text-slate-900 lg:text-4xl">
+                    <h1 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white lg:text-4xl">
                         Hola, {{ user.first_name }} 👋
                     </h1>
-                    <p class="text-lg text-slate-500 max-w-xl">
+                    <p class="text-lg text-slate-500 dark:text-slate-400 max-w-xl">
                         Gestiona y crea portafolios profesionales que destacan.
                     </p>
                 </div>
 
-                <!-- CTA Button with shine effect -->
                 <Link href="/dashboard/plantillas">
                     <button
                         class="group relative overflow-hidden rounded-[20px] bg-linear-to-r from-indigo-600 to-violet-600 px-7 py-4 font-bold text-white shadow-xl shadow-indigo-500/25 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-1 flex items-center gap-3">
-                        <!-- Periodic shine sweep -->
                         <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-shine"></div>
                         <Sparkles class="h-5 w-5" />
                         <span class="relative z-10">Crear con IA</span>
@@ -362,14 +301,14 @@ const getPreviewComponent = (type: string) => {
                 <div 
                     v-for="metric in metrics" 
                     :key="metric.title"
-                    class="group relative overflow-hidden rounded-[24px] border border-slate-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50 hover:-translate-y-1"
+                    class="group relative overflow-hidden rounded-[24px] border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm dark:shadow-none transition-all duration-300 hover:shadow-lg dark:hover:bg-slate-800/50 hover:-translate-y-1"
                 >
                     <div class="flex items-center justify-between">
                         <div class="space-y-1">
-                            <p class="text-3xl font-black text-slate-900">
+                            <p class="text-3xl font-black text-slate-900 dark:text-white">
                                 {{ metric.value }}
                             </p>
-                            <p class="text-sm font-medium text-slate-500">
+                            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">
                                 {{ metric.title }}
                             </p>
                         </div>
@@ -378,42 +317,36 @@ const getPreviewComponent = (type: string) => {
                         >
                             <component 
                                 :is="metric.icon" 
-                                :class="['h-6 w-6 bg-linear-to-br', metric.gradient]"
-                                style="background-clip: text; -webkit-background-clip: text; color: transparent; stroke: url(#gradient);"
-                                class="text-indigo-600"
+                                class="h-6 w-6 text-indigo-600 dark:text-indigo-400"
                             />
                         </div>
                     </div>
-                    <!-- Subtle gradient overlay on hover -->
-                    <div class="absolute inset-0 bg-linear-to-br from-indigo-500/5 to-violet-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none rounded-[24px]"></div>
                 </div>
             </div>
 
             <!-- Portfolios Section -->
             <section>
                 <div class="mb-6 flex items-center justify-between">
-                    <h2 class="text-xl font-bold text-slate-900">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
                         Mis Portafolios
                     </h2>
-                    <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
+                    <span class="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-sm font-medium text-slate-600 dark:text-slate-400">
                         {{ portfolios.length }} de {{ props.portfolios.length }}
                     </span>
                 </div>
 
-                <!-- Empty State with Animation -->
+                <!-- Empty State -->
                 <div v-if="!hasPortfolios"
-                    class="rounded-[32px] border-2 border-dashed border-slate-200 bg-white p-16 text-center">
+                    class="rounded-[32px] border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-16 text-center">
                     <div class="mx-auto max-w-md">
-                        <!-- Floating animated icon -->
                         <div class="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-[28px] bg-linear-to-br from-indigo-600 to-violet-600 shadow-xl shadow-indigo-500/30 float-animation">
                             <Folder class="h-12 w-12 text-white" />
                         </div>
-                        <h3 class="mb-4 text-2xl font-black tracking-tight text-slate-900">
+                        <h3 class="mb-4 text-2xl font-black tracking-tight text-slate-900 dark:text-white">
                             Tu espacio está vacío
                         </h3>
-                        <p class="mb-8 text-slate-500 leading-relaxed">
-                            Comienza creando tu primer portafolio profesional. 
-                            Nuestra IA te ayudará a destacar.
+                        <p class="mb-8 text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Comienza creando tu primer portafolio profesional. Nivelado por IA.
                         </p>
                         <Link href="/dashboard/plantillas">
                             <button class="inline-flex items-center gap-2 rounded-2xl bg-linear-to-r from-indigo-600 to-violet-600 px-6 py-3 font-bold text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
@@ -424,96 +357,55 @@ const getPreviewComponent = (type: string) => {
                     </div>
                 </div>
 
-                <!-- No search results -->
+                <!-- No results -->
                 <div v-else-if="portfolios.length === 0 && searchQuery.trim()"
-                    class="rounded-[32px] border border-slate-200 bg-white p-12 text-center">
-                    <Search class="mx-auto mb-4 h-12 w-12 text-slate-300" />
-                    <h3 class="mb-2 text-lg font-bold text-slate-900">Sin resultados</h3>
-                    <p class="text-slate-500">No encontramos portafolios que coincidan con "{{ searchQuery }}"</p>
+                    class="rounded-[32px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
+                    <Search class="mx-auto mb-4 h-12 w-12 text-slate-300 dark:text-slate-700" />
+                    <h3 class="mb-2 text-lg font-bold text-slate-900 dark:text-white">Sin resultados</h3>
+                    <p class="text-slate-500 dark:text-slate-400">No encontramos portafolios que coincidan con "{{ searchQuery }}"</p>
                 </div>
 
-                <!-- Portfolio Cards Grid -->
+                <!-- Portfolio Grid -->
                 <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                     <div 
                         v-for="portfolio in portfolios" 
                         :key="portfolio.id"
-                        class="group relative overflow-hidden rounded-[28px] border border-slate-200/60 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-2 hover:border-slate-300"
+                        class="group relative overflow-hidden rounded-[28px] border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm dark:shadow-none transition-all duration-300 hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-700"
                     >
-                        <!-- Preview Header -->
-                        <div class="relative h-48 overflow-hidden bg-slate-100">
-                            <!-- Template Preview -->
+                        <div class="relative h-48 overflow-hidden bg-slate-100 dark:bg-slate-800">
                             <div 
                                 v-if="getPreviewComponent(portfolio.template_type)" 
-                                class="absolute inset-0 h-[300%] w-[250%] origin-top-left scale-[0.4] pointer-events-none select-none"
+                                class="absolute inset-0 h-[300%] w-[250%] origin-top-left scale-[0.4] pointer-events-none"
                             >
-                                <component
-                                    :is="getPreviewComponent(portfolio.template_type)"
-                                    :data="getTemplateData(portfolio)"
-                                />
+                                <component :is="getPreviewComponent(portfolio.template_type)" :data="getTemplateData(portfolio)" />
                             </div>
-
-                            <!-- Fallback Generic Gradient -->
-                            <div 
-                                v-else 
-                                class="absolute inset-0 flex items-center justify-center bg-linear-to-br from-indigo-600 to-violet-600"
-                            >
-                                <span class="text-5xl font-black text-white/20">
-                                    {{ getTemplateInitial(portfolio.template_type) }}
-                                </span>
+                            <div v-else class="absolute inset-0 flex items-center justify-center bg-linear-to-br from-indigo-600 to-violet-600 opacity-20">
+                                <span class="text-5xl font-black text-white/40">{{ getTemplateInitial(portfolio.template_type) }}</span>
                             </div>
                             
-                            <!-- Status Badge -->
-                            <div class="absolute top-4 right-4">
-                                <span 
-                                    :class="[
-                                        getStatusClasses(portfolio.status),
-                                        'rounded-full border px-3 py-1.5 text-xs font-semibold capitalize backdrop-blur-sm'
-                                    ]"
-                                >
+                            <!-- Status -->
+                            <div class="absolute top-4 right-4 focus:ring-none">
+                                <span :class="[getStatusClasses(portfolio.status), 'rounded-full border px-3 py-1.5 text-xs font-semibold capitalize backdrop-blur-sm']">
                                     {{ portfolio.status }}
                                 </span>
                             </div>
 
-                            <!-- Hover Actions Overlay -->
+                            <!-- Actions -->
                             <div class="absolute inset-0 flex items-center justify-center gap-2 bg-slate-900/60 opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:opacity-100">
-                                <button 
-                                    @click="editPortfolio(portfolio.id)"
-                                    class="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-slate-700 shadow-lg transition-all duration-200 hover:scale-110 hover:bg-indigo-50 hover:text-indigo-600 translate-y-4 group-hover:translate-y-0"
-                                    title="Editar"
-                                >
+                                <button @click="editPortfolio(portfolio.id)" class="flex h-11 w-11 items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-white transition-all hover:scale-110">
                                     <Edit class="h-4 w-4" />
                                 </button>
-                                <button 
-                                    @click="viewPortfolio(portfolio.id)"
-                                    class="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-slate-700 shadow-lg transition-all duration-200 hover:scale-110 hover:bg-emerald-50 hover:text-emerald-600 translate-y-4 group-hover:translate-y-0 delay-75"
-                                    title="Ver"
-                                >
+                                <button @click="viewPortfolio(portfolio.id)" class="flex h-11 w-11 items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-white transition-all hover:scale-110">
                                     <Eye class="h-4 w-4" />
                                 </button>
-                                <a 
-                                    :href="`/portfolio/${portfolio.id}/download-pdf`"
-                                    target="_blank"
-                                    class="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-slate-700 shadow-lg transition-all duration-200 hover:scale-110 hover:bg-violet-50 hover:text-violet-600 translate-y-4 group-hover:translate-y-0 delay-100"
-                                    title="Descargar PDF"
-                                >
+                                <a :href="`/portfolio/${portfolio.id}/download-pdf`" target="_blank" class="flex h-11 w-11 items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-white transition-all hover:scale-110">
                                     <Download class="h-4 w-4" />
                                 </a>
                             </div>
-
-                            <!-- Draft Progress Bar -->
-                            <div 
-                                v-if="portfolio.status === 'borrador'" 
-                                class="absolute right-0 bottom-0 left-0 h-1 bg-white/20"
-                            >
-                                <div class="h-full w-1/2 bg-white/60 transition-all duration-500"></div>
-                            </div>
                         </div>
 
-                        <!-- Card Content -->
                         <div class="p-5">
-                            <!-- Title Section -->
                             <div class="mb-3">
-                                <!-- Inline Editing -->
                                 <div v-if="editingTitleId === portfolio.id" class="flex items-center gap-2">
                                     <input
                                         :id="`title-input-${portfolio.id}`"
@@ -521,37 +413,26 @@ const getPreviewComponent = (type: string) => {
                                         @keydown="handleTitleKeydown($event, portfolio.id)"
                                         @blur="saveTitle(portfolio.id)"
                                         type="text"
-                                        class="flex-1 rounded-xl border-0 bg-indigo-50/50 px-3 py-2 text-base font-semibold text-slate-900 ring-2 ring-indigo-500/30 focus:outline-none focus:ring-indigo-500/50 transition-all"
-                                        placeholder="Título del portafolio"
+                                        class="flex-1 rounded-xl border-0 bg-indigo-50/50 dark:bg-indigo-500/10 px-3 py-2 text-base font-semibold text-slate-900 dark:text-white ring-2 ring-indigo-500/30 focus:outline-none"
                                     />
                                 </div>
-                                <!-- Normal Title (click to edit) -->
-                                <div 
-                                    v-else 
-                                    class="group/title flex items-center gap-2 cursor-pointer" 
-                                    @click="startEditingTitle(portfolio)"
-                                >
-                                    <h3 class="truncate text-lg font-bold text-slate-900 transition-colors group-hover/title:text-indigo-600">
+                                <div v-else class="group/title flex items-center gap-2 cursor-pointer" @click="startEditingTitle(portfolio)">
+                                    <h3 class="truncate text-lg font-bold text-slate-900 dark:text-white transition-colors group-hover/title:text-indigo-600">
                                         {{ portfolio.title }}
                                     </h3>
-                                    <Pencil class="h-3.5 w-3.5 text-slate-400 opacity-0 transition-all group-hover/title:opacity-100 shrink-0" />
+                                    <Pencil class="h-3.5 w-3.5 text-slate-400 opacity-0 group-hover/title:opacity-100" />
                                 </div>
-                                <p class="mt-1 line-clamp-2 text-sm text-slate-500 leading-relaxed">
+                                <p class="mt-1 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
                                     {{ portfolio.description }}
                                 </p>
                             </div>
 
-                            <!-- Footer -->
-                            <div class="flex items-center justify-between border-t border-slate-100 pt-4">
-                                <div class="flex items-center gap-1.5 text-sm text-slate-400">
+                            <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+                                <div class="flex items-center gap-1.5 text-sm text-slate-400 tracking-tighter">
                                     <Calendar class="h-4 w-4" />
                                     <span>{{ portfolio.createdAt }}</span>
                                 </div>
-                                <button 
-                                    @click="deletePortfolio(portfolio.id)"
-                                    class="rounded-xl p-2 text-red-500 transition-all duration-200 hover:bg-red-50"
-                                    title="Eliminar"
-                                >
+                                <button @click="deletePortfolio(portfolio.id)" class="rounded-xl p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
                                     <Trash2 class="h-4 w-4" />
                                 </button>
                             </div>
@@ -564,68 +445,9 @@ const getPreviewComponent = (type: string) => {
 </template>
 
 <style scoped>
-/* Line clamp utility */
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* Floating animation for empty state */
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-12px);
-    }
-}
-
-.float-animation {
-    animation: float 3s ease-in-out infinite;
-}
-
-/* Shine sweep animation for CTA button */
-@keyframes shine {
-    0% {
-        transform: translateX(-100%);
-    }
-    50%, 100% {
-        transform: translateX(100%);
-    }
-}
-
-.animate-shine {
-    animation: shine 3s ease-in-out infinite;
-}
-
-/* Custom scrollbar */
-:deep(.overflow-y-auto) {
-    scrollbar-width: thin;
-    scrollbar-color: #e2e8f0 transparent;
-}
-
-:deep(.overflow-y-auto)::-webkit-scrollbar {
-    width: 6px;
-}
-
-:deep(.overflow-y-auto)::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-:deep(.overflow-y-auto)::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 3px;
-}
-
-:deep(.overflow-y-auto)::-webkit-scrollbar-thumb:hover {
-    background: #cbd5e1;
-}
-
-/* Smooth transitions */
-* {
-    scroll-behavior: smooth;
-}
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
+.float-animation { animation: float 3s ease-in-out infinite; }
+@keyframes shine { 0% { transform: translateX(-100%); } 50%, 100% { transform: translateX(100%); } }
+.animate-shine { animation: shine 3s ease-in-out infinite; }
 </style>

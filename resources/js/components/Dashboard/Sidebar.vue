@@ -102,16 +102,16 @@ const settingsItems = computed(() => [
 
 <template>
     <aside :class="[
-        'fixed inset-y-0 left-0 z-50 w-72 transform border-r border-slate-200/60 bg-white transition-transform duration-300 ease-out lg:static lg:translate-x-0',
+        'fixed inset-y-0 left-0 z-50 w-72 transform border-r border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 transition-transform duration-300 ease-out lg:static lg:translate-x-0',
         isOpen ? 'translate-x-0' : '-translate-x-full'
     ]">
         <!-- Logo Area -->
-        <div class="flex h-16 items-center justify-between border-b border-slate-100 px-6">
+        <div class="flex h-16 items-center justify-between border-b border-slate-100 dark:border-slate-800 px-6">
             <div class="flex items-center gap-3 group cursor-pointer">
                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-360">
                     <Sparkles class="h-5 w-5 text-white" />
                 </div>
-                <span class="text-lg font-black tracking-tight bg-linear-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+                <span class="text-lg font-black tracking-tight bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
                     PortafolioAI
                 </span>
             </div>
@@ -132,15 +132,15 @@ const settingsItems = computed(() => [
                         :class="[
                             'group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200',
                             item.active
-                                ? 'bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-500/10'
-                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 shadow-sm shadow-indigo-500/10'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                         ]"
                     >
                         <component 
                             :is="item.icon" 
                             :class="[
                                 'h-5 w-5 transition-all duration-200 group-hover:scale-110',
-                                item.active ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'
+                                item.active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
                             ]" 
                         />
                         <span>{{ item.name }}</span>
@@ -155,7 +155,7 @@ const settingsItems = computed(() => [
 
             <!-- Secondary Navigation -->
             <div class="space-y-4">
-                <div class="border-t border-slate-100 pt-4">
+                <div class="border-t border-slate-100 dark:border-slate-800 pt-4">
                     <div class="space-y-1">
                         <!-- Panel Admin (solo para admins) -->
                         <Link 
@@ -164,8 +164,8 @@ const settingsItems = computed(() => [
                             :class="[
                                 'group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all duration-200',
                                 $page.url.startsWith('/admin')
-                                    ? 'bg-violet-50 text-violet-700'
-                                    : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700'
+                                    ? 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 hover:text-violet-700 dark:hover:text-violet-400'
                             ]"
                         >
                             <Shield 
@@ -194,25 +194,25 @@ const settingsItems = computed(() => [
                         <!-- Configuración (Floating Dropdown) -->
                         <DropdownMenu>
                             <DropdownMenuTrigger as-child>
-                                <button class="w-full group flex items-center justify-between gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-50 hover:text-slate-900 outline-none">
+                                <button class="w-full group flex items-center justify-between gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white outline-none">
                                     <div class="flex items-center gap-3">
-                                        <Settings2 class="h-5 w-5 text-slate-400 transition-transform duration-300 group-hover:rotate-90" />
+                                        <Settings2 class="h-5 w-5 text-slate-400 dark:text-slate-500 transition-transform duration-300 group-hover:rotate-90" />
                                         <span>Configuración</span>
                                     </div>
-                                    <ChevronRight class="h-4 w-4 text-slate-400 opacity-0 transition-all duration-200 group-hover:opacity-100" />
+                                    <ChevronRight class="h-4 w-4 text-slate-400 dark:text-slate-500 opacity-0 transition-all duration-200 group-hover:opacity-100" />
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent side="right" align="start" :side-offset="20" class="w-56 rounded-2xl border-slate-200 p-2 shadow-xl">
-                                <DropdownMenuLabel class="px-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                            <DropdownMenuContent side="right" align="start" :side-offset="20" class="w-56 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 shadow-xl">
+                                <DropdownMenuLabel class="px-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                                     Configuración
                                 </DropdownMenuLabel>
-                                <DropdownMenuSeparator class="bg-slate-100" />
+                                <DropdownMenuSeparator class="bg-slate-100 dark:bg-slate-800" />
                                 <DropdownMenuItem v-for="item in settingsItems" :key="item.name" as-child>
                                     <Link 
                                         :href="item.href" 
                                         :class="[
                                             'flex w-full cursor-pointer items-center gap-2 rounded-xl px-2 py-2 text-sm',
-                                            item.active ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50'
+                                            item.active ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:text-white'
                                         ]"
                                     >
                                         <component :is="item.icon" class="h-4 w-4" />
@@ -225,17 +225,17 @@ const settingsItems = computed(() => [
                         <!-- Ayuda -->
                         <Link 
                             href="#"
-                            class="group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-50 hover:text-slate-900"
+                            class="group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                         >
-                            <HelpCircle class="h-5 w-5 text-slate-400 transition-transform duration-200 group-hover:scale-110" />
+                            <HelpCircle class="h-5 w-5 text-slate-400 dark:text-slate-500 transition-transform duration-200 group-hover:scale-110" />
                             <span>Ayuda</span>
                         </Link>
                     </div>
                 </div>
 
                 <!-- User Profile Footer -->
-                <div class="mt-auto border-t border-slate-100 pt-4">
-                    <div class="flex items-center justify-between rounded-2xl bg-slate-50 p-3 transition-all duration-200 hover:bg-slate-100 group">
+                <div class="mt-auto border-t border-slate-100 dark:border-slate-800 pt-4">
+                    <div class="flex items-center justify-between rounded-2xl bg-slate-50 dark:bg-slate-800 p-3 transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 group">
                         <div class="flex items-center gap-3 min-w-0">
                             <!-- Avatar -->
                             <img 
@@ -252,15 +252,15 @@ const settingsItems = computed(() => [
                                 {{ user.initials }}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-semibold text-slate-900">{{ user.full_name }}</p>
-                                <p class="truncate text-xs text-slate-500">{{ user.email }}</p>
+                                <p class="truncate text-sm font-semibold text-slate-900 dark:text-white">{{ user.full_name }}</p>
+                                <p class="truncate text-xs text-slate-500 dark:text-slate-400">{{ user.email }}</p>
                             </div>
                         </div>
                         <Link 
                             :href="logout()" 
                             method="post" 
                             as="button"
-                            class="rounded-xl p-2 text-red-500 bg-red-50 transition-all duration-200 hover:bg-red-100 hover:text-red-700"
+                            class="rounded-xl p-2 text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-500/10 transition-all duration-200 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-700 dark:hover:text-red-300"
                             title="Cerrar sesión"
                         >
                             <LogOut class="h-5 w-5" />
