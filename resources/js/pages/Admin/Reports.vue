@@ -55,13 +55,13 @@ const maxMonthlyPortfolios = Math.max(...(props.monthlyStats?.map(s => s.portfol
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">Reportes Estadísticos</h2>
-                <p class="text-sm text-gray-500 mt-1">Analiza el crecimiento de la plataforma</p>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Reportes Estadísticos</h2>
+                <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">Analiza el crecimiento de la plataforma</p>
             </div>
             <div class="flex items-center space-x-3">
                 <select
                     v-model="selectedPeriod"
-                    class="rounded-lg border border-gray-200 px-4 py-2 text-sm focus:border-[#005aeb] focus:outline-none"
+                    class="rounded-lg border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-sm text-gray-900 dark:text-white focus:border-[#005aeb] focus:outline-none"
                 >
                     <option value="month">Este mes</option>
                     <option value="quarter">Este trimestre</option>
@@ -77,14 +77,14 @@ const maxMonthlyPortfolios = Math.max(...(props.monthlyStats?.map(s => s.portfol
         <!-- Stats Cards Row -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <!-- Total Users -->
-            <div class="rounded-2xl bg-white shadow-sm border border-gray-100 p-6">
+            <div class="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Total Usuarios</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ totalUsers }}</p>
+                        <p class="text-sm text-gray-500 dark:text-slate-400">Total Usuarios</p>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ totalUsers }}</p>
                     </div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
-                        <Users class="h-6 w-6 text-[#005aeb]" />
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/20">
+                        <Users class="h-6 w-6 text-[#005aeb] dark:text-blue-400" />
                     </div>
                 </div>
                 <div class="flex items-center mt-3 text-sm">
@@ -95,14 +95,14 @@ const maxMonthlyPortfolios = Math.max(...(props.monthlyStats?.map(s => s.portfol
             </div>
 
             <!-- Total Portfolios -->
-            <div class="rounded-2xl bg-white shadow-sm border border-gray-100 p-6">
+            <div class="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Total Portafolios</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ totalPortfolios }}</p>
+                        <p class="text-sm text-gray-500 dark:text-slate-400">Total Portafolios</p>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ totalPortfolios }}</p>
                     </div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
-                        <FileText class="h-6 w-6 text-green-600" />
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/20">
+                        <FileText class="h-6 w-6 text-green-600 dark:text-green-400" />
                     </div>
                 </div>
                 <div class="flex items-center mt-3 text-sm">
@@ -113,14 +113,14 @@ const maxMonthlyPortfolios = Math.max(...(props.monthlyStats?.map(s => s.portfol
             </div>
 
             <!-- Users This Month -->
-            <div class="rounded-2xl bg-white shadow-sm border border-gray-100 p-6">
+            <div class="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Usuarios Este Mes</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ currentMonth?.users || 0 }}</p>
+                        <p class="text-sm text-gray-500 dark:text-slate-400">Usuarios Este Mes</p>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ currentMonth?.users || 0 }}</p>
                     </div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50">
-                        <Calendar class="h-6 w-6 text-purple-600" />
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/20">
+                        <Calendar class="h-6 w-6 text-purple-600 dark:text-purple-400" />
                     </div>
                 </div>
                 <div class="flex items-center mt-3 text-sm">
@@ -130,14 +130,14 @@ const maxMonthlyPortfolios = Math.max(...(props.monthlyStats?.map(s => s.portfol
             </div>
 
             <!-- Portfolios This Month -->
-            <div class="rounded-2xl bg-white shadow-sm border border-gray-100 p-6">
+            <div class="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-gray-500">Portafolios Este Mes</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ currentMonth?.portfolios || 0 }}</p>
+                        <p class="text-sm text-gray-500 dark:text-slate-400">Portafolios Este Mes</p>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">{{ currentMonth?.portfolios || 0 }}</p>
                     </div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50">
-                        <TrendingUp class="h-6 w-6 text-amber-600" />
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/20">
+                        <TrendingUp class="h-6 w-6 text-amber-600 dark:text-amber-400" />
                     </div>
                 </div>
                 <div class="flex items-center mt-3 text-sm">
@@ -150,17 +150,17 @@ const maxMonthlyPortfolios = Math.max(...(props.monthlyStats?.map(s => s.portfol
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Main Chart -->
-            <div class="lg:col-span-2 rounded-2xl bg-white shadow-sm border border-gray-100 p-6">
+            <div class="lg:col-span-2 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-6 text-gray-900 dark:text-slate-300">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900">Crecimiento Mensual</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Crecimiento Mensual</h3>
                     <div class="flex items-center space-x-4 text-sm">
                         <div class="flex items-center space-x-2">
                             <div class="h-3 w-3 rounded-full bg-[#005aeb]"></div>
-                            <span class="text-gray-600">Usuarios</span>
+                            <span class="text-gray-600 dark:text-slate-400">Usuarios</span>
                         </div>
                         <div class="flex items-center space-x-2">
                             <div class="h-3 w-3 rounded-full bg-green-500"></div>
-                            <span class="text-gray-600">Portafolios</span>
+                            <span class="text-gray-600 dark:text-slate-400">Portafolios</span>
                         </div>
                     </div>
                 </div>
@@ -192,9 +192,8 @@ const maxMonthlyPortfolios = Math.max(...(props.monthlyStats?.map(s => s.portfol
             </div>
 
             <!-- Template Stats -->
-            <div class="rounded-2xl bg-white shadow-sm border border-gray-100 p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-6">Plantillas Usadas</h3>
-
+            <div class="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Plantillas Usadas</h3>
                 <div v-if="templateStats && templateStats.length > 0" class="space-y-4">
                     <div
                         v-for="(template, index) in templateStats"
@@ -203,12 +202,12 @@ const maxMonthlyPortfolios = Math.max(...(props.monthlyStats?.map(s => s.portfol
                     >
                         <div class="flex items-center space-x-3">
                             <div :class="[templateColors[index % templateColors.length].bg, 'h-3 w-3 rounded-full']"></div>
-                            <span class="text-sm font-medium text-gray-700 capitalize">
+                            <span class="text-sm font-medium text-gray-700 dark:text-slate-200 capitalize">
                                 {{ template.template_type }}
                             </span>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="w-24 h-2 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                 <div 
                                     :class="[templateColors[index % templateColors.length].bg]"
                                     class="h-full rounded-full transition-all duration-500"
@@ -229,7 +228,7 @@ const maxMonthlyPortfolios = Math.max(...(props.monthlyStats?.map(s => s.portfol
                 <div v-if="templateStats && templateStats.length > 0" class="mt-6 flex justify-center">
                     <div class="relative w-32 h-32">
                         <svg class="w-32 h-32 transform -rotate-90">
-                            <circle cx="64" cy="64" r="50" stroke="#e5e7eb" stroke-width="12" fill="none" />
+                            <circle cx="64" cy="64" r="50" stroke="#e5e7eb" class="dark:stroke-slate-800" stroke-width="12" fill="none" />
                             <circle 
                                 cx="64" cy="64" r="50" 
                                 stroke="#005aeb" 
@@ -241,8 +240,8 @@ const maxMonthlyPortfolios = Math.max(...(props.monthlyStats?.map(s => s.portfol
                         </svg>
                         <div class="absolute inset-0 flex items-center justify-center">
                             <div class="text-center">
-                                <p class="text-2xl font-bold text-gray-900">{{ templateStats.length }}</p>
-                                <p class="text-xs text-gray-500">plantillas</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ templateStats.length }}</p>
+                                <p class="text-xs text-gray-500 dark:text-slate-400">plantillas</p>
                             </div>
                         </div>
                     </div>

@@ -154,14 +154,14 @@ const deleteUser = (userId: number) => {
 
 const getRoleBadgeClass = (role: string) => {
     return role === 'admin'
-        ? 'bg-purple-100 text-purple-700'
-        : 'bg-blue-100 text-blue-700';
+        ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400'
+        : 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400';
 };
 
 const getStatusBadgeClass = (status: string) => {
     return status === 'active'
-        ? 'bg-green-100 text-green-700'
-        : 'bg-red-100 text-red-700';
+        ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+        : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400';
 };
 </script>
 
@@ -179,7 +179,7 @@ const getStatusBadgeClass = (status: string) => {
                         v-model="searchQuery"
                         type="text"
                         placeholder="Buscar por nombre o email..."
-                        class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
+                        class="w-full rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm text-gray-900 dark:text-white focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
                     />
                 </div>
                 
@@ -189,8 +189,8 @@ const getStatusBadgeClass = (status: string) => {
                     :class="[
                         'inline-flex items-center space-x-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition',
                         showFilters || activeFiltersCount > 0
-                            ? 'border-[#005aeb] bg-blue-50 text-[#005aeb]'
-                            : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                            ? 'border-[#005aeb] bg-blue-50 dark:bg-blue-900/20 text-[#005aeb] dark:text-blue-400'
+                            : 'border-gray-300 dark:border-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'
                     ]"
                 >
                     <Filter class="h-4 w-4" />
@@ -200,15 +200,15 @@ const getStatusBadgeClass = (status: string) => {
                     </span>
                 </button>
                 
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-slate-400">
                     {{ filteredUsers.length }} de {{ props.users.data.length }} usuarios
                 </p>
             </div>
             
             <!-- Panel de filtros avanzados -->
-            <div v-if="showFilters" class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <div v-if="showFilters" class="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900/50 p-4">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-medium text-gray-900">Filtros Avanzados</h3>
+                    <h3 class="text-sm font-medium text-gray-900 dark:text-slate-200">Filtros Avanzados</h3>
                     <button
                         v-if="activeFiltersCount > 0"
                         @click="clearFilters"
@@ -221,10 +221,10 @@ const getStatusBadgeClass = (status: string) => {
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <!-- Filtro por rol -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Rol</label>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-slate-400 mb-1">Rol</label>
                         <select
                             v-model="roleFilter"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
+                            class="w-full rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
                         >
                             <option v-for="option in roleOptions" :key="option.value" :value="option.value">
                                 {{ option.label }}
@@ -234,10 +234,10 @@ const getStatusBadgeClass = (status: string) => {
                     
                     <!-- Filtro por estado -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Estado</label>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-slate-400 mb-1">Estado</label>
                         <select
                             v-model="statusFilter"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
+                            class="w-full rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
                         >
                             <option v-for="option in statusOptions" :key="option.value" :value="option.value">
                                 {{ option.label }}
@@ -247,10 +247,10 @@ const getStatusBadgeClass = (status: string) => {
                     
                     <!-- Filtro por fecha -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Fecha de registro</label>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-slate-400 mb-1">Fecha de registro</label>
                         <select
                             v-model="dateFilter"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
+                            class="w-full rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
                         >
                             <option v-for="option in dateOptions" :key="option.value" :value="option.value">
                                 {{ option.label }}
@@ -262,33 +262,33 @@ const getStatusBadgeClass = (status: string) => {
         </div>
 
         <!-- Tabla de usuarios -->
-        <div class="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+        <div class="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden text-gray-900 dark:text-slate-300">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-800">
+                    <thead class="bg-gray-50 dark:bg-slate-800/50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                 Usuario
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                 Rol
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                 Estado
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                 Portafolios
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                 Registro
                             </th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                 Acciones
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="user in filteredUsers" :key="user.id" class="hover:bg-gray-50 transition-colors">
+                    <tbody class="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-800">
+                        <tr v-for="user in filteredUsers" :key="user.id" class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <img 
@@ -301,8 +301,8 @@ const getStatusBadgeClass = (status: string) => {
                                         {{ user.first_name?.charAt(0) }}{{ user.last_name?.charAt(0) }}
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ user.name }}</div>
-                                        <div class="text-sm text-gray-500">{{ user.email }}</div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ user.name }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-slate-400">{{ user.email }}</div>
                                     </div>
                                 </div>
                             </td>
@@ -318,24 +318,24 @@ const getStatusBadgeClass = (status: string) => {
                                     {{ user.status === 'active' ? 'Activo' : 'Inactivo' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
                                 {{ user.portfolios_count }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
                                 {{ user.created_at }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end space-x-2">
                                     <Link
                                         :href="`/admin/users/${user.id}`"
-                                        class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
+                                        class="rounded-lg p-2 text-gray-400 dark:text-slate-500 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400"
                                         title="Ver detalles"
                                     >
                                         <Eye class="h-4 w-4" />
                                     </Link>
                                     <button
                                         @click="confirmDelete(user.id)"
-                                        class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                                        class="rounded-lg p-2 text-gray-400 dark:text-slate-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400"
                                         title="Eliminar"
                                     >
                                         <Trash2 class="h-4 w-4" />
@@ -349,23 +349,23 @@ const getStatusBadgeClass = (status: string) => {
 
             <!-- Empty state -->
             <div v-if="filteredUsers.length === 0" class="px-6 py-12 text-center">
-                <Search class="mx-auto h-12 w-12 text-gray-300" />
-                <p class="mt-4 text-gray-500">No se encontraron usuarios</p>
+                <Search class="mx-auto h-12 w-12 text-gray-300 dark:text-slate-700" />
+                <p class="mt-4 text-gray-500 dark:text-slate-400">No se encontraron usuarios</p>
             </div>
         </div>
 
         <!-- Modal de confirmación de eliminación -->
         <Teleport to="body">
-            <div v-if="deleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-                    <h3 class="text-lg font-semibold text-gray-900">¿Eliminar usuario?</h3>
-                    <p class="mt-2 text-sm text-gray-600">
+            <div v-if="deleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                <div class="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-gray-100 dark:border-slate-800">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">¿Eliminar usuario?</h3>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-slate-400">
                         Esta acción eliminará permanentemente al usuario y todos sus portafolios. No se puede deshacer.
                     </p>
                     <div class="mt-6 flex justify-end space-x-3">
                         <button
                             @click="cancelDelete"
-                            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                            class="rounded-lg border border-gray-300 dark:border-slate-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 transition hover:bg-gray-50 dark:hover:bg-slate-800"
                         >
                             Cancelar
                         </button>

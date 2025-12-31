@@ -112,12 +112,12 @@ const hasLanguageError = (index: number) => {
 // MODIFICADO: Aceptar parámetro forceShow
 const getContainerClass = (index: number, id: number, forceShow: boolean = false) => {
   if (hasLanguageError(index)) {
-    return 'border-red-300 bg-red-50';
+    return 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/10';
   }
   if (newItems.value.has(id)) {
-    return 'border-emerald-300 bg-emerald-50';
+    return 'border-emerald-300 dark:border-emerald-500/50 bg-emerald-50 dark:bg-emerald-500/10';
   }
-  return 'border-gray-200 bg-white';
+  return 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900';
 };
 
 // MODIFICADO: Función para obtener clase de error con forceShow
@@ -129,18 +129,18 @@ const getErrorClass = (index: number, field: keyof Language) => {
 <template>
   <div>
     <div class="mb-8">
-      <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">Idiomas</h1>
-      <p class="text-lg text-gray-600">
+      <h1 class="mb-3 text-2xl font-bold text-gray-900 dark:text-white lg:text-3xl">Idiomas</h1>
+      <p class="text-lg text-gray-600 dark:text-slate-400">
         Destaca los idiomas que hablas y tu nivel de fluidez.
       </p>
     </div>
 
     <div>
       <div class="mb-4 flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-gray-900">Tus Idiomas</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tus Idiomas</h3>
         <button
           @click="addLanguage"
-          class="flex items-center space-x-1 text-sm font-medium text-[#005aeb] transition-colors hover:text-[#0047b2]"
+          class="flex items-center space-x-1 text-sm font-medium text-[#005aeb] dark:text-blue-400 transition-colors hover:text-[#0047b2] dark:hover:text-blue-300"
         >
           <Plus class="h-4 w-4" />
           <span>Agregar</span>
@@ -149,7 +149,7 @@ const getErrorClass = (index: number, field: keyof Language) => {
 
       <div
         v-if="languages.length === 0"
-        class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500"
+        class="rounded-lg border border-dashed border-gray-300 dark:border-slate-800 p-4 text-center text-sm text-gray-500 dark:text-slate-500"
       >
         No has agregado idiomas
       </div>
@@ -167,11 +167,11 @@ const getErrorClass = (index: number, field: keyof Language) => {
             tabindex="0"
             @click="toggleLanguage(language.id)"
             @keydown.enter="toggleLanguage(language.id)"
-            class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
+            class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50 dark:hover:bg-slate-800/50"
           >
             <div class="flex flex-1 items-center gap-3 text-left">
               <ChevronDown
-                class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
+                class="h-5 w-5 shrink-0 text-gray-600 transition-transform duration-400 ease-out"
                 :class="{ 'rotate-180 transform': expandedLanguage === language.id }"
               />
               
@@ -180,9 +180,9 @@ const getErrorClass = (index: number, field: keyof Language) => {
                   <span 
                     class="text-base font-medium transition-colors duration-300" 
                     :class="{
-                        'text-red-700': hasLanguageError(index),
-                        'text-emerald-700': newItems.has(language.id),
-                        'text-gray-900': !hasLanguageError(index) && !newItems.has(language.id)
+                        'text-red-700 dark:text-red-400': hasLanguageError(index),
+                        'text-emerald-700 dark:text-emerald-400': newItems.has(language.id),
+                        'text-gray-900 dark:text-white': !hasLanguageError(index) && !newItems.has(language.id)
                     }"
                   >
                     {{ language.name || 'Nuevo idioma' }}
@@ -200,14 +200,14 @@ const getErrorClass = (index: number, field: keyof Language) => {
                     class="h-4 w-4 text-emerald-500 animate-bounce" 
                   />
                 </div>
-                <span class="text-sm text-gray-500">{{ language.level }}</span>
+                <span class="text-sm text-gray-500 dark:text-slate-400">{{ language.level }}</span>
               </div>
             </div>
 
             <button
               @click.stop="removeLanguage(index)"
               type="button"
-              class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
+              class="shrink-0 p-1.5 text-gray-400 dark:text-slate-500 transition-colors hover:text-red-500 dark:hover:text-red-400"
             >
               <Trash2 class="h-4 w-4" />
             </button>
@@ -224,19 +224,19 @@ const getErrorClass = (index: number, field: keyof Language) => {
           >
             <div
               v-if="expandedLanguage === language.id"
-              class="border-t px-4 py-4 bg-white/50"
-              :class="hasLanguageError(index) ? 'border-red-200' : 'border-gray-200'"
+              class="border-t px-4 py-4 bg-white/50 dark:bg-slate-900/50"
+              :class="hasLanguageError(index) ? 'border-red-200 dark:border-red-500/30' : 'border-gray-200 dark:border-slate-800'"
             >
               <div class="space-y-4">
                 
                 <!-- Nombre -->
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-gray-700">Idioma *</label>
+                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Idioma *</label>
                   <input
                     :value="language.name"
                     @input="updateLanguage(index, 'name', ($event.target as HTMLInputElement).value)"
                     type="text"
-                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:border-[#005aeb] focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                    class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:border-[#005aeb] focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                     :class="getErrorClass(index, 'name')"
                     placeholder="Ej: Inglés"
                   />
@@ -247,11 +247,11 @@ const getErrorClass = (index: number, field: keyof Language) => {
 
                 <!-- Nivel -->
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-gray-700">Nivel *</label>
+                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Nivel *</label>
                   <select
                     :value="language.level"
                     @change="updateLanguage(index, 'level', ($event.target as HTMLSelectElement).value)"
-                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:border-[#005aeb] focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                    class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:border-[#005aeb] focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                     :class="getErrorClass(index, 'level')"
                   >
                     <option value="" disabled>Selecciona un nivel</option>

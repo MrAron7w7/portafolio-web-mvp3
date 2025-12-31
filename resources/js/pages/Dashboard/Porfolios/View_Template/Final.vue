@@ -52,14 +52,14 @@ const shareStatus = computed(() => {
         return {
             label: 'Público',
             icon: Globe,
-            classes: 'bg-green-100 text-green-700',
+            classes: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
             isPublic: true
         };
     }
     return {
         label: 'Privado',
         icon: Lock,
-        classes: 'bg-gray-100 text-gray-600',
+        classes: 'bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-slate-400',
         isPublic: false
     };
 });
@@ -166,19 +166,19 @@ const printPortfolio = () => {
 <template>
     <Head :title="portfolio.title" />
 
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
         <!-- Header de control (visible para todos) -->
-        <header class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur-sm no-print">
+        <header class="sticky top-0 z-50 border-b border-gray-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm no-print transition-colors duration-300">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
                     <!-- Navegación izquierda -->
                     <div class="flex items-center space-x-4">
                         <Link v-if="isOwner" href="/dashboard" 
-                            class="flex items-center space-x-2 rounded-lg px-3 py-2 text-gray-600 transition hover:bg-gray-100">
+                            class="flex items-center space-x-2 rounded-lg px-3 py-2 text-gray-600 dark:text-slate-400 transition hover:bg-gray-100 dark:hover:bg-slate-800">
                             <ArrowLeft class="h-5 w-5" />
                             <span class="hidden sm:inline">Volver al Dashboard</span>
                         </Link>
-                        <div v-else class="flex items-center space-x-2 text-gray-600">
+                        <div v-else class="flex items-center space-x-2 text-gray-600 dark:text-slate-400">
                             <span class="text-sm font-medium truncate max-w-[200px]">{{ portfolio.title }}</span>
                         </div>
                     </div>
@@ -196,14 +196,14 @@ const printPortfolio = () => {
                         <!-- Compartir (visible si es público) -->
                         <button v-if="shareStatus.isPublic" 
                             @click="showShareModal = true"
-                            class="flex items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-50">
+                            class="flex items-center space-x-2 rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2 text-gray-700 dark:text-slate-300 transition hover:bg-gray-50 dark:hover:bg-slate-800">
                             <Share2 class="h-4 w-4" />
                             <span class="hidden sm:inline">Compartir</span>
                         </button>
 
                         <!-- Descargar PDF -->
                         <button @click="printPortfolio"
-                            class="flex items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-50">
+                            class="flex items-center space-x-2 rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2 text-gray-700 dark:text-slate-300 transition hover:bg-gray-50 dark:hover:bg-slate-800">
                             <Download class="h-4 w-4" />
                             <span class="hidden sm:inline">Descargar PDF</span>
                         </button>
@@ -228,7 +228,7 @@ const printPortfolio = () => {
                         <!-- Caso 3: Sin permiso de edición -->
                         <button v-else
                             @click="handleEditClick"
-                            class="flex items-center space-x-2 rounded-lg bg-gray-200 px-4 py-2 text-gray-500 cursor-not-allowed">
+                            class="flex items-center space-x-2 rounded-lg bg-gray-200 dark:bg-slate-800 px-4 py-2 text-gray-500 dark:text-slate-500 cursor-not-allowed">
                             <Lock class="h-4 w-4" />
                             <span class="hidden sm:inline">Solo lectura</span>
                         </button>
@@ -245,13 +245,13 @@ const printPortfolio = () => {
                 leave-from-class="translate-y-0 opacity-100"
                 leave-to-class="-translate-y-2 opacity-0">
                 <div v-if="showNoEditWarning" 
-                    class="absolute left-1/2 -translate-x-1/2 top-20 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 shadow-lg flex items-center gap-3 z-50">
-                    <div class="p-1.5 bg-amber-100 rounded-lg">
-                        <AlertTriangle class="h-4 w-4 text-amber-600" />
+                    class="absolute left-1/2 -translate-x-1/2 top-20 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-xl px-4 py-3 shadow-lg flex items-center gap-3 z-50">
+                    <div class="p-1.5 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
+                        <AlertTriangle class="h-4 w-4 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-amber-900">Solo puedes ver este portafolio</p>
-                        <p class="text-xs text-amber-600">El propietario no ha habilitado la edición.</p>
+                        <p class="text-sm font-medium text-amber-900 dark:text-amber-200">Solo puedes ver este portafolio</p>
+                        <p class="text-xs text-amber-600 dark:text-amber-400/80">El propietario no ha habilitado la edición.</p>
                     </div>
                     <button @click="showNoEditWarning = false" class="ml-2 text-amber-400 hover:text-amber-600">
                         <X class="h-4 w-4" />
@@ -272,11 +272,11 @@ const printPortfolio = () => {
             <!-- Mensaje si no hay datos -->
             <div v-else class="flex min-h-screen items-center justify-center">
                 <div class="text-center">
-                    <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
-                        <Eye class="h-10 w-10 text-gray-400" />
+                    <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100 dark:bg-slate-800">
+                        <Eye class="h-10 w-10 text-gray-400 dark:text-slate-500" />
                     </div>
-                    <h2 class="mb-2 text-2xl font-bold text-gray-900">Portafolio vacío</h2>
-                    <p class="mb-6 text-gray-600">Este portafolio aún no tiene contenido.</p>
+                    <h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-white">Portafolio vacío</h2>
+                    <p class="mb-6 text-gray-600 dark:text-slate-400">Este portafolio aún no tiene contenido.</p>
                     <Link v-if="isOwner" :href="`/dashboard/portfolio/${portfolio.id}/editor`"
                         class="rounded-lg bg-[#005aeb] px-6 py-3 text-white transition hover:bg-[#0048c4]">
                         Comenzar a editar
@@ -286,9 +286,9 @@ const printPortfolio = () => {
         </main>
 
         <!-- Footer del portafolio -->
-        <footer class="border-t border-gray-200 bg-white py-8 no-print">
+        <footer class="border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-8 no-print transition-colors duration-300">
             <div class="mx-auto max-w-7xl px-4 text-center">
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-slate-400">
                     Creado con 
                     <Link href="/" class="font-medium text-[#005aeb] hover:underline">
                         PortafolioIA
@@ -301,11 +301,11 @@ const printPortfolio = () => {
         <Teleport to="body">
             <Transition name="modal">
                 <div v-if="showShareModal" 
-                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
                     @click.self="showShareModal = false">
-                    <div class="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                    <div class="relative w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-gray-100 dark:border-slate-800 transition-colors duration-300">
                         <div class="mb-4 flex items-center justify-between">
-                            <h3 class="text-xl font-bold text-gray-900">Compartir Portafolio</h3>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Compartir Portafolio</h3>
                             <button @click="showShareModal = false" class="rounded-full p-1 bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
                                 <X class="h-5 w-5" />
                             </button>
@@ -313,24 +313,24 @@ const printPortfolio = () => {
                         
                         <!-- URL del portafolio -->
                         <div class="mb-6">
-                            <label class="mb-2 block text-sm font-medium text-gray-700">
+                            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">
                                 Enlace público
                             </label>
-                            <div class="flex rounded-lg border border-gray-300 overflow-hidden">
+                            <div class="flex rounded-lg border border-gray-300 dark:border-slate-700 overflow-hidden">
                                 <input 
                                     type="text" 
                                     :value="publicUrl || (portfolio.share_token ? `${$page.props.app_url || windowOrigin}/p/${portfolio.share_token}` : 'Enlace no disponible')" 
                                     readonly
-                                    class="flex-1 bg-gray-50 px-4 py-2.5 text-sm text-gray-600 focus:outline-none"
+                                    class="flex-1 bg-gray-50 dark:bg-slate-800 px-4 py-2.5 text-sm text-gray-600 dark:text-slate-300 focus:outline-none"
                                     :class="{ 'text-gray-400 italic': !publicUrl && !portfolio.share_token }"
                                 />
                                 <button 
                                     @click="copyUrl"
                                     :disabled="!publicUrl && !portfolio.share_token"
-                                    class="flex items-center space-x-2 bg-gray-100 px-4 transition hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    class="flex items-center space-x-2 bg-gray-100 dark:bg-slate-700 px-4 transition hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <Check v-if="copied" class="h-4 w-4 text-green-600" />
-                                    <Copy v-else class="h-4 w-4 text-gray-600" />
+                                    <Check v-if="copied" class="h-4 w-4 text-green-600 dark:text-green-400" />
+                                    <Copy v-else class="h-4 w-4 text-gray-600 dark:text-slate-400" />
                                 </button>
                             </div>
                             <p v-if="copied" class="mt-2 text-sm text-green-600 font-medium">
@@ -343,7 +343,7 @@ const printPortfolio = () => {
 
                         <!-- Redes sociales -->
                         <div>
-                            <label class="mb-3 block text-sm font-medium text-gray-700">
+                            <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-slate-300">
                                 Compartir en redes
                             </label>
                             <div class="flex space-x-3">

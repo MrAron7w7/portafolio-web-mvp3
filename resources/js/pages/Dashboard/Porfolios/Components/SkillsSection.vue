@@ -185,15 +185,15 @@
     // Obtener clase de contenedor
     const getContainerClass = (type: 'technical' | 'soft', index: number, id: number) => {
         if (hasSkillError(type, index)) {
-            return 'border-red-300 bg-red-50';
+            return 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/10';
         }
         if (type === 'technical' && newItemsTechnical.value.has(id)) {
-            return 'border-emerald-300 bg-emerald-50';
+            return 'border-emerald-300 dark:border-emerald-500/50 bg-emerald-50 dark:bg-emerald-500/10';
         }
         if (type === 'soft' && newItemsSoft.value.has(id)) {
-            return 'border-emerald-300 bg-emerald-50';
+            return 'border-emerald-300 dark:border-emerald-500/50 bg-emerald-50 dark:bg-emerald-500/10';
         }
-        return 'border-gray-200 bg-white';
+        return 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900';
     };
     
     
@@ -216,8 +216,8 @@
     <template>
         <div>
             <div class="mb-8">
-                <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">Habilidades</h1>
-                <p class="text-lg text-gray-600">
+                <h1 class="mb-3 text-2xl font-bold text-gray-900 dark:text-white lg:text-3xl">Habilidades</h1>
+                <p class="text-lg text-gray-600 dark:text-slate-400">
                     Destaca tus competencias técnicas y habilidades blandas.
                 </p>
             </div>
@@ -226,10 +226,10 @@
             <!-- HABILIDADES TÉCNICAS -->
             <div class="mb-12">
                 <div class="mb-4 flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900">Habilidades Técnicas</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Habilidades Técnicas</h3>
                     <button
                         @click="addSkill('technical')"
-                        class="flex items-center space-x-1 text-sm font-medium text-[#005aeb] transition-colors hover:text-[#0047b2]"
+                        class="flex items-center space-x-1 text-sm font-medium text-[#005aeb] dark:text-blue-400 transition-colors hover:text-[#0047b2] dark:hover:text-blue-300"
                     >
                         <Plus class="h-4 w-4" />
                         <span>Agregar</span>
@@ -239,7 +239,7 @@
     
                 <div
                     v-if="modelValue.technical.length === 0"
-                    class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500"
+                    class="rounded-lg border border-dashed border-gray-300 dark:border-slate-800 p-4 text-center text-sm text-gray-500 dark:text-slate-500"
                 >
                     No has agregado habilidades técnicas
                 </div>
@@ -271,9 +271,9 @@
                                         <span 
                                             class="text-base font-medium transition-colors duration-300" 
                                             :class="{
-                                                'text-red-700': hasSkillError('technical', index),
-                                                'text-emerald-700': isNew('technical', skill.id),
-                                                'text-gray-900': !hasSkillError('technical', index) && !isNew('technical', skill.id)
+                                                'text-red-700 dark:text-red-400': hasSkillError('technical', index),
+                                                'text-emerald-700 dark:text-emerald-400': isNew('technical', skill.id),
+                                                'text-gray-900 dark:text-white': !hasSkillError('technical', index) && !isNew('technical', skill.id)
                                             }"
                                         >
                                             {{ skill.name || 'Nueva habilidad' }}
@@ -292,7 +292,7 @@
                                             class="h-4 w-4 text-emerald-500 animate-bounce" 
                                         />
                                     </div>
-                                    <span class="text-sm text-gray-500">{{ getLevelLabel(skill.level) }}</span>
+                                    <span class="text-sm text-gray-500 dark:text-slate-400">{{ getLevelLabel(skill.level) }}</span>
                                 </div>
                             </div>
     
@@ -300,7 +300,7 @@
                             <button
                                 @click.stop="removeSkill('technical', index)"
                                 type="button"
-                                class="shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
+                                class="shrink-0 p-1.5 text-gray-400 dark:text-slate-500 transition-colors hover:text-red-500 dark:hover:text-red-400"
                             >
                                 <Trash2 class="h-4 w-4" />
                             </button>
@@ -318,13 +318,13 @@
                         >
                             <div
                                 v-if="expandedSkill === skill.id"
-                                class="border-t px-4 py-4 bg-white/50"
-                                :class="hasSkillError('technical', index) ? 'border-red-200' : 'border-gray-200'"
+                                class="border-t px-4 py-4 bg-white/50 dark:bg-slate-900/50"
+                                :class="hasSkillError('technical', index) ? 'border-red-200 dark:border-red-500/30' : 'border-gray-200 dark:border-slate-800'"
                             >
                                 <div class="space-y-4">
                                     <!-- Nombre -->
                                     <div>
-                                        <label class="mb-2 block text-sm font-medium text-gray-700">Habilidad *</label>
+                                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Habilidad *</label>
                                         <input
                                             :value="skill.name"
                                             @input="
@@ -336,7 +336,7 @@
                                                 )
                                             "
                                             type="text"
-                                            class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:border-[#005aeb] focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                            class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:border-[#005aeb] focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                                             :class="getErrorClassForInput('technical', index, 'name')"
                                             placeholder="Ej: JavaScript, React, Vue.js"
                                         />
@@ -348,7 +348,7 @@
     
                                     <!-- Nivel -->
                                     <div>
-                                        <label class="mb-2 block text-sm font-medium text-gray-700">
+                                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">
                                             Nivel: {{ skill.level }}%
                                         </label>
                                         <input
@@ -381,10 +381,10 @@
             <!-- HABILIDADES BLANDAS -->
             <div>
                 <div class="mb-4 flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900">Habilidades Blandas</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Habilidades Blandas</h3>
                     <button
                         @click="addSkill('soft')"
-                        class="flex items-center space-x-1 text-sm font-medium text-[#005aeb] transition-colors hover:text-[#0047b2]"
+                        class="flex items-center space-x-1 text-sm font-medium text-[#005aeb] dark:text-blue-400 transition-colors hover:text-[#0047b2] dark:hover:text-blue-300"
                     >
                         <Plus class="h-4 w-4" />
                         <span>Agregar</span>
@@ -394,7 +394,7 @@
     
                 <div
                     v-if="modelValue.soft.length === 0"
-                    class="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500"
+                    class="rounded-lg border border-dashed border-gray-300 dark:border-slate-800 p-4 text-center text-sm text-gray-500 dark:text-slate-500"
                 >
                     No has agregado habilidades blandas
                 </div>
@@ -413,7 +413,7 @@
                             tabindex="0"
                             @click="toggleSkill(skill.id)"
                             @keydown.enter="toggleSkill(skill.id)"
-                            class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
+                            class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50 dark:hover:bg-slate-800/50"
                         >
                             <div class="flex flex-1 items-center gap-3 text-left">
                                 <ChevronDown
@@ -426,9 +426,9 @@
                                         <span 
                                             class="text-base font-medium transition-colors duration-300" 
                                             :class="{
-                                                'text-red-700': hasSkillError('soft', index),
-                                                'text-emerald-700': isNew('soft', skill.id),
-                                                'text-gray-900': !hasSkillError('soft', index) && !isNew('soft', skill.id)
+                                                'text-red-700 dark:text-red-400': hasSkillError('soft', index),
+                                                'text-emerald-700 dark:text-emerald-400': isNew('soft', skill.id),
+                                                'text-gray-900 dark:text-white': !hasSkillError('soft', index) && !isNew('soft', skill.id)
                                             }"
                                         >
                                             {{ skill.name || 'Nueva habilidad' }}
@@ -447,7 +447,7 @@
                                             class="h-4 w-4 text-emerald-500 animate-bounce" 
                                         />
                                     </div>
-                                    <span class="text-sm text-gray-500">{{ getLevelLabel(skill.level) }}</span>
+                                    <span class="text-sm text-gray-500 dark:text-slate-400">{{ getLevelLabel(skill.level) }}</span>
                                 </div>
                             </div>
     
@@ -455,7 +455,7 @@
                             <button
                                 @click.stop="removeSkill('soft', index)"
                                 type="button"
-                                class="shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
+                                class="shrink-0 p-1.5 text-gray-400 dark:text-slate-500 transition-colors hover:text-red-500 dark:hover:text-red-400"
                             >
                                 <Trash2 class="h-4 w-4" />
                             </button>
@@ -473,13 +473,13 @@
                         >
                             <div
                                 v-if="expandedSkill === skill.id"
-                                class="border-t px-4 py-4 bg-white/50"
-                                :class="hasSkillError('soft', index) ? 'border-red-200' : 'border-gray-200'"
+                                class="border-t px-4 py-4 bg-white/50 dark:bg-slate-900/50"
+                                :class="hasSkillError('soft', index) ? 'border-red-200 dark:border-red-500/30' : 'border-gray-200 dark:border-slate-800'"
                             >
                                 <div class="space-y-4">
                                     <!-- Nombre -->
                                     <div>
-                                        <label class="mb-2 block text-sm font-medium text-gray-700">Habilidad *</label>
+                                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Habilidad *</label>
                                         <input
                                             :value="skill.name"
                                             @input="
@@ -491,7 +491,7 @@
                                                 )
                                             "
                                             type="text"
-                                            class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:border-[#005aeb] focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                            class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:border-[#005aeb] focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                                             :class="getErrorClassForInput('soft', index, 'name')"
                                             placeholder="Ej: Comunicación, Liderazgo, Resolución de problemas"
                                         />
@@ -503,7 +503,7 @@
     
                                     <!-- Nivel -->
                                     <div>
-                                        <label class="mb-2 block text-sm font-medium text-gray-700">
+                                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">
                                             Nivel: {{ skill.level }}%
                                         </label>
                                         <input

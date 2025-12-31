@@ -604,7 +604,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50/50">
+    <div class="min-h-screen bg-gray-50/50 dark:bg-slate-950 transition-colors duration-300">
         <!-- ✨ BACKDROP COMPARTIDO PARA MODALES IA ✨ -->
         <Transition name="fade">
             <div v-if="isAIModalBackdropVisible" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />

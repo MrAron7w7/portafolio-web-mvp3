@@ -193,7 +193,7 @@
                     @click.stop
                 >
                     <!-- Header -->
-                    <div class="relative overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-8 py-8 text-white flex-shrink-0">
+                    <div class="relative overflow-hidden bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 px-8 py-8 text-white shrink-0">
                         <div class="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -mr-20 -mt-20 opacity-10" />
                         
                         <div class="relative z-10">
@@ -206,7 +206,7 @@
                     </div>
     
                     <!-- Stats Bar -->
-                    <div v-if="hasData" class="grid grid-cols-5 gap-3 px-8 py-6 bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                    <div v-if="hasData" class="grid grid-cols-5 gap-3 px-8 py-6 bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-gray-700 shrink-0">
                         <div class="text-center group hover:bg-indigo-50 dark:hover:bg-slate-600 rounded-lg p-2 transition-colors">
                             <div class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{{ experienceCount }}</div>
                             <div class="text-xs text-gray-600 dark:text-gray-400 flex justify-center items-center gap-1">
@@ -241,7 +241,7 @@
     
                     <!-- Tabs -->
                <!-- Tabs -->
-<div class="flex gap-0 px-8 py-4 border-b border-gray-200 dark:border-gray-700 overflow-x-auto flex-shrink-0">
+<div class="flex gap-0 px-8 py-4 border-b border-gray-200 dark:border-gray-700 overflow-x-auto shrink-0">
   <button
     v-for="tab in ['overview', 'experience', 'education', 'projects', 'languages', 'skills']"
     :key="tab"
@@ -287,7 +287,7 @@
                         <Transition name="tab-slide" mode="out-in">
                             <!-- Overview Tab -->
                             <div v-if="selectedTab === 'overview' && hasData" key="overview" class="space-y-6">
-                                <div v-if="personalSummary" class="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                                <div v-if="personalSummary" class="p-6 bg-linear-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                                         <User class="w-5 h-5 text-indigo-500" /> Resumen del Perfil
                                     </h3>
@@ -369,7 +369,7 @@
     
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 flex items-center gap-4">
-                                        <div class="p-3 bg-blue-100 dark:bg-blue-800 rounded-full flex-shrink-0">
+                                        <div class="p-3 bg-blue-100 dark:bg-blue-800 rounded-full shrink-0">
                                             <Briefcase class="w-6 h-6 text-blue-600 dark:text-blue-300" />
                                         </div>
                                         <div>
@@ -378,7 +378,7 @@
                                         </div>
                                     </div>
                                     <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-4">
-                                        <div class="p-3 bg-green-100 dark:bg-green-800 rounded-full flex-shrink-0">
+                                        <div class="p-3 bg-green-100 dark:bg-green-800 rounded-full shrink-0">
                                             <Code2 class="w-6 h-6 text-green-600 dark:text-green-300" />
                                         </div>
                                         <div>
@@ -387,7 +387,7 @@
                                         </div>
                                     </div>
                                     <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800 flex items-center gap-4">
-                                        <div class="p-3 bg-purple-100 dark:bg-purple-800 rounded-full flex-shrink-0">
+                                        <div class="p-3 bg-purple-100 dark:bg-purple-800 rounded-full shrink-0">
                                             <GraduationCap class="w-6 h-6 text-purple-600 dark:text-purple-300" />
                                         </div>
                                         <div>
@@ -396,7 +396,7 @@
                                         </div>
                                     </div>
                                     <div class="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg border border-pink-200 dark:border-pink-800 flex items-center gap-4">
-                                        <div class="p-3 bg-pink-100 dark:bg-pink-800 rounded-full flex-shrink-0">
+                                        <div class="p-3 bg-pink-100 dark:bg-pink-800 rounded-full shrink-0">
                                             <Wrench class="w-6 h-6 text-pink-600 dark:text-pink-300" />
                                         </div>
                                         <div>
@@ -451,7 +451,7 @@
                                         :key="edu.id"
                                         class="p-6 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow flex items-start gap-4"
                                     >
-                                        <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex-shrink-0">
+                                        <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg shrink-0">
                                             <GraduationCap class="w-6 h-6 text-purple-600 dark:text-purple-400" />
                                         </div>
                                         <div>
@@ -502,7 +502,7 @@
                                             rel="noopener noreferrer"
                                             class="inline-flex items-center gap-2 text-pink-500 hover:text-pink-600 transition-colors text-sm font-medium"
                                         >
-                                            <ExternalLink class="w-4 h-4 flex-shrink-0" />
+                                            <ExternalLink class="w-4 h-4 shrink-0" />
                                             <span class="underline truncate max-w-[200px]">{{ project.link }}</span>
                                         </a>
 
@@ -597,7 +597,7 @@
                     </div>
     
                     <!-- Footer -->
-                    <div class="border-t border-gray-200 dark:border-gray-700 px-8 py-6 flex-shrink-0 bg-gray-50 dark:bg-slate-700 flex gap-3">
+                    <div class="border-t border-gray-200 dark:border-gray-700 px-8 py-6 shrink-0 bg-gray-50 dark:bg-slate-700 flex gap-3">
                         <button
                             @click="handleClose"
                             :disabled="isAutoCompleting"
@@ -608,7 +608,7 @@
                         <button
                             @click="handleAutoComplete"
                             :disabled="!hasData || isAutoCompleting"
-                            class="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                            class="flex-1 px-6 py-3 bg-linear-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                         >
                             <Loader2 v-if="isAutoCompleting" class="w-5 h-5 animate-spin" />
                             <Zap v-else class="w-5 h-5" />

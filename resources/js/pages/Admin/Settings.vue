@@ -69,59 +69,59 @@ const resetToDefaults = () => {
             <!-- Formulario de configuración -->
             <div class="lg:col-span-2 space-y-6">
                 <!-- Información básica -->
-                <div class="rounded-2xl bg-white shadow-sm border border-gray-100 p-6">
+                <div class="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-6">
                     <div class="flex items-center space-x-3 mb-6">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-                            <Type class="h-5 w-5 text-blue-600" />
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/20">
+                            <Type class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <h2 class="text-lg font-semibold text-gray-900">Información de la App</h2>
-                            <p class="text-sm text-gray-500">Personaliza el nombre y descripción</p>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información de la App</h2>
+                            <p class="text-sm text-gray-500 dark:text-slate-400">Personaliza el nombre y descripción</p>
                         </div>
                     </div>
 
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                                 Nombre de la aplicación
                             </label>
                             <input
                                 v-model="settings.appName"
                                 type="text"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
+                                class="w-full rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                                 Eslogan / Tagline
                             </label>
                             <input
                                 v-model="settings.appTagline"
                                 type="text"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
+                                class="w-full rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-[#005aeb] focus:outline-none focus:ring-1 focus:ring-[#005aeb]"
                             />
                         </div>
                     </div>
                 </div>
 
                 <!-- Logo -->
-                <div class="rounded-2xl bg-white shadow-sm border border-gray-100 p-6">
+                <div class="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-6">
                     <div class="flex items-center space-x-3 mb-6">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
-                            <Image class="h-5 w-5 text-purple-600" />
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/20">
+                            <Image class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                            <h2 class="text-lg font-semibold text-gray-900">Logo</h2>
-                            <p class="text-sm text-gray-500">Sube el logo de tu aplicación</p>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Logo</h2>
+                            <p class="text-sm text-gray-500 dark:text-slate-400">Sube el logo de tu aplicación</p>
                         </div>
                     </div>
 
                     <div class="flex items-center space-x-6">
                         <!-- Preview del logo -->
-                        <div class="flex h-24 w-24 items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50">
+                        <div class="flex h-24 w-24 items-center justify-center rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50">
                             <img v-if="logoPreview" :src="logoPreview" class="h-20 w-20 object-contain" />
-                            <Image v-else class="h-10 w-10 text-gray-300" />
+                            <Image v-else class="h-10 w-10 text-gray-300 dark:text-slate-700" />
                         </div>
 
                         <div class="flex-1">
@@ -132,79 +132,79 @@ const resetToDefaults = () => {
                                     class="hidden"
                                     @change="handleLogoUpload"
                                 />
-                                <div class="inline-flex items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+                                <div class="inline-flex items-center space-x-2 rounded-lg border border-gray-300 dark:border-slate-800 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-slate-300 transition hover:bg-gray-50 dark:hover:bg-slate-800">
                                     <Upload class="h-4 w-4" />
                                     <span>Subir logo</span>
                                 </div>
                             </label>
-                            <p class="mt-2 text-xs text-gray-500">PNG, JPG o SVG. Máximo 2MB.</p>
+                            <p class="mt-2 text-xs text-gray-500 dark:text-slate-400">PNG, JPG o SVG. Máximo 2MB.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Colores -->
-                <div class="rounded-2xl bg-white shadow-sm border border-gray-100 p-6">
+                <div class="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-6">
                     <div class="flex items-center space-x-3 mb-6">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-pink-100 to-purple-100">
-                            <Palette class="h-5 w-5 text-purple-600" />
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-r from-pink-100 dark:from-pink-900/20 to-purple-100 dark:to-purple-900/20">
+                            <Palette class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                            <h2 class="text-lg font-semibold text-gray-900">Colores</h2>
-                            <p class="text-sm text-gray-500">Define la paleta de colores principal</p>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Colores</h2>
+                            <p class="text-sm text-gray-500 dark:text-slate-400">Define la paleta de colores principal</p>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                 Color Primario
                             </label>
                             <div class="flex items-center space-x-3">
                                 <input
                                     v-model="settings.primaryColor"
                                     type="color"
-                                    class="h-10 w-14 cursor-pointer rounded-lg border border-gray-300"
+                                    class="h-10 w-14 cursor-pointer rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900"
                                 />
                                 <input
                                     v-model="settings.primaryColor"
                                     type="text"
-                                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono"
+                                    class="flex-1 rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-gray-900 dark:text-white font-mono"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                 Color Secundario
                             </label>
                             <div class="flex items-center space-x-3">
                                 <input
                                     v-model="settings.secondaryColor"
                                     type="color"
-                                    class="h-10 w-14 cursor-pointer rounded-lg border border-gray-300"
+                                    class="h-10 w-14 cursor-pointer rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900"
                                 />
                                 <input
                                     v-model="settings.secondaryColor"
                                     type="text"
-                                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono"
+                                    class="flex-1 rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-gray-900 dark:text-white font-mono"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                                 Color Acento
                             </label>
                             <div class="flex items-center space-x-3">
                                 <input
                                     v-model="settings.accentColor"
                                     type="color"
-                                    class="h-10 w-14 cursor-pointer rounded-lg border border-gray-300"
+                                    class="h-10 w-14 cursor-pointer rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900"
                                 />
                                 <input
                                     v-model="settings.accentColor"
                                     type="text"
-                                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono"
+                                    class="flex-1 rounded-lg border border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-gray-900 dark:text-white font-mono"
                                 />
                             </div>
                         </div>
@@ -215,10 +215,10 @@ const resetToDefaults = () => {
             <!-- Preview y acciones -->
             <div class="space-y-6">
                 <!-- Preview -->
-                <div class="rounded-2xl bg-white shadow-sm border border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Vista Previa</h3>
+                <div class="rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Vista Previa</h3>
                     
-                    <div class="rounded-xl border border-gray-200 p-4 bg-gray-50">
+                    <div class="rounded-xl border border-gray-200 dark:border-slate-800 p-4 bg-gray-50 dark:bg-slate-800/50">
                         <div class="flex items-center space-x-3 mb-4">
                             <div 
                                 class="flex h-10 w-10 items-center justify-center rounded-lg text-white font-bold"
@@ -230,7 +230,7 @@ const resetToDefaults = () => {
                                 <p class="font-bold" :style="{ color: settings.primaryColor }">
                                     {{ settings.appName }}
                                 </p>
-                                <p class="text-xs text-gray-500">{{ settings.appTagline }}</p>
+                                <p class="text-xs text-gray-500 dark:text-slate-400">{{ settings.appTagline }}</p>
                             </div>
                         </div>
 
@@ -271,7 +271,7 @@ const resetToDefaults = () => {
 
                     <button
                         @click="resetToDefaults"
-                        class="w-full inline-flex items-center justify-center space-x-2 rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                        class="w-full inline-flex items-center justify-center space-x-2 rounded-xl border border-gray-300 dark:border-slate-800 px-4 py-3 text-sm font-medium text-gray-700 dark:text-slate-300 transition hover:bg-gray-50 dark:hover:bg-slate-800"
                     >
                         <RefreshCw class="h-4 w-4" />
                         <span>Restablecer Valores</span>

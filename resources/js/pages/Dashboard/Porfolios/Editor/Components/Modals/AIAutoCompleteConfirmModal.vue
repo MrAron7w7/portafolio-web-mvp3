@@ -111,7 +111,7 @@ const handleClose = () => {
                 @click.stop>
                 <!-- Header Success - STICKY -->
                 <div
-                    class="sticky top-0 z-10 overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-12 text-white text-center flex-shrink-0">
+                    class="sticky top-0 z-10 overflow-hidden bg-linear-to-r from-green-500 to-emerald-600 px-8 py-12 text-white text-center shrink-0">
                     <!-- Decorative elements -->
                     <div class="absolute top-0 right-0 w-40 h-40 bg-green-400 rounded-full -mr-20 -mt-20 opacity-20" />
 
@@ -140,7 +140,7 @@ const handleClose = () => {
                             class="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700 hover:shadow-md transition-all">
                             <div class="flex items-center gap-3 flex-1">
                                 <div
-                                    class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center shrink-0">
                                     <Briefcase class="w-5 h-5 text-white" />
                                 </div>
                                 <div class="min-w-0">
@@ -149,7 +149,7 @@ const handleClose = () => {
                                     <p class="text-xs text-gray-500 dark:text-gray-400">Agregadas</p>
                                 </div>
                             </div>
-                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-5 h-5 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                     clip-rule="evenodd" />
@@ -161,7 +161,7 @@ const handleClose = () => {
                             class="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700 hover:shadow-md transition-all">
                             <div class="flex items-center gap-3 flex-1">
                                 <div
-                                    class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center shrink-0">
                                     <GraduationCap class="w-5 h-5 text-white" />
                                 </div>
                                 <div class="min-w-0">
@@ -170,7 +170,7 @@ const handleClose = () => {
                                     <p class="text-xs text-gray-500 dark:text-gray-400">Agregados</p>
                                 </div>
                             </div>
-                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-5 h-5 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                     clip-rule="evenodd" />
@@ -182,7 +182,7 @@ const handleClose = () => {
                             class="flex items-center justify-between p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg border border-pink-200 dark:border-pink-700 hover:shadow-md transition-all">
                             <div class="flex items-center gap-3 flex-1">
                                 <div
-                                    class="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    class="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center shrink-0">
                                     <Globe class="w-5 h-5 text-white" />
                                 </div>
                                 <div class="min-w-0">
@@ -191,7 +191,7 @@ const handleClose = () => {
                                     <p class="text-xs text-gray-500 dark:text-gray-400">Agregados</p>
                                 </div>
                             </div>
-                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-5 h-5 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                     clip-rule="evenodd" />
@@ -203,7 +203,7 @@ const handleClose = () => {
                             class="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700 hover:shadow-md transition-all">
                             <div class="flex items-center gap-3 flex-1">
                                 <div
-                                    class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center shrink-0">
                                     <Wrench class="w-5 h-5 text-white" />
                                 </div>
                                 <div class="min-w-0">
@@ -212,7 +212,7 @@ const handleClose = () => {
                                     <p class="text-xs text-gray-500 dark:text-gray-400">Agregadas</p>
                                 </div>
                             </div>
-                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-5 h-5 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                     clip-rule="evenodd" />
@@ -224,7 +224,7 @@ const handleClose = () => {
                             class="flex items-center justify-between p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700 hover:shadow-md transition-all">
                             <div class="flex items-center gap-3 flex-1">
                                 <div
-                                    class="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    class="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center shrink-0">
                                     <Code2 class="w-5 h-5 text-white" />
                                 </div>
                                 <div class="min-w-0">
@@ -233,7 +233,7 @@ const handleClose = () => {
                                     <p class="text-xs text-gray-500 dark:text-gray-400">Agregados</p>
                                 </div>
                             </div>
-                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-5 h-5 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                     clip-rule="evenodd" />
@@ -254,10 +254,10 @@ const handleClose = () => {
 
                 <!-- Action Buttons - STICKY AL FONDO ✨ -->
                 <div
-                    class="sticky bottom-0 z-10 p-8 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 flex-shrink-0">
+                    class="sticky bottom-0 z-10 p-8 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 shrink-0">
                     <div class="flex gap-3">
                         <button @click="handleContinue" :disabled="isProcessing || !hasData"
-                            class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
+                            class="flex-1 px-4 py-3 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-lg font-semibold hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
                             <Loader2 v-if="isProcessing" class="w-5 h-5 animate-spin" />
                             <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

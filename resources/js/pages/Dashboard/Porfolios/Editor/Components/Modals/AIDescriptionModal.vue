@@ -98,7 +98,7 @@
                 @click.stop
             >
                 <!-- Header - STICKY ✨ -->
-                <div class="sticky top-0 z-10 overflow-hidden bg-gradient-to-r from-purple-500 to-purple-600 px-8 py-12 text-white flex-shrink-0">
+                <div class="sticky top-0 z-10 overflow-hidden bg-linear-to-r from-purple-500 to-purple-600 px-8 py-12 text-white shrink-0">
                     <!-- Decorative elements -->
                     <div class="absolute top-0 right-0 w-40 h-40 bg-purple-400 rounded-full -mr-20 -mt-20 opacity-20" />
                     
@@ -146,29 +146,29 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                             <div class="space-y-2">
                                 <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
-                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
                                     <p><b>Sobre ti:</b> Tu nombre, título, ciudad, país, email y teléfono.</p>
                                 </div>
                                 <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
-                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
                                     <p><b>Experiencia:</b> Cargos, empresas, fechas y tus logros más relevantes.</p>
                                 </div>
                                 <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
-                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
                                     <p><b>Proyectos:</b> Nombres de proyectos, qué hiciste y qué tecnologías usaste.</p>
                                 </div>
                             </div>
                             <div class="space-y-2">
                                 <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
-                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
                                     <p><b>Habilidades:</b> Herramientas técnicas (React, SQL) y blandas (Liderazgo).</p>
                                 </div>
                                 <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
-                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
                                     <p><b>Educación:</b> Títulos obtenidos, instituciones y años de estudio.</p>
                                 </div>
                                 <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
-                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
                                     <p><b>Redes e Idiomas:</b> Enlaces (LinkedIn/GitHub) e idiomas con su nivel.</p>
                                 </div>
                             </div>
@@ -196,7 +196,7 @@
                             <span 
                                 :class="[
                                     'font-semibold',
-                                    charCount < minChars ? 'text-orange-600' : 'text-green-600'
+                                    charCount < minChars ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-emerald-400'
                                 ]"
                             >
                                 {{ charCount < minChars ? `Mínimo ${minChars}` : '✓ Listo' }}
@@ -224,7 +224,7 @@
                 </div>
 
                 <!-- Action Button - STICKY ✨ -->
-                <div class="sticky bottom-0 z-10 p-8 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 flex-shrink-0">
+                <div class="sticky bottom-0 z-10 p-8 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 shrink-0">
                     <button
                         @click="handleAnalyze"
                         :disabled="!isValid || isAnalyzing"
@@ -232,7 +232,7 @@
                             'w-full py-3 px-6 rounded-lg font-semibold text-lg transition-all duration-300',
                             'flex items-center justify-center gap-2',
                             isValid && !isAnalyzing
-                                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:shadow-lg hover:-translate-y-0.5'
+                                ? 'bg-linear-to-r from-purple-500 to-purple-600 text-white hover:shadow-lg hover:-translate-y-0.5'
                                 : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                         ]"
                     >

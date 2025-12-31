@@ -45,28 +45,32 @@
 </script>
 
 <template>
-    <div class="preview-container" ref="containerRef">
+    <div class="preview-container dark:bg-slate-950!" ref="containerRef">
         <!-- Toolbar -->
-        <div class="toolbar">
+        <div class="toolbar bg-gray-50 border-b border-gray-200 dark:bg-slate-950! dark:border-slate-800!">
             <div class="flex space-x-1.5">
                 <div class="h-3 w-3 rounded-full bg-red-400"></div>
                 <div class="h-3 w-3 rounded-full bg-yellow-400"></div>
                 <div class="h-3 w-3 rounded-full bg-green-400"></div>
             </div>
 
-            <div class="device-toggle">
+            <div class="device-toggle dark:bg-slate-900!">
                 <button @click="setDevice('mobile')" :class="[
-                    'device-toggle-btn',
-                    device === 'mobile' && 'active'
+                    'device-toggle-btn transition-all duration-300',
+                    device === 'mobile' 
+                        ? 'bg-white dark:bg-slate-800! text-gray-900 dark:text-white! shadow-sm' 
+                        : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800/50'
                 ]">
-                    <Smartphone class="h-4 w-4 flex-shrink-0" />
+                    <Smartphone class="h-4 w-4 shrink-0" />
                     <span class="btn-label">Disp. Móvil</span>
                 </button>
                 <button @click="setDevice('desktop')" :class="[
-                    'device-toggle-btn',
-                    device === 'desktop' && 'active'
+                    'device-toggle-btn transition-all duration-300',
+                    device === 'desktop' 
+                        ? 'bg-white dark:bg-slate-800! text-gray-900 dark:text-white! shadow-sm' 
+                        : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800/50'
                 ]">
-                    <Monitor class="h-4 w-4 flex-shrink-0" />
+                    <Monitor class="h-4 w-4 shrink-0" />
                     <span class="btn-label">Escritorio</span>
                 </button>
             </div>
@@ -75,24 +79,24 @@
         </div>
 
         <!-- Viewport -->
-        <div class="viewport-wrapper" ref="viewportWrapperRef" :data-device="device">
+        <div class="viewport-wrapper bg-linear-to-br from-gray-50 to-gray-200 dark:from-slate-950! dark:to-slate-900!" ref="viewportWrapperRef" :data-device="device">
             <div :style="{
                 transform: `scale(${scaleTransform})`,
                 transformOrigin: 'top center',
                 opacity: showContent ? 1 : 0
             }" :class="[
-                'preview-device',
+                'preview-device dark:bg-slate-900! dark:border-slate-800!',
                 device === 'mobile' ? 'mobile' : 'desktop'
             ]">
                 <!-- Frame Desktop -->
                 <div v-if="device === 'desktop'" class="desktop-frame">
-                    <div class="frame-header">
+                    <div class="frame-header dark:bg-slate-900 dark:border-slate-800">
                         <div class="frame-dots">
                             <div class="dot red"></div>
                             <div class="dot yellow"></div>
                             <div class="dot green"></div>
                         </div>
-                        <div class="frame-title">Preview</div>
+                        <div class="frame-title dark:text-slate-400">Preview</div>
                         <div class="frame-controls"></div>
                     </div>
                     <div :key="scrollAreaKey" ref="scrollAreaRef" class="scroll-area">
@@ -125,11 +129,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid #e5e7eb;
-    background: #f9fafb;
     padding: 0.75rem 1rem;
     height: 60px;
     flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+:global(.dark) .toolbar {
+    background: #020617 !important;
+    border-color: #1e293b !important;
 }
 
 .device-toggle {
@@ -138,6 +146,11 @@
     background: #e5e7eb;
     padding: 0.25rem;
     border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+:global(.dark) .device-toggle {
+    background: #0f172a !important;
 }
 
 .device-toggle-btn {
@@ -149,16 +162,9 @@
     background: transparent;
     border-radius: 0.375rem;
     cursor: pointer;
-    color: #6b7280;
     font-size: 0.875rem;
     font-weight: 500;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-}
-
-.device-toggle-btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .btn-label {
@@ -171,40 +177,40 @@
     transform: translateX(-10px);
 }
 
-.device-toggle-btn.active .btn-label {
+.bg-white .btn-label, .dark\:bg-slate-800\! .btn-label {
     max-width: 100px;
     opacity: 1;
     transform: translateX(0);
     margin-left: 0.25rem;
 }
 
-.device-toggle-btn.active {
-    background: white;
-    color: #111827;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    padding: 0.375rem 1rem;
-}
-
 .viewport-wrapper {
     flex: 1;
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
     padding: 1rem;
     display: flex;
     align-items: flex-start;
     justify-content: center;
     width: 100%;
     overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+:global(.dark) .viewport-wrapper {
+    background: linear-gradient(135deg, #020617 0%, #0f172a 100%) !important;
 }
 
 .preview-device {
-    background: white;
-    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
     position: relative;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     flex-shrink: 0;
-    transition: opacity 0.15s ease-in-out;
+    transition: opacity 0.15s ease-in-out, background 0.3s ease;
+}
+
+:global(.dark) .preview-device {
+    background: #0f172a !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* DESKTOP DEVICE */
@@ -213,6 +219,10 @@
     height: auto;
     border-radius: 0.75rem;
     border: 1px solid #e5e7eb;
+}
+
+:global(.dark) .preview-device.desktop {
+    border-color: #334155 !important;
 }
 
 .desktop-frame {
@@ -227,9 +237,12 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.75rem 1rem;
-    background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
-    border-bottom: 1px solid #e5e7eb;
     flex-shrink: 0;
+}
+
+:global(.dark) .frame-header {
+    background: linear-gradient(to bottom, #1e293b, #0f172a) !important;
+    border-color: #334155 !important;
 }
 
 .frame-dots {
@@ -276,6 +289,10 @@
     border: 8px solid #1f2937;
 }
 
+:global(.dark) .preview-device.mobile {
+    border-color: #020617 !important;
+}
+
 .mobile-frame {
     position: relative;
     width: 100%;
@@ -300,6 +317,7 @@
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+    background: transparent !important;
 }
 
 /* DESKTOP SCROLL */

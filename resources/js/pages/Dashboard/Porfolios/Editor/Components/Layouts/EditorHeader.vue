@@ -198,7 +198,7 @@
     </script>
     
     <template>
-        <header class="border-b border-gray-200/60 bg-white sticky top-0 z-30">
+        <header class="border-b border-gray-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-30 transition-colors duration-300">
             <div class="container mx-auto px-6 py-4">
                 <div class="flex items-center justify-between">
                 <!-- Logo -->
@@ -206,7 +206,7 @@
                     <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005aeb]">
                         <span class="text-sm font-bold text-white">P</span>
                     </div>
-                    <span class="text-xl font-bold text-gray-900">PortafolioAI</span>
+                    <span class="text-xl font-bold text-gray-900 dark:text-white">PortafolioAI</span>
                 </div>
     
                     <!-- Centro: Progreso -->
@@ -216,15 +216,15 @@
                                 'h-2.5 w-2.5 rounded-full transition-colors duration-300',
                                 hasUnsavedChanges ? 'bg-amber-500 animate-pulse' : 'bg-green-500'
                             ]"></div>
-                            <span class="text-xs font-medium text-gray-600">
+                            <span class="text-xs font-medium text-gray-600 dark:text-slate-400">
                                 {{ hasUnsavedChanges ? 'Sin guardar' : 'Guardado' }}
                             </span>
                         </div>
-                        <div class="text-sm text-gray-600">
+                        <div class="text-sm text-gray-600 dark:text-slate-400">
                             <span class="font-medium text-[#005aeb]">{{ progress }}%</span>
                             completado
                         </div>
-                        <div class="h-2 w-32 rounded-full bg-gray-200">
+                        <div class="h-2 w-32 rounded-full bg-gray-200 dark:bg-slate-800">
                             <div class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
                                 :style="{ width: progress + '%' }"></div>
                         </div>
@@ -236,7 +236,7 @@
                             <input
                                 type="text"
                                 v-model="formData.config.title"
-                                class="w-full bg-gray-50/50 border border-gray-200 rounded-lg px-4 py-2 text-sm font-semibold !text-gray-700 transition-all duration-200 focus:bg-white focus:border-[#005aeb] focus:ring-4 focus:ring-blue-50 focus:outline-none placeholder:text-gray-400 group-hover:border-gray-300"
+                                class="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-800 rounded-lg px-4 py-2 text-sm font-semibold text-gray-700 dark:text-slate-200! transition-all duration-200 focus:bg-white dark:focus:bg-slate-900 focus:border-[#005aeb] focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/10 focus:outline-none placeholder:text-gray-400 group-hover:border-gray-300 dark:group-hover:border-slate-700"
                                 placeholder="Nombre de tu proyecto..."
                             />
                             <div class="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -255,8 +255,8 @@
                                 :class="[
                                     'flex items-center space-x-2 rounded-lg px-4 py-2 font-medium transition-all duration-200 border',
                                     isPrivate 
-                                        ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                                        : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                                        ? 'bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 border-gray-300 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800'
+                                        : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/40'
                                 ]">
                                 <Loader2 v-if="isUpdating" class="h-4 w-4 animate-spin" />
                                 <Lock v-else-if="isPrivate" class="h-4 w-4" />
@@ -277,13 +277,13 @@
                                 leave-to-class="translate-y-1 opacity-0">
                                 <div v-if="showShareMenu" 
                                     @click.stop
-                                    class="absolute right-0 mt-3 w-[380px] max-w-[90vw] rounded-2xl border border-gray-100 bg-white shadow-xl shadow-gray-200/50 z-50 overflow-hidden ring-1 ring-black/5">
+                                    class="absolute right-0 mt-3 w-[380px] max-w-[90vw] rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-gray-200/50 dark:shadow-black/50 z-50 overflow-hidden ring-1 ring-black/5">
                                     
                                     <!-- Header Minimalista -->
-                                    <div class="px-5 py-4 flex items-center justify-between border-b border-gray-50">
+                                    <div class="px-5 py-4 flex items-center justify-between border-b border-gray-50 dark:border-slate-800">
                                         <div>
-                                            <h3 class="font-bold text-gray-900 text-sm">Compartir portafolio</h3>
-                                            <p class="text-[11px] text-gray-500 mt-0.5">Configura la privacidad y el acceso</p>
+                                            <h3 class="font-bold text-gray-900 dark:text-white text-sm">Compartir portafolio</h3>
+                                            <p class="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">Configura la privacidad y el acceso</p>
                                         </div>
                                         <button @click="showShareMenu = false" class="rounded-full p-1.5 bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
                                             <X class="h-4 w-4" />
@@ -298,19 +298,19 @@
                                                 type="button"
                                                 @click="setPrivate"
                                                 class="group relative flex items-start w-full text-left gap-3 p-3.5 rounded-xl border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                                                :class="isPrivate ? 'border-blue-200 bg-blue-50/30' : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50/50'">
+                                                :class="isPrivate ? 'border-blue-200 dark:border-blue-900/50 bg-blue-50/30 dark:bg-blue-900/10' : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-200 dark:hover:border-slate-700 hover:bg-gray-50/50 dark:hover:bg-slate-800/50'">
                                                 
                                                 <div class="mt-0.5 p-2 rounded-lg transition-colors"
-                                                    :class="isPrivate ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400 group-hover:bg-white group-hover:text-gray-500'">
+                                                    :class="isPrivate ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400' : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 group-hover:bg-white dark:group-hover:bg-slate-700 group-hover:text-gray-500 dark:group-hover:text-slate-300'">
                                                     <Lock class="w-4 h-4" />
                                                 </div>
                                                 
                                                 <div class="flex-1">
                                                     <div class="flex items-center justify-between">
-                                                        <span class="text-sm font-semibold text-gray-900">Solo tú</span>
+                                                        <span class="text-sm font-semibold text-gray-900 dark:text-white">Solo tú</span>
                                                         <div v-if="isPrivate" class="h-2 w-2 rounded-full bg-blue-500"></div>
                                                     </div>
-                                                    <p class="text-xs text-gray-500 mt-0.5">Nadie más puede ver este portafolio.</p>
+                                                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Nadie más puede ver este portafolio.</p>
                                                 </div>
                                             </button>
 
@@ -319,19 +319,19 @@
                                                 type="button"
                                                 @click="setLinkSharing"
                                                 class="group relative flex items-start w-full text-left gap-3 p-3.5 rounded-xl border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                                                :class="isLinkSharing ? 'border-blue-200 bg-blue-50/30' : 'border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50/50'">
+                                                :class="isLinkSharing ? 'border-blue-200 dark:border-blue-900/50 bg-blue-50/30 dark:bg-blue-900/10' : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-200 dark:hover:border-slate-700 hover:bg-gray-50/50 dark:hover:bg-slate-800/50'">
                                                 
                                                 <div class="mt-0.5 p-2 rounded-lg transition-colors"
-                                                    :class="isLinkSharing ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400 group-hover:bg-white group-hover:text-gray-500'">
+                                                    :class="isLinkSharing ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400' : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 group-hover:bg-white dark:group-hover:bg-slate-700 group-hover:text-gray-500 dark:group-hover:text-slate-300'">
                                                     <Globe class="w-4 h-4" />
                                                 </div>
                                                 
                                                 <div class="flex-1">
                                                     <div class="flex items-center justify-between">
-                                                        <span class="text-sm font-semibold text-gray-900">Público</span>
+                                                        <span class="text-sm font-semibold text-gray-900 dark:text-white">Público</span>
                                                         <div v-if="isLinkSharing" class="h-2 w-2 rounded-full bg-blue-500"></div>
                                                     </div>
-                                                    <p class="text-xs text-gray-500 mt-0.5">Cualquier persona con el enlace puede acceder.</p>
+                                                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Cualquier persona con el enlace puede acceder.</p>
                                                 </div>
                                             </button>
                                         </div>
@@ -345,30 +345,30 @@
                                             leave-from-class="translate-y-0 opacity-100"
                                             leave-to-class="-translate-y-2 opacity-0">
                                             
-                                            <div v-if="isLinkSharing" class="space-y-4 pt-4 border-t border-gray-50">
+                                            <div v-if="isLinkSharing" class="space-y-4 pt-4 border-t border-gray-50 dark:border-slate-800">
                                                 <!-- Configuración Grid -->
                                                 <div v-if="!isPublicEdit" class="grid grid-cols-2 gap-3">
                                                     <div class="space-y-1.5">
-                                                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Permiso</label>
+                                                        <label class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest pl-1">Permiso</label>
                                                         <div class="relative">
                                                             <select 
                                                                 v-model="linkPermission"
                                                                 @change="updatePermission(($event.target as HTMLSelectElement).value as 'view' | 'view_edit')"
-                                                                class="appearance-none w-full text-xs font-medium bg-gray-50 border border-transparent rounded-lg py-2.5 pl-3 pr-8 hover:bg-gray-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer">
+                                                                class="appearance-none w-full text-xs font-medium bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-lg py-2.5 pl-3 pr-8 hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer dark:text-slate-200">
                                                                 <option value="view">Solo lectura</option>
                                                                 <option value="view_edit">Lectura y Edición</option>
                                                             </select>
                                                             <ChevronDown class="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
                                                         </div>
                                                     </div>
-
+ 
                                                     <div class="space-y-1.5">
-                                                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Audiencia</label>
+                                                        <label class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest pl-1">Audiencia</label>
                                                         <div class="relative">
                                                             <select 
                                                                 v-model="linkAudienceType"
                                                                 @change="updateAudience(($event.target as HTMLSelectElement).value as 'any_with_link' | 'emails_only')"
-                                                                class="appearance-none w-full text-xs font-medium bg-gray-50 border border-transparent rounded-lg py-2.5 pl-3 pr-8 hover:bg-gray-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer">
+                                                                class="appearance-none w-full text-xs font-medium bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-lg py-2.5 pl-3 pr-8 hover:bg-gray-100 dark:hover:bg-slate-700 focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer dark:text-slate-200">
                                                                 <option value="any_with_link">Todo el mundo</option>
                                                                 <option value="emails_only">Restringido</option>
                                                             </select>
@@ -379,14 +379,14 @@
 
                                                 <!-- Link Box Minimalista -->
                                                 <div class="relative">
-                                                    <div class="flex items-center gap-2 p-1.5 pl-3 rounded-lg border border-gray-200 bg-white hover:border-blue-400 transition-colors group">
+                                                    <div class="flex items-center gap-2 p-1.5 pl-3 rounded-lg border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-blue-400 dark:hover:border-blue-500 transition-colors group">
                                                         <div class="flex-1 min-w-0">
-                                                            <p class="text-[10px] text-gray-400 font-medium mb-0.5">Enlace para compartir</p>
-                                                            <p class="text-xs text-gray-700 font-mono truncate select-all">{{ publicUrl }}</p>
+                                                            <p class="text-[10px] text-gray-400 dark:text-slate-500 font-medium mb-0.5">Enlace para compartir</p>
+                                                            <p class="text-xs text-gray-700 dark:text-slate-300 font-mono truncate select-all">{{ publicUrl }}</p>
                                                         </div>
                                                         <button 
                                                             @click="copyToClipboard"
-                                                            class="p-2 rounded-md hover:bg-gray-50 text-gray-400 hover:text-blue-600 transition-all relative">
+                                                            class="p-2 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all relative">
                                                             <Check v-if="copySuccess" class="w-4 h-4 text-green-500" />
                                                             <Copy v-else class="w-4 h-4" />
                                                         </button>
@@ -397,15 +397,15 @@
                                                 </div>
 
                                                 <!-- Gestión de Correos (Solo restringido) -->
-                                                <div v-if="linkAudienceType === 'emails_only' && !isPublicEdit" class="mt-4 p-4 rounded-xl bg-gradient-to-b from-amber-50/50 to-orange-50/30 border border-amber-100/80">
+                                                <div v-if="linkAudienceType === 'emails_only' && !isPublicEdit" class="mt-4 p-4 rounded-xl bg-gradient-to-b from-amber-50/50 dark:from-amber-900/20 to-orange-50/30 dark:to-orange-900/10 border border-amber-100/80 dark:border-amber-900/30">
                                                     <!-- Header de la sección -->
                                                     <div class="flex items-start gap-3 mb-4">
-                                                        <div class="p-2 rounded-lg bg-amber-100 text-amber-600">
+                                                        <div class="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400">
                                                             <Mail class="w-4 h-4" />
                                                         </div>
                                                         <div class="flex-1">
-                                                            <h4 class="text-sm font-semibold text-gray-900">Acceso restringido</h4>
-                                                            <p class="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
+                                                            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Acceso restringido</h4>
+                                                            <p class="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                                                                 Solo las personas con estos correos podrán ver tu portafolio. Deben iniciar sesión para acceder.
                                                             </p>
                                                         </div>
@@ -430,14 +430,14 @@
                                                     <!-- Lista de correos autorizados -->
                                                     <div v-if="authorizedEmails.length > 0" class="space-y-2 max-h-[140px] overflow-y-auto custom-scrollbar">
                                                         <div v-for="email in authorizedEmails" :key="email.id" 
-                                                            class="flex items-center justify-between p-2.5 rounded-lg bg-white border border-gray-100 group hover:border-red-200 transition-colors">
+                                                            class="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 group hover:border-red-200 dark:hover:border-red-900 transition-colors">
                                                             <div class="flex items-center gap-2.5 overflow-hidden">
                                                                 <div class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-[11px] font-bold text-white uppercase shadow-sm">
                                                                     {{ email.email[0] }}
                                                                 </div>
                                                                 <div class="min-w-0">
-                                                                    <span class="text-xs text-gray-800 font-medium truncate block">{{ email.email }}</span>
-                                                                    <span class="text-[10px] text-gray-400">Puede ver el portafolio</span>
+                                                                    <span class="text-xs text-gray-800 dark:text-slate-200 font-medium truncate block">{{ email.email }}</span>
+                                                                    <span class="text-[10px] text-gray-400 dark:text-slate-500">Puede ver el portafolio</span>
                                                                 </div>
                                                             </div>
                                                             <button 
@@ -467,7 +467,7 @@
     
                         <!-- Botón Vista Previa -->
                         <button @click="emits('openPreview')"
-                            class="hidden items-center space-x-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 sm:flex">
+                            class="hidden items-center space-x-2 rounded-lg border border-gray-300 dark:border-slate-800 px-4 py-2 text-gray-700 dark:text-slate-300 transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-slate-800 sm:flex">
                             <Eye class="h-4 w-4" />
                             <span>Vista previa</span>
                         </button>
@@ -494,21 +494,21 @@
                         <!-- Dropdown Opciones Adicionales -->
                         <div class="relative group">
                             <button
-                                class="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-gray-600 hover:text-gray-900">
+                                class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors duration-200 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white">
                                 <MoreVertical class="h-5 w-5" />
                             </button>
                             <div
-                                class="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20">
+                                class="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20">
                                 <button
                                     @click="handleViewPublic"
                                     :disabled="!isLinkSharing"
-                                    class="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm transition-colors first:rounded-t-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white">
+                                    class="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm transition-colors first:rounded-t-lg text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-slate-900">
                                     <Eye class="w-5 h-5" />
                                     Ver portafolio público
                                 </button>
                                 <button
                                     @click="emits('finish')"
-                                    class="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 transition-colors last:rounded-b-lg border-t border-gray-100">
+                                    class="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors last:rounded-b-lg border-t border-gray-100 dark:border-slate-800">
                                     <X class="w-4 h-4 flex-shrink-0" />
                                     Salir del editor
                                 </button>
