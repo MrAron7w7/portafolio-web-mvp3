@@ -83,7 +83,7 @@ const metrics = computed(() => [
     },
     {
         title: 'Publicados',
-        value: props.portfolios.filter(p => p.is_public).length.toString(),
+        value: props.portfolios.filter(p => p.is_completed).length.toString(),
         icon: TrendingUp,
         gradient: 'from-emerald-500 to-teal-500',
         bgLight: 'bg-emerald-50 dark:bg-emerald-500/10',
@@ -176,6 +176,8 @@ const getStatusClasses = (status: string) => {
     switch (status) {
         case 'publicado':
             return 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20';
+        case 'finalizado':
+            return 'bg-pink-50 dark:bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-200 dark:border-pink-500/20';
         case 'borrador':
             return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700';
         default:

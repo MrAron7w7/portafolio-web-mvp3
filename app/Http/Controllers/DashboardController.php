@@ -29,9 +29,9 @@ class DashboardController extends Controller
                     default => 'finalizado'
                 },
                 'statusColor' => match(true) {
-                    !$p->is_completed => 'bg-gray-100 text-gray-800',
-                    $p->is_public => 'bg-green-100 text-green-800',
-                    default => 'bg-blue-100 text-blue-800'
+                    !$p->is_completed => 'bg-slate-100 text-slate-800',
+                    $p->is_public => 'bg-emerald-100 text-emerald-800',
+                    default => 'bg-pink-100 text-pink-800'
                 },
             ]);
 
