@@ -16,6 +16,7 @@ const props = defineProps<{
             created_at: string;
             created_at_iso: string;
             status: string;
+            last_seen?: string;
             avatar_url?: string | null;
             portfolios_count: number;
         }>;
@@ -312,10 +313,13 @@ const getStatusBadgeClass = (status: string) => {
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="[getStatusBadgeClass(user.status), 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium']">
-                                    <UserCheck v-if="user.status === 'active'" class="mr-1 h-3 w-3" />
-                                    <UserX v-else class="mr-1 h-3 w-3" />
-                                    {{ user.status === 'active' ? 'Activo' : 'Inactivo' }}
+                                <span 
+                                    :class="[getStatusBadgeClass(user.status), 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium cursor-help']"
+                                    :title="user.last_seen ? 'Visto: ' + user.last_seen : 'Sin actividad reciente'"
+                                >
+                                    <div v-if="user.status === 'active'" class="mr-1.5 w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                    <div v-else class="mr-1.5 w-2 h-2 rounded-full bg-gray-400"></div>
+                                    {{ user.status === 'active' ? 'Online' : 'Offline' }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">

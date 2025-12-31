@@ -31,6 +31,7 @@ class User extends Authenticatable
         'language',
         'email_notifications',
         'marketing_emails',
+        'last_seen_at',
     ];
 
     /**
@@ -57,6 +58,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'last_seen_at' => 'datetime',
             'email_notifications' => 'boolean',
             'marketing_emails' => 'boolean',
         ];
