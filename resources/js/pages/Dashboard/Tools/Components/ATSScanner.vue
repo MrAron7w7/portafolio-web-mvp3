@@ -26,10 +26,24 @@ const scanPortfolio = async () => {
             body: JSON.stringify({ portfolio_id: selectedPortfolioId.value }),
         });
 
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
+
         const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
         result.value = data;
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error scanning portfolio:', error);
+        if (error.message && error.message.includes('message channel closed')) {
+           alert('Tu navegador o una extensión (como adblock) interrumpió la conexión. Intenta de nuevo.');
+        } else {
+           alert(error.message || 'Ocurrió un error al escanear.');
+        }
     } finally {
         isScanning.value = false;
     }
@@ -93,29 +107,34 @@ const scanPortfolio = async () => {
             <!-- Issues List -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Good Points -->
-                <div class="bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-gray-200 dark:border-slate-700/50 text-gray-600 dark:text-slate-300">
-                    <div class="flex items-center gap-3 mb-5 border-b border-gray-100 dark:border-slate-700/50 pb-4">
+                <div class="bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-gray-200 dark:border-slate-700/50 text-gray-600 dark:text-slate-300 flex flex-col h-full">
+                    <div class="flex items-center gap-3 mb-5 border-b border-gray-100 dark:border-slate-700/50 pb-4 shrink-0">
                         <CheckCircle2 class="w-6 h-6 text-green-500 dark:text-green-400" />
-                        <h4 class="font-bold text-gray-900 dark:text-white text-lg">Puntos Fuertes</h4>
+                        <h4 class="font-bold text-gray-900 dark:text-white text-lg">Puntos Fuertes ({{ result.keywords_found?.length || 0 }})</h4>
                     </div>
-                    <ul class="space-y-3">
-                        <li v-for="(item, index) in result.keywords_found" :key="index" class="flex items-start gap-3">
-                            <span class="w-2 h-2 rounded-full bg-green-500 mt-2 shrink-0 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
-                            <span class="text-gray-700 dark:text-slate-300 font-medium">{{ item }}</span>
-                        </li>
-                    </ul>
+                    <div class="max-h-[250px] overflow-y-auto pr-2 space-y-2">
+                         <div class="flex flex-wrap gap-2">
+                            <span v-for="(item, index) in result.keywords_found" :key="index" class="flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 text-sm font-medium rounded-lg border border-green-200 dark:border-green-500/20">
+                                <CheckCircle2 class="w-3.5 h-3.5 shrink-0" />
+                                {{ item }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Missing Keywords/Issues -->
-                <div class="bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-gray-200 dark:border-slate-700/50 text-gray-600 dark:text-slate-300">
-                    <div class="flex items-center gap-3 mb-5 border-b border-gray-100 dark:border-slate-700/50 pb-4">
+                <div class="bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-gray-200 dark:border-slate-700/50 text-gray-600 dark:text-slate-300 flex flex-col h-full">
+                    <div class="flex items-center gap-3 mb-5 border-b border-gray-100 dark:border-slate-700/50 pb-4 shrink-0">
                         <AlertTriangle class="w-6 h-6 text-amber-500 dark:text-amber-400" />
-                        <h4 class="font-bold text-gray-900 dark:text-white text-lg">Palabras Clave Faltantes</h4>
+                        <h4 class="font-bold text-gray-900 dark:text-white text-lg">Oportunidades ({{ result.keywords_missing?.length || 0 }})</h4>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <span v-for="(keyword, index) in result.missing_keywords" :key="index" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 text-sm font-medium rounded-lg border border-amber-200 dark:border-amber-500/20">
-                            {{ keyword }}
-                        </span>
+                    <div class="max-h-[250px] overflow-y-auto pr-2">
+                        <div class="flex flex-wrap gap-2">
+                            <span v-for="(keyword, index) in result.keywords_missing" :key="index" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 text-sm font-medium rounded-lg border border-amber-200 dark:border-amber-500/20 flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                {{ keyword }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -129,7 +148,7 @@ const scanPortfolio = async () => {
                 <div class="space-y-4">
                     <div v-for="(suggestion, index) in result.suggestions" :key="index" class="flex gap-4">
                         <div class="w-7 h-7 rounded-lg bg-indigo-500/10 dark:bg-indigo-500/20 flex items-center justify-center shrink-0 text-sm font-bold text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">
-                            {{ index + 1 }}
+                            {{ Number(index) + 1 }}
                         </div>
                         <p class="text-gray-700 dark:text-slate-300 leading-relaxed">{{ suggestion }}</p>
                     </div>

@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])
         Route::post('/herramientas/analyze-skills', [\App\Http\Controllers\ToolsController::class, 'analyzeSkillsMatch'])->name('tools.analyze-skills');
         Route::post('/herramientas/interview-questions', [\App\Http\Controllers\ToolsController::class, 'generateInterviewQuestions'])->name('tools.interview-questions');
         Route::post('/herramientas/ats-scan', [\App\Http\Controllers\ToolsController::class, 'scanATS'])->name('tools.ats-scan');
+        Route::post('/herramientas/interview-interaction', [\App\Http\Controllers\ToolsController::class, 'interviewInteraction'])->name('tools.interview-interaction');
 
         // Incluir otras rutas del dashboard
         require __DIR__.'/template.php';

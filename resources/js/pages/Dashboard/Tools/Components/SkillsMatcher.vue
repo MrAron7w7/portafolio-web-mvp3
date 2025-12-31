@@ -11,32 +11,46 @@ const jobDescription = ref('');
 const isAnalyzing = ref(false);
 const result = ref<any>(null);
 
-const analyzeMatch = () => {
+const analyzeMatch = async () => {
     if (!jobDescription.value.trim() || !selectedPortfolioId.value) return;
 
     isAnalyzing.value = true;
     result.value = null;
 
-    fetch('/dashboard/herramientas/analyze-skills', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-        },
-        body: JSON.stringify({ 
-            job_description: jobDescription.value,
-            portfolio_id: selectedPortfolioId.value 
-        }),
-    })
-        .then((res) => res.json())
-        .then((data) => {
-            result.value = data;
-            isAnalyzing.value = false;
-        })
-        .catch((err) => {
-            console.error(err);
-            isAnalyzing.value = false;
+    try {
+        const response = await fetch('/dashboard/herramientas/analyze-skills', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            },
+            body: JSON.stringify({ 
+                job_description: jobDescription.value,
+                portfolio_id: selectedPortfolioId.value 
+            }),
         });
+
+        if (!response.ok) {
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        result.value = data;
+    } catch (error: any) {
+        console.error('Error in analysis:', error);
+        if (error.message && error.message.includes('message channel closed')) {
+           alert('Tu navegador o una extensión (Adblock/LastPass) interrumpió la conexión. Intenta desactivarlas para este sitio.');
+        } else {
+           alert(error.message || 'Error al analizar skills.');
+        }
+    } finally {
+        isAnalyzing.value = false;
+    }
 };
 </script>
 
@@ -67,6 +81,10 @@ const analyzeMatch = () => {
                 <textarea
                     v-model="jobDescription"
                     rows="4"
+                    spellcheck="false"
+                    data-gramm="false"
+                    data-lpignore="true"
+                    autocomplete="off"
                     class="w-full rounded-xl border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all"
                     placeholder="Pega aquí los requisitos, responsabilidades y skills de la oferta de trabajo..."
                 ></textarea>
@@ -109,32 +127,38 @@ const analyzeMatch = () => {
 
             <div class="grid md:grid-cols-2 gap-6">
                 <!-- Matching Skills -->
-                <div v-if="result.matching_skills?.length" class="bg-green-50 dark:bg-green-500/5 border border-green-200 dark:border-green-500/20 rounded-2xl p-6">
-                    <div class="mb-4 flex items-center gap-3">
+                <div v-if="result.matching_skills?.length" class="bg-green-50 dark:bg-green-500/5 border border-green-200 dark:border-green-500/20 rounded-2xl p-6 flex flex-col h-full">
+                    <div class="mb-4 flex items-center gap-3 shrink-0 border-b border-green-100 dark:border-green-500/10 pb-4">
                         <div class="h-8 w-8 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center">
                             <CheckCircle2 class="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
-                        <h4 class="font-bold text-gray-900 dark:text-white text-lg">Tus Fortalezas</h4>
+                        <h4 class="font-bold text-gray-900 dark:text-white text-lg">Tus Fortalezas ({{ result.matching_skills.length }})</h4>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <span v-for="skill in result.matching_skills" :key="skill" class="rounded-full bg-white dark:bg-green-500/10 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/20 shadow-sm dark:shadow-none">
-                            {{ skill }}
-                        </span>
+                    <div class="max-h-[250px] overflow-y-auto pr-2">
+                        <div class="flex flex-wrap gap-2">
+                            <span v-for="skill in result.matching_skills" :key="skill" class="rounded-lg bg-white dark:bg-green-500/10 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/20 shadow-sm dark:shadow-none flex items-center gap-2">
+                                <CheckCircle2 class="w-3.5 h-3.5 shrink-0" />
+                                {{ skill }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Missing Skills -->
-                <div v-if="result.missing_skills?.length" class="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-6">
-                    <div class="mb-4 flex items-center gap-3">
+                <div v-if="result.missing_skills?.length" class="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-6 flex flex-col h-full">
+                    <div class="mb-4 flex items-center gap-3 shrink-0 border-b border-amber-100 dark:border-amber-500/10 pb-4">
                         <div class="h-8 w-8 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center">
                             <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                         </div>
-                        <h4 class="font-bold text-gray-900 dark:text-white text-lg">Habilidades Sugeridas</h4>
+                        <h4 class="font-bold text-gray-900 dark:text-white text-lg">Habilidades Sugeridas ({{ result.missing_skills.length }})</h4>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <span v-for="skill in result.missing_skills" :key="skill" class="rounded-full bg-white dark:bg-amber-500/10 px-3 py-1.5 text-sm font-medium text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 shadow-sm dark:shadow-none">
-                            {{ skill }}
-                        </span>
+                    <div class="max-h-[250px] overflow-y-auto pr-2">
+                        <div class="flex flex-wrap gap-2">
+                            <span v-for="skill in result.missing_skills" :key="skill" class="rounded-lg bg-white dark:bg-amber-500/10 px-3 py-1.5 text-sm font-medium text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 shadow-sm dark:shadow-none flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                {{ skill }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

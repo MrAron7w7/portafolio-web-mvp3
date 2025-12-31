@@ -45,7 +45,7 @@ const tools = [
 <template>
     <DashboardLayout v-slot="{ toggleSidebar }">
         <!-- Main Content -->
-        <div class="min-h-screen bg-gray-50 dark:bg-slate-950 relative overflow-hidden font-sans selection:bg-indigo-500/30 transition-colors duration-300">
+        <div class="min-h-screen bg-gray-50 dark:bg-slate-950 relative overflow-x-hidden font-sans selection:bg-indigo-500/30 transition-colors duration-300">
             <!-- Futuristic Background (Dark Mode Only) -->
             <div class="fixed inset-0 z-0 pointer-events-none hidden dark:block">
                 <div class="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
@@ -150,7 +150,7 @@ const tools = [
                             <div class="absolute -inset-0.5 bg-linear-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-4xl opacity-0 dark:opacity-30 blur-lg animate-pulse"></div>
                             
                             <!-- Main workspace container -->
-                            <div class="relative bg-white dark:bg-slate-900/60 rounded-4xl shadow-xl dark:shadow-2xl overflow-hidden border border-gray-200 dark:border-slate-800 dark:backdrop-blur-xl transition-colors duration-300">
+                            <div class="relative bg-white dark:bg-slate-900/60 rounded-4xl shadow-xl dark:shadow-2xl border border-gray-200 dark:border-slate-800 dark:backdrop-blur-xl transition-colors duration-300">
                                 <!-- Top Bar -->
                                 <div class="bg-gray-50 dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between backdrop-blur-sm">
                                     <div class="flex items-center gap-3">
