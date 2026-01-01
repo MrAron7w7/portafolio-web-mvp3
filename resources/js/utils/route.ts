@@ -10,6 +10,7 @@ const routes: Record<string, string> = {
     'community.comment.destroy': '/dashboard/comunidad/comentarios/:comment',
     'admin.landing.update': '/admin/landing/:key',
     'settings': '/admin/settings',
+    'settings.password.update': '/settings/password',
 };
 
 export function route(name: string, params?: any): string {

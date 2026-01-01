@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
 import { useAppearance } from '@/composables/useAppearance';
+import { route } from '@/utils/route';
 import { 
     User as UserIcon, 
     Globe, 
@@ -33,6 +34,7 @@ interface User {
     status: string;
     created_at: string;
     last_login_at: string | null;
+    two_factor_enabled: boolean;
 }
 
 interface Props {
@@ -70,6 +72,41 @@ const notificationsForm = useForm({
 const deleteForm = useForm({
     password: '',
 });
+
+const changePasswordForm = useForm({
+    current_password: '',
+    password: '',
+    password_confirmation: '',
+});
+
+const isChangingPassword = ref(false);
+
+const toggleChangePassword = () => {
+    if (isChangingPassword.value) {
+        changePasswordForm.reset();
+        changePasswordForm.clearErrors();
+    }
+    isChangingPassword.value = !isChangingPassword.value;
+};
+
+const updatePassword = () => {
+    changePasswordForm.put(route('settings.password.update'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            isChangingPassword.value = false;
+            changePasswordForm.reset();
+            // Optional: Show success notification logic if needed
+        },
+        onError: () => {
+            if (changePasswordForm.errors.password) {
+                changePasswordForm.reset('password', 'password_confirmation');
+            }
+            if (changePasswordForm.errors.current_password) {
+                changePasswordForm.reset('current_password');
+            }
+        },
+    });
+};
 
 // Methods
 const handleAvatarChange = (event: Event) => {
@@ -173,7 +210,35 @@ const removeAvatar = () => {
         });
     }
 };
+
+
+
+const enableTwoFactorForm = useForm({});
+const disableTwoFactorForm = useForm({});
+
+const toggleTwoFactor = () => {
+    if (props.user.two_factor_enabled) {
+        // Disable
+        if (confirm('¿Estás seguro de desactivar la autenticación de dos factores?')) {
+            disableTwoFactorForm.delete(route('user.email-two-factor.disable'), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // Update user prop or reload logic handled by Inertia automatically
+                },
+            });
+        }
+    } else {
+        // Enable
+        enableTwoFactorForm.post(route('user.email-two-factor.enable'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                 // Update user prop or reload logic handled by Inertia automatically
+            },
+        });
+    }
+};
 </script>
+
 
 <template>
     <Head title="Configuración General" />
@@ -203,13 +268,15 @@ const removeAvatar = () => {
                 leave-to-class="opacity-0"
             >
                 <div 
-                    v-if="status === 'general-updated'" 
+                    v-if="status === 'general-updated' || status === 'password-updated'" 
                     class="p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl flex items-center gap-3"
                 >
                     <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                         <ShieldCheck class="w-5 h-5" />
                     </div>
-                    <span class="text-emerald-800 dark:text-emerald-400 font-medium">Cambios guardados correctamente</span>
+                    <span class="text-emerald-800 dark:text-emerald-400 font-medium">
+                        {{ status === 'password-updated' ? 'Contraseña actualizada correctamente' : 'Cambios guardados correctamente' }}
+                    </span>
                 </div>
             </Transition>
 
@@ -227,16 +294,18 @@ const removeAvatar = () => {
                                 <p class="text-sm text-slate-500 dark:text-slate-400">Tus datos personales básicos</p>
                             </div>
                         </div>
-                        <button 
-                            @click="toggleEditProfile"
-                            type="button"
-                            class="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all active:scale-95 flex items-center gap-2"
-                            :class="editingProfile 
-                                ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600' 
-                                : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 dark:shadow-none'"
-                        >
-                            {{ editingProfile ? 'Cancelar' : 'Editar Perfil' }}
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button 
+                                @click="toggleEditProfile"
+                                type="button"
+                                class="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all active:scale-95 flex items-center gap-2"
+                                :class="editingProfile 
+                                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600' 
+                                    : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 dark:shadow-none'"
+                            >
+                                {{ editingProfile ? 'Cancelar' : 'Editar Perfil' }}
+                            </button>
+                        </div>
                     </div>
 
                     <form @submit.prevent="submitProfile" class="p-8">
@@ -322,6 +391,75 @@ const removeAvatar = () => {
                                     <div v-if="user.last_login_at" class="space-y-1">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase">Último acceso</span>
                                         <p class="text-slate-600 dark:text-slate-400 text-sm">{{ user.last_login_at }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Password Change Section -->
+                                <div class="pt-4 border-t border-slate-100 dark:border-slate-800 transition-opacity duration-300" :class="{ 'opacity-50 grayscale': !editingProfile }">
+                                    <button 
+                                        @click="toggleChangePassword"
+                                        type="button"
+                                        :disabled="!editingProfile"
+                                        class="text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:underline flex items-center gap-2 disabled:cursor-not-allowed disabled:no-underline"
+                                    >
+                                        <Lock class="w-4 h-4" />
+                                        Cambiar de contraseña
+                                    </button>
+
+                                    <div v-if="isChangingPassword" class="mt-4 space-y-4 bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <div class="space-y-2">
+                                            <label class="text-xs font-bold text-slate-500 uppercase">Contraseña Actual</label>
+                                            <input 
+                                                v-model="changePasswordForm.current_password"
+                                                type="password" 
+                                                placeholder="Tu contraseña actual"
+                                                class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white text-sm"
+                                            >
+                                            <p v-if="changePasswordForm.errors.current_password" class="text-xs text-red-500 font-bold px-1">{{ changePasswordForm.errors.current_password }}</p>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="space-y-2">
+                                                <label class="text-xs font-bold text-slate-500 uppercase">Nueva Contraseña</label>
+                                                <input 
+                                                    v-model="changePasswordForm.password"
+                                                    type="password" 
+                                                    placeholder="Nueva contraseña"
+                                                    class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white text-sm"
+                                                >
+                                                <p v-if="changePasswordForm.errors.password" class="text-xs text-red-500 font-bold px-1">{{ changePasswordForm.errors.password }}</p>
+                                            </div>
+
+                                            <div class="space-y-2">
+                                                <label class="text-xs font-bold text-slate-500 uppercase">Confirmar Contraseña</label>
+                                                <input 
+                                                    v-model="changePasswordForm.password_confirmation"
+                                                    type="password" 
+                                                    placeholder="Repite la nueva contraseña"
+                                                    class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white text-sm"
+                                                >
+                                                <p v-if="changePasswordForm.errors.password_confirmation" class="text-xs text-red-500 font-bold px-1">{{ changePasswordForm.errors.password_confirmation }}</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-3 pt-2">
+                                            <button 
+                                                type="button"
+                                                @click="toggleChangePassword"
+                                                class="px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition text-sm"
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button 
+                                                type="button"
+                                                @click="updatePassword"
+                                                class="px-4 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 dark:shadow-none transition disabled:opacity-50 text-sm flex items-center gap-2"
+                                                :disabled="changePasswordForm.processing"
+                                            >
+                                                <span v-if="changePasswordForm.processing" class="animate-spin text-white">⟳</span>
+                                                {{ changePasswordForm.processing ? 'Guardando...' : 'Actualizar Contraseña' }}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -524,29 +662,34 @@ const removeAvatar = () => {
                     </form>
                 </section>
 
-                <!-- 5. ACCESOS RÁPIDOS (Gid) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button type="button" class="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center gap-4 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left">
-                        <div class="h-10 w-10 rounded-xl bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-400 shrink-0">
-                            <Lock class="w-6 h-6" />
+                <!-- 5. SEGURIDAD (New 2FA Section) -->
+                <!-- <section class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
+                     <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-teal-100 dark:bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                                <ShieldCheck class="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white">Seguridad</h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Protección adicional de tu cuenta</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-bold text-slate-900 dark:text-white">Cambiar Contraseña</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Seguridad de la cuenta</p>
-                        </div>
-                    </button>
+                    </div>
 
-                    <button type="button" class="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center gap-4 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left">
-                        <div class="h-10 w-10 rounded-xl bg-teal-100 dark:bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
-                            <ShieldCheck class="w-6 h-6" />
+                    <div class="p-8">
+                         <div class="group flex items-center justify-between p-4 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-all cursor-pointer" @click="toggleTwoFactor">
+                            <div>
+                                <p class="font-bold text-slate-900 dark:text-white transition-colors">Doble Factor (2FA)</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Solicitar código de verificación al iniciar sesión.</p>
+                            </div>
+                             <div class="relative inline-flex h-6 w-11 items-center rounded-full transition" :class="user.two_factor_enabled ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'">
+                                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition" :class="user.two_factor_enabled ? 'translate-x-6' : 'translate-x-1'"></span>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-bold text-slate-900 dark:text-white">Doble Factor (2FA)</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Protección avanzada</p>
-                        </div>
-                    </button>
-                </div>
-
+                    </div>
+                </section> -->
+                
+                
                 <!-- 6. ZONA DE PELIGRO -->
                 <section class="bg-red-50/30 dark:bg-red-950/20 rounded-3xl border border-red-100 dark:border-red-900/30 overflow-hidden">
                     <div class="p-8 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -564,7 +707,7 @@ const removeAvatar = () => {
                         <button 
                             @click="openDeleteModal"
                             type="button"
-                            class="px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition active:scale-95 flex-shrink-0"
+                            class="px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition active:scale-95 shrink-0"
                         >
                             Eliminar definitivamente
                         </button>
