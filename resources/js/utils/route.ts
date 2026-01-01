@@ -9,8 +9,18 @@ const routes: Record<string, string> = {
     'community.comment.update': '/dashboard/comunidad/comentarios/:comment',
     'community.comment.destroy': '/dashboard/comunidad/comentarios/:comment',
     'admin.landing.update': '/admin/landing/:key',
-    'settings': '/admin/settings',
+    'settings': '/settings/general',
+    'settings.general': '/settings/general',
+    'profile.edit': '/settings/profile',
+    'user-password.edit': '/settings/password',
     'settings.password.update': '/settings/password',
+    'appearance.edit': '/settings/appearance',
+    'two-factor.show': '/settings/two-factor',
+    'two-factor.qr-code': '/user/two-factor-qr-code',
+    'two-factor.secret-key': '/user/two-factor-secret-key',
+    'two-factor.recovery-codes': '/user/two-factor-recovery-codes',
+    'two-factor.enable': '/user/two-factor-authentication',
+    'two-factor.disable': '/user/two-factor-authentication',
 };
 
 export function route(name: string, params?: any): string {

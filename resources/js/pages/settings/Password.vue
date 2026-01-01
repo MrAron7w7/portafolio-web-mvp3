@@ -3,7 +3,7 @@ import PasswordController from '@/actions/App/Http/Controllers/Settings/Password
 import InputError from '@/components/InputError.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
-import { edit } from '@/routes/user-password';
+import { route } from '@/utils/route';
 import { Form, Head } from '@inertiajs/vue3';
 
 import HeadingSmall from '@/components/HeadingSmall.vue';
@@ -15,7 +15,7 @@ import { type BreadcrumbItem } from '@/types';
 const breadcrumbItems: BreadcrumbItem[] = [
     {
         title: 'Password settings',
-        href: edit().url,
+        href: route('user-password.edit'),
     },
 ];
 </script>

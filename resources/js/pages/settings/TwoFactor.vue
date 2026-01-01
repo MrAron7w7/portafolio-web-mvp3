@@ -7,11 +7,15 @@ import { Button } from '@/components/ui/button';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
-import { disable, enable, show } from '@/routes/two-factor';
+import { route } from '@/utils/route';
 import { BreadcrumbItem } from '@/types';
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, useForm } from '@inertiajs/vue3';
 import { ShieldBan, ShieldCheck } from 'lucide-vue-next';
 import { onUnmounted, ref } from 'vue';
+
+// Define forms manually since we removed the route helpers
+const enableForm = useForm({});
+const disableForm = useForm({});
 
 interface Props {
     requiresConfirmation?: boolean;
@@ -26,7 +30,7 @@ withDefaults(defineProps<Props>(), {
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Two-Factor Authentication',
-        href: show.url(),
+        href: route('two-factor.show'),
     },
 ];
 
@@ -68,16 +72,14 @@ onUnmounted(() => {
                         >
                             <ShieldCheck />Continue Setup
                         </Button>
-                        <Form
+                        <form
                             v-else
-                            v-bind="enable.form()"
-                            @success="showSetupModal = true"
-                            #default="{ processing }"
+                            @submit.prevent="enableForm.post(route('two-factor.enable'), { onSuccess: () => showSetupModal = true })"
                         >
-                            <Button type="submit" :disabled="processing">
-                                <ShieldCheck />Enable 2FA</Button
-                            ></Form
-                        >
+                            <Button type="submit" :disabled="enableForm.processing">
+                                <ShieldCheck />Enable 2FA
+                            </Button>
+                        </form>
                     </div>
                 </div>
 
@@ -97,16 +99,16 @@ onUnmounted(() => {
                     <TwoFactorRecoveryCodes />
 
                     <div class="relative inline">
-                        <Form v-bind="disable.form()" #default="{ processing }">
+                        <form @submit.prevent="disableForm.delete(route('two-factor.disable'))">
                             <Button
                                 variant="destructive"
                                 type="submit"
-                                :disabled="processing"
+                                :disabled="disableForm.processing"
                             >
                                 <ShieldBan />
                                 Disable 2FA
                             </Button>
-                        </Form>
+                        </form>
                     </div>
                 </div>
 

@@ -196,7 +196,7 @@ const goBack = () => router.visit('/dashboard');
                         class="group relative cursor-pointer overflow-hidden rounded-2xl border bg-white dark:bg-slate-900 transition-all duration-200 hover:-translate-y-1"
                         :class="[selectedTemplate === template.id ? 'border-indigo-500 ring-4 ring-indigo-100 dark:ring-indigo-900/30' : 'border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700']"
                     >
-                        <div class="relative aspect-[16/10] overflow-hidden bg-slate-50 dark:bg-slate-950" @click.stop="openPreview(template)">
+                        <div class="relative aspect-16/10 overflow-hidden bg-slate-50 dark:bg-slate-950" @click.stop="openPreview(template)">
                             <div class="absolute inset-0 h-[220%] w-[220%] origin-top-left scale-[0.45] pointer-events-none">
                                 <component v-if="previewComponents[template.preview_component]" :is="previewComponents[template.preview_component]" :data="getTemplateData(template.preview_component)" />
                                 <div v-else class="flex h-full w-full items-center justify-center"><LayoutTemplate class="h-16 w-16 text-slate-300 dark:text-slate-700" /></div>
@@ -222,7 +222,7 @@ const goBack = () => router.visit('/dashboard');
             </main>
 
             <!-- Floating Action Button -->
-            <div v-if="selectedTemplate" class="fixed bottom-8 left-1/2 z-[60] -translate-x-1/2 transform">
+            <div v-if="selectedTemplate" class="fixed bottom-8 left-1/2 z-60 -translate-x-1/2 transform">
                 <button @click="createPortfolio" :disabled="isCreating" class="group flex items-center gap-3 rounded-[24px] bg-linear-to-r from-indigo-600 to-violet-600 pl-8 pr-6 py-4 text-lg font-bold text-white shadow-xl shadow-indigo-500/40 transition-all duration-300 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl">
                     <div v-if="isCreating" class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                     <Sparkles v-else class="h-5 w-5" />
