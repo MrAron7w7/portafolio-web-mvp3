@@ -229,11 +229,22 @@ const settingsItems = computed(() => [
                         </DropdownMenu>
 
                         <!-- Ayuda -->
+                        <!-- Ayuda -->
                         <Link 
-                            href="#"
-                            class="group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                            href="/dashboard/ayuda"
+                            :class="[
+                                'group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all duration-200',
+                                $page.url === '/dashboard/ayuda'
+                                    ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                            ]"
                         >
-                            <HelpCircle class="h-5 w-5 text-slate-400 dark:text-slate-500 transition-transform duration-200 group-hover:scale-110" />
+                            <HelpCircle 
+                                class="h-5 w-5 transition-transform duration-200 group-hover:scale-110" 
+                                :class="[
+                                    $page.url === '/dashboard/ayuda' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
+                                ]"
+                            />
                             <span>Ayuda</span>
                         </Link>
                     </div>

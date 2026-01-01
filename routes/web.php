@@ -18,6 +18,11 @@ Route::middleware(['auth', 'verified'])
         
 
         Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])->name('index');
+
+        // Ayuda
+        Route::get('/ayuda', function () {
+            return Inertia::render('Dashboard/Help');
+        })->name('help');
         
         // Comunidad (Mini-Foro)
         // Comunidad (Mini-Foro)
