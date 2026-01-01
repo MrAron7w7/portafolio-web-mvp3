@@ -397,7 +397,7 @@
                                                 </div>
 
                                                 <!-- Gestión de Correos (Solo restringido) -->
-                                                <div v-if="linkAudienceType === 'emails_only' && !isPublicEdit" class="mt-4 p-4 rounded-xl bg-gradient-to-b from-amber-50/50 dark:from-amber-900/20 to-orange-50/30 dark:to-orange-900/10 border border-amber-100/80 dark:border-amber-900/30">
+                                                <div v-if="linkAudienceType === 'emails_only' && !isPublicEdit" class="mt-4 p-4 rounded-xl bg-linear-to-b from-amber-50/50 dark:from-amber-900/20 to-orange-50/30 dark:to-orange-900/10 border border-amber-100/80 dark:border-amber-900/30">
                                                     <!-- Header de la sección -->
                                                     <div class="flex items-start gap-3 mb-4">
                                                         <div class="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400">
@@ -432,7 +432,7 @@
                                                         <div v-for="email in authorizedEmails" :key="email.id" 
                                                             class="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 group hover:border-red-200 dark:hover:border-red-900 transition-colors">
                                                             <div class="flex items-center gap-2.5 overflow-hidden">
-                                                                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-[11px] font-bold text-white uppercase shadow-sm">
+                                                                <div class="w-7 h-7 rounded-full bg-linear-to-br from-amber-400 to-orange-500 flex items-center justify-center text-[11px] font-bold text-white uppercase shadow-sm">
                                                                     {{ email.email[0] }}
                                                                 </div>
                                                                 <div class="min-w-0">
@@ -509,7 +509,7 @@
                                 <button
                                     @click="emits('finish')"
                                     class="flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors last:rounded-b-lg border-t border-gray-100 dark:border-slate-800">
-                                    <X class="w-4 h-4 flex-shrink-0" />
+                                    <X class="w-4 h-4 shrink-0" />
                                     Salir del editor
                                 </button>
                             </div>

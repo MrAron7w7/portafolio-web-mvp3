@@ -3,33 +3,27 @@ import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { toUrl, urlIsActive } from '@/lib/utils';
-import { edit as editAppearance } from '@/routes/appearance';
-import { edit as editProfile } from '@/routes/profile';
-import { show } from '@/routes/two-factor';
-import { edit as editPassword } from '@/routes/user-password';
+import { route } from '@/utils/route';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 
 const sidebarNavItems: NavItem[] = [
     {
         title: 'Profile',
-        href: editProfile(),
+        href: route('settings.general'), // Assuming profile is merged or use 'profile.edit'
     },
     {
         title: 'Password',
-        href: editPassword(),
+        href: route('user-password.edit'),
     },
-    {
-        title: 'Two-Factor Auth',
-        href: show(),
-    },
+    // Two-Factor Auth Removed as per user request
     {
         title: 'Appearance',
-        href: editAppearance(),
+        href: route('appearance.edit'),
     },
 ];
 
-const currentPath = typeof window !== undefined ? window.location.pathname : '';
+const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 </script>
 
 <template>

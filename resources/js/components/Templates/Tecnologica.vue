@@ -102,14 +102,14 @@ const techIcons: { [key: string]: any } = {
 
 <template>
     <div
-        class="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white"
+        class="min-h-screen bg-linear-to-br from-gray-900 to-blue-900 text-white"
     >
         <!-- Header Tecnológico -->
         <header class="relative overflow-hidden border-b border-cyan-900/50 bg-slate-950 p-6 md:p-12">
             <!-- Efectos de fondo tecnológico -->
             <div class="absolute inset-0 opacity-10">
                 <div
-                    class="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 blur-3xl"
+                    class="absolute inset-0 bg-linear-to-r from-blue-500 to-cyan-500 blur-3xl"
                 ></div>
             </div>
 
@@ -120,7 +120,7 @@ const techIcons: { [key: string]: any } = {
                 <div class="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
                     <div class="text-left md:flex-1">
                         <h1
-                            class="mb-2 md:mb-3 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-3xl md:text-5xl font-bold text-transparent"
+                            class="mb-2 md:mb-3 bg-linear-to-r from-blue-400 to-cyan-400 bg-clip-text text-3xl md:text-5xl font-bold text-transparent"
                         >
                             {{ data.personal.name || 'Tu Nombre' }}
                         </h1>
@@ -155,7 +155,7 @@ const techIcons: { [key: string]: any } = {
                         <!-- Profile Photo -->
                         <div v-if="data.personal.photo" class="shrink-0">
                             <div class="relative h-32 w-32 md:h-40 md:w-40">
-                                 <div class="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 blur-lg opacity-50"></div>
+                                 <div class="absolute inset-0 rounded-full bg-linear-to-r from-blue-500 to-cyan-500 blur-lg opacity-50"></div>
                                  <div class="relative h-full w-full overflow-hidden rounded-full border-2 border-cyan-500/50 p-1 bg-gray-900">
                                     <img 
                                         :src="data.personal.photo" 
@@ -332,7 +332,7 @@ const techIcons: { [key: string]: any } = {
                             <Code class="mr-3 h-6 w-6 text-cyan-400" />
                             <h2 class="text-2xl font-bold text-gray-900">
                                 <span class="text-gray-100">Proyectos</span>
-                                <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"> Destacados</span>
+                                <span class="bg-linear-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"> Destacados</span>
                             </h2>
                         </div>
 
