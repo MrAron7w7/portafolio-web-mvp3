@@ -27,6 +27,7 @@ const props = defineProps<{
         features: string[];
         preview_component: string;
     }>;
+    sections?: any;
 }>();
 
 // Selected template state
@@ -146,11 +147,17 @@ const goBack = () => router.visit('/dashboard');
                                 <span class="text-sm font-medium">Volver</span>
                             </button>
                             <div class="flex items-center gap-2.5">
-                                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25">
+                                <img 
+                                    v-if="sections?.header?.images?.logo" 
+                                    :src="sections?.header?.images?.logo" 
+                                    alt="Logo" 
+                                    class="h-10 w-10 rounded-xl object-contain"
+                                />
+                                <div v-else class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25">
                                     <LayoutTemplate class="h-5 w-5 text-white" />
                                 </div>
                                 <span class="text-xl font-black tracking-tight bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                                    PortafolioAI
+                                    {{ sections?.header?.content?.brand_name || 'PortafolioAI' }}
                                 </span>
                             </div>
                         </div>

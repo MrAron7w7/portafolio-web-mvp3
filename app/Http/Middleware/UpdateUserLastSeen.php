@@ -18,7 +18,9 @@ class UpdateUserLastSeen
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check()) {
-            Auth::user()->update([
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            $user->update([
                 'last_seen_at' => now(),
             ]);
         }

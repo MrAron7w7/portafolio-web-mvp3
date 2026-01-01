@@ -7,11 +7,9 @@ use App\Http\Controllers\TemplateController;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
-Route::get('/', function () {
-    return Inertia::render('Home/Home', [
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
-})->name('home');
+use App\Http\Controllers\WelcomeController;
+
+Route::get('/', [WelcomeController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])
     ->prefix('dashboard')

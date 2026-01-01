@@ -108,11 +108,17 @@ const settingsItems = computed(() => [
         <!-- Logo Area -->
         <div class="flex h-16 items-center justify-between border-b border-slate-100 dark:border-slate-800 px-6">
             <div class="flex items-center gap-3 group cursor-pointer">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-360">
+                <img 
+                    v-if="(page.props as any).logo_url" 
+                    :src="(page.props as any).logo_url" 
+                    alt="Logo" 
+                    class="h-10 w-10 rounded-xl object-contain"
+                />
+                <div v-else class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-12">
                     <Sparkles class="h-5 w-5 text-white" />
                 </div>
                 <span class="text-lg font-black tracking-tight bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                    PortafolioAI
+                    {{ (page.props as any).brand_name || 'PortafolioAI' }}
                 </span>
             </div>
             <button 

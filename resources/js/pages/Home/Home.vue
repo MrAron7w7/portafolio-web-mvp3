@@ -17,8 +17,20 @@ import {
     Mail,
     Shield,
     Zap,
-    Globe
+    Globe,
+    Star,
+    Info
 } from 'lucide-vue-next';
+
+const props = defineProps<{
+    sections?: any;
+}>();
+
+const iconsMap: Record<string, any> = {
+    Sparkles, FileText, MessageSquare, Mic, Layout, Rocket, Users, 
+    CheckCircle2, ArrowRight, Github, Twitter, Linkedin, Mail, Shield, Zap, Globe, Star, Info
+};
+
 
 // Datos del usuario autenticado
 const page = usePage();
@@ -32,62 +44,83 @@ const mouseX = ref(0);
 const mouseY = ref(0);
 
 // Herramientas Reales (Cards Flotantes)
-const tools = ref([
-    {
-        icon: Layout,
-        title: 'Plantillas Premium',
-        description: 'Diseños optimizados para conversión, adaptables a tu marca personal.',
-        color: 'from-blue-500 to-indigo-600',
-        delay: '0'
-    },
-    {
-        icon: FileText,
-        title: 'ATS Scanner',
-        description: 'Optimización de CV con IA para superar filtros de reclutamiento.',
-        color: 'from-purple-500 to-pink-600',
-        delay: '100'
-    },
-    {
-        icon: Mic,
-        title: 'Entrevistas IA',
-        description: 'Simulaciones realistas con feedback inmediato sobre tus respuestas.',
-        color: 'from-orange-400 to-red-500',
-        delay: '200'
-    },
-    {
-        icon: MessageSquare,
-        title: 'Comunidad',
-        description: 'Networking estratégico con profesionales de tu industria.',
-        color: 'from-emerald-400 to-teal-600',
-        delay: '300'
-    }
-]);
+// Herramientas Reales (Cards Flotantes)
+const tools = computed(() => {
+    const items = props.sections?.tools?.content?.items || [
+        {
+            icon: 'Layout',
+            title: 'Plantillas Premium',
+            description: 'Diseños optimizados para conversión, adaptables a tu marca personal.',
+            color: 'from-blue-500 to-indigo-600',
+            delay: '0'
+        },
+        {
+            icon: 'FileText',
+            title: 'ATS Scanner',
+            description: 'Optimización de CV con IA para superar filtros de reclutamiento.',
+            color: 'from-purple-500 to-pink-600',
+            delay: '100'
+        },
+        {
+            icon: 'Mic',
+            title: 'Entrevistas IA',
+            description: 'Simulaciones realistas con feedback inmediato sobre tus respuestas.',
+            color: 'from-orange-400 to-red-500',
+            delay: '200'
+        },
+        {
+            icon: 'MessageSquare',
+            title: 'Comunidad',
+            description: 'Networking estratégico con profesionales de tu industria.',
+            color: 'from-emerald-400 to-teal-600',
+            delay: '300'
+        }
+    ];
+
+    return items.map((item: any) => ({
+        ...item,
+        iconComponent: iconsMap[item.icon] || Layout // Default icon fallback
+    }));
+});
 
 // Feature Spotlights
-const features = ref([
-    {
-        title: 'Diseño Inteligente que Impacta',
-        description: 'Nuestra tecnología analiza tu perfil y genera un portafolio que destaca tus fortalezas clave. Sin arrastrar y soltar interminable, solo resultados profesionales al instante.',
-        icon: Zap,
-        image: '/imagenes/AnalizaPerfil.PNG',
-        imageGradient: 'from-indigo-500/10 to-purple-500/10',
-        stats: [
-            { label: 'Más rápido', value: '10x' },
-            { label: 'Personalizable', value: '100%' }
-        ]
-    },
-    {
-        title: 'Domina las Entrevistas Técnicas',
-        description: 'Practica con un entrenador de IA que se adapta a tu rol. Recibe consejos sobre claridad, tono y contenido técnico para llegar confiado a la entrevista real.',
-        icon: Mic,
-        // No image provided yet for this one, keeping abstract or could use same logic
-        imageGradient: 'from-orange-500/10 to-red-500/10',
-        stats: [
-            { label: 'Preguntas Reales', value: '500+' },
-            { label: 'Feedback', value: 'Instantáneo' }
-        ]
-    }
-]);
+// Feature Spotlights
+const features = computed(() => {
+    const items = props.sections?.features?.content?.items || [
+        {
+            title: 'Diseño Inteligente que Impacta',
+            description: 'Nuestra tecnología analiza tu perfil y genera un portafolio que destaca tus fortalezas clave. Sin arrastrar y soltar interminable, solo resultados profesionales al instante.',
+            icon: 'Zap',
+            image: '/imagenes/AnalizaPerfil.PNG',
+            imageGradient: 'from-indigo-500/10 to-purple-500/10',
+            stats: [
+                { label: 'Más rápido', value: '10x' },
+                { label: 'Personalizable', value: '100%' }
+            ]
+        },
+        {
+            title: 'Domina las Entrevistas Técnicas',
+            description: 'Practica con un entrenador de IA que se adapta a tu rol. Recibe consejos sobre claridad, tono y contenido técnico para llegar confiado a la entrevista real.',
+            icon: 'Mic',
+            // No image provided yet for this one, keeping abstract or could use same logic
+            imageGradient: 'from-orange-500/10 to-red-500/10',
+            stats: [
+                { label: 'Preguntas Reales', value: '500+' },
+                { label: 'Feedback', value: 'Instantáneo' }
+            ]
+        }
+    ];
+
+    return items.map((item: any) => ({
+        ...item,
+        iconComponent: iconsMap[item.icon] || Zap
+    }));
+});
+
+// Testimonials Data
+const testimonials = computed(() => {
+    return props.sections?.testimonials?.content?.items || [];
+});
 
 // Footer Links
 const footerLinks = {
@@ -98,7 +131,7 @@ const footerLinks = {
         { name: 'Showcase', href: '#' }
     ],
     company: [
-        { name: 'Sobre Nosotros', href: '#' },
+        { name: 'Sobre Nosotros', href: '#nosotros' },
         { name: 'Blog', href: '#' },
         { name: 'Carreras', href: '#' },
         { name: 'Contacto', href: '#' }
@@ -185,25 +218,33 @@ onUnmounted(() => {
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between py-4">
                     <!-- Logo -->
-                    <div class="flex items-center gap-3 group cursor-pointer">
-                        <div class="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-12">
-                            <Sparkles class="h-6 w-6 text-white" />
-                            <div class="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        </div>
-                        <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-800 dark:from-white dark:via-indigo-200 dark:to-slate-300 tracking-tight">
-                            PortafolioAI
-                        </span>
+                    <div class="flex lg:flex-1">
+                        <a href="#" class="-m-1.5 p-1.5 flex items-center gap-3 group">
+                            <img 
+                                v-if="sections?.header?.images?.logo" 
+                                :src="sections?.header?.images?.logo" 
+                                alt="Logo" 
+                                class="h-10 w-10 rounded-xl object-contain"
+                            />
+                            <div v-else class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
+                                 <Sparkles class="h-5 w-5 text-white" />
+                            </div>
+                            <span class="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-slate-900 via-indigo-900 to-slate-700 dark:from-white dark:via-indigo-200 dark:to-slate-300">
+                                {{ sections?.header?.content?.brand_name || 'PortafolioAI' }}
+                            </span>
+                        </a>
                     </div>
 
                     <!-- Menú Desktop -->
-                    <nav class="hidden items-center gap-8 md:flex">
-                        <a href="#herramientas" class="text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors hover:text-indigo-600 dark:hover:text-white">Soluciones</a>
+                    <nav class="hidden items-center gap-6 md:flex">
+                        <a href="#inicio" class="text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors hover:text-indigo-600 dark:hover:text-white">Inicio</a>
                         <a href="#funcionalidades" class="text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors hover:text-indigo-600 dark:hover:text-white">Funcionalidades</a>
                         <a href="#comunidad" class="text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors hover:text-indigo-600 dark:hover:text-white">Comunidad</a>
+                        <a href="#nosotros" class="text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors hover:text-indigo-600 dark:hover:text-white">Sobre Nosotros</a>
                     </nav>
 
                     <!-- Auth Buttons -->
-                    <div class="hidden items-center gap-4 md:flex">
+                    <div class="hidden items-center gap-4 md:flex ml-8">
                         <template v-if="!isAuthenticated">
                             <a href="/login" class="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-white transition-colors">Iniciar Sesión</a>
                             <a href="/register" class="group relative inline-flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white px-5 py-2.5 text-sm font-semibold text-white dark:text-slate-900 shadow-lg shadow-slate-900/10 transition-all duration-200 hover:bg-slate-800 dark:hover:bg-slate-200 hover:shadow-xl hover:-translate-y-0.5">
@@ -229,8 +270,10 @@ onUnmounted(() => {
             <!-- Mobile Menu -->
             <div v-show="mobileMenuOpen" class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 md:hidden animate-fade-in-up">
                 <div class="space-y-1 p-4">
-                    <a href="#herramientas" class="block rounded-lg px-4 py-3 text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-white">Soluciones</a>
+                    <a href="#inicio" class="block rounded-lg px-4 py-3 text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-white">Inicio</a>
                     <a href="#funcionalidades" class="block rounded-lg px-4 py-3 text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-white">Funcionalidades</a>
+                    <a href="#comunidad" class="block rounded-lg px-4 py-3 text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-white">Comunidad</a>
+                    <a href="#nosotros" class="block rounded-lg px-4 py-3 text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-white">Sobre Nosotros</a>
                     <div class="mt-4 space-y-3 border-t border-slate-100 dark:border-slate-800 pt-4">
                          <template v-if="!isAuthenticated">
                             <a href="/login" class="block w-full rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-3 text-center font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800">Iniciar Sesión</a>
@@ -245,10 +288,10 @@ onUnmounted(() => {
         </header>
 
         <!-- Hero Section -->
-        <section class="relative overflow-hidden pt-36 pb-24 lg:pt-48 lg:pb-32">
+        <section id="inicio" class="relative overflow-hidden pt-36 pb-24 lg:pt-48 lg:pb-32">
             <!-- Background Decorations -->
             <div class="absolute inset-0 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-                <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] dark:opacity-20"></div>
+                <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[24px_24px] dark:opacity-20"></div>
                 <div class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-indigo-500 opacity-20 blur-[100px]"></div>
                 <div class="absolute right-0 top-0 -z-10 h-[500px] w-[500px] rounded-full bg-purple-500 opacity-10 blur-[120px]"></div>
             </div>
@@ -258,25 +301,25 @@ onUnmounted(() => {
                     <div class="text-center lg:text-left scroll-animate">
                         <div class="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-1.5 shadow-sm backdrop-blur-sm mb-8">
                             <span class="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                            <span class="text-sm font-semibold text-indigo-700">v2.0 Ahora con IA Avanzada</span>
+                            <span class="text-sm font-semibold text-indigo-700">{{ sections?.hero?.content?.badge || 'v2.0 Ahora con IA Avanzada' }}</span>
                         </div>
 
                         <h1 class="mb-6 text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-6xl lg:text-7xl leading-[1.1]">
-                            Potencia tu <br/>
-                            <span class="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent animate-gradient-x">Marca Personal</span>
+                            {{ sections?.hero?.content?.title_line1 || 'Potencia tu' }} <br/>
+                            <span class="bg-linear-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent animate-gradient-x">{{ sections?.hero?.content?.title_gradient || 'Marca Personal' }}</span>
                         </h1>
                         
                         <p class="mb-10 text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                            La plataforma todo en uno para construir tu portafolio, optimizar tu CV y preparar entrevistas. Diseñada para desarrolladores y creativos ambiciosos.
+                            {{ sections?.hero?.content?.description || 'La plataforma todo en uno para construir tu portafolio, optimizar tu CV y preparar entrevistas. Diseñada para desarrolladores y creativos ambiciosos.' }}
                         </p>
 
                         <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                            <a href="/register" class="group inline-flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white px-8 py-4 text-base font-bold text-white dark:text-slate-900 shadow-xl shadow-slate-900/20 dark:shadow-white/5 transition-all hover:bg-slate-800 dark:hover:bg-slate-100 hover:-translate-y-1">
-                                Comenzar Gratis
+                            <a :href="sections?.hero?.content?.primary_button_link || '/register'" class="group inline-flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white px-8 py-4 text-base font-bold text-white dark:text-slate-900 shadow-xl shadow-slate-900/20 dark:shadow-white/5 transition-all hover:bg-slate-800 dark:hover:bg-slate-100 hover:-translate-y-1">
+                                {{ sections?.hero?.content?.primary_button_text || 'Comenzar Gratis' }}
                                 <Rocket class="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </a>
-                            <a href="#funcionalidades" class="inline-flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-8 py-4 text-base font-bold text-slate-700 dark:text-slate-300 shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700">
-                                Explorar Demo
+                            <a :href="sections?.hero?.content?.secondary_button_link || '#funcionalidades'" class="inline-flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-8 py-4 text-base font-bold text-slate-700 dark:text-slate-300 shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700">
+                                {{ sections?.hero?.content?.secondary_button_text || 'Explorar Demo' }}
                             </a>
                         </div>
                         
@@ -285,12 +328,12 @@ onUnmounted(() => {
                             <div class="flex -space-x-3">
                                 <div v-for="i in 4" :key="i" class="h-10 w-10 rounded-full border-2 border-white dark:border-slate-800 bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
                                      <!-- Placeholder avatars -->
-                                    <div class="w-full h-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900"></div>
+                                    <div class="w-full h-full bg-linear-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900"></div>
                                 </div>
                             </div>
                             <div class="flex flex-col text-left">
                                 <div class="flex text-yellow-500">★★★★★</div>
-                                <span>Uniendo a la comunidad tech</span>
+                                <span>{{ sections?.hero?.content?.social_proof_text || 'Uniendo a la comunidad tech' }}</span>
                             </div>
                         </div>
                     </div>
@@ -298,12 +341,12 @@ onUnmounted(() => {
                     <!-- Hero Visual -->
                     <div class="relative lg:h-[600px] w-full hidden lg:block scroll-animate">
                          <!-- Abstract Dashboard Mockup -->
-                         <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 rounded-3xl transform rotate-3 scale-95 blur-2xl"></div>
+                         <div class="absolute inset-0 bg-linear-to-tr from-indigo-500/10 to-purple-500/10 rounded-3xl transform rotate-3 scale-95 blur-2xl"></div>
                          <div class="relative h-full w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-700/60 overflow-hidden transform transition-transform hover:scale-[1.01] duration-500">
                             <!-- Image Container -->
                             <div class="absolute inset-0 bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden">
                                 <img 
-                                    src="/imagenes/Template.PNG" 
+                                    :src="sections?.hero?.images?.main_image || '/imagenes/Template.PNG'" 
                                     alt="Portafolio Template Preview" 
                                     class="w-full h-full object-cover object-top opacity-95 hover:opacity-100 transition-opacity duration-700"
                                 />
@@ -312,14 +355,14 @@ onUnmounted(() => {
                             </div>
                             
                             <!-- Floating Card Overlay -->
-                            <div class="absolute bottom-12 -left-8 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 animate-float-delayed">
+                            <div class="absolute bottom-12 left-6 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 animate-float-delayed">
                                 <div class="flex items-center gap-3">
                                     <div class="p-2 bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-400 rounded-lg">
                                         <CheckCircle2 class="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <div class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase">CV Score</div>
-                                        <div class="text-lg font-bold text-slate-900 dark:text-white">98/100</div>
+                                        <div class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase">{{ sections?.hero?.content?.cv_score_label || 'CV Score' }}</div>
+                                        <div class="text-lg font-bold text-slate-900 dark:text-white">{{ sections?.hero?.content?.cv_score_value || '98/100' }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -329,39 +372,27 @@ onUnmounted(() => {
             </div>
         </section>
 
-        <!-- Herramientas Cards -->
-        <section id="herramientas" class="py-24 bg-white dark:bg-slate-950 relative transition-colors duration-300">
+        <!-- Tools / Portal AI Section -->
+        <section id="herramientas" class="py-24 bg-white dark:bg-slate-900 relative z-20 -mt-20 lg:-mt-32">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center max-w-3xl mx-auto mb-16 scroll-animate">
-                    <h2 class="text-base font-bold text-indigo-600 dark:text-indigo-400 tracking-wide uppercase">Tu ecosistema de carrera</h2>
-                    <h3 class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white sm:text-4xl">
-                        Todo lo que necesitas en un solo lugar
-                    </h3>
-                </div>
-
-                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div 
-                        v-for="(tool, index) in tools" 
-                        :key="index"
-                        class="tilt-card group p-8 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 transition-all duration-300 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 relative overflow-hidden"
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div v-for="(tool, index) in tools" :key="index" 
+                        class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700/50 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group scroll-animate"
+                        :style="{ transitionDelay: `${tool.delay}ms` }"
                     >
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <component :is="tool.icon" class="h-24 w-24 transform -rotate-12 dark:text-white" />
+                        <div class="h-12 w-12 rounded-xl bg-linear-to-br mb-6 flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 transition-transform duration-300" :class="tool.color">
+                            <component :is="tool.iconComponent" class="h-6 w-6" />
                         </div>
-                        
-                        <div class="relative z-10">
-                            <div class="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center text-white" :class="tool.color">
-                                    <component :is="tool.icon" class="h-5 w-5" />
-                                </div>
-                            </div>
-                            <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ tool.title }}</h4>
-                            <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ tool.description }}</p>
-                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ tool.title }}</h3>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                            {{ tool.description }}
+                        </p>
                     </div>
                 </div>
             </div>
         </section>
+
+
         
         <!-- Feature Spotlights (Futuristic 3D) -->
         <section id="funcionalidades" class="py-32 bg-slate-50 dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">
@@ -372,11 +403,11 @@ onUnmounted(() => {
             
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 space-y-40 relative z-10">
                 <div v-for="(feature, index) in features" :key="index" class="relative group scroll-animate">
-                    <div class="grid lg:grid-cols-2 gap-20 items-center" :class="{ 'lg:flex-row-reverse': index % 2 === 1 }">
+                    <div class="grid lg:grid-cols-2 gap-20 items-center" :class="{ 'lg:flex-row-reverse': (index as number) % 2 === 1 }">
                         <!-- Content -->
-                        <div :class="{ 'order-2': index % 2 === 1 }">
+                        <div :class="{ 'order-2': (index as number) % 2 === 1 }">
                             <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 border border-indigo-500/20 mb-8 shadow-[0_0_15px_rgba(99,102,241,0.3)]">
-                                <component :is="feature.icon" class="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
+                                <component :is="feature.iconComponent" class="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
                             </div>
                             <h3 class="text-4xl font-bold text-slate-900 dark:text-white mb-6 leading-tight tracking-tight">
                                 {{ feature.title }}
@@ -394,7 +425,7 @@ onUnmounted(() => {
                         </div>
                         
                         <!-- Visual (3D Perspective) -->
-                        <div :class="{ 'order-1': index % 2 === 1 }" class="relative perspective-container group-hover:scale-[1.02] transition-transform duration-700 ease-out">
+                        <div :class="{ 'order-1': (index as number) % 2 === 1 }" class="relative perspective-container group-hover:scale-[1.02] transition-transform duration-700 ease-out">
                              <!-- Glowing Backdrop -->
                             <div class="absolute inset-0 bg-linear-to-tr opacity-20 blur-[80px] -z-10 transition-opacity duration-500 group-hover:opacity-30" :class="feature.imageGradient"></div>
                             
@@ -438,21 +469,113 @@ onUnmounted(() => {
             </div>
         </section>
 
+        <!-- Testimonials Section -->
+        <section id="comunidad" class="py-32 bg-white dark:bg-slate-900 relative transition-colors duration-300">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-3xl mx-auto text-center mb-16 scroll-animate">
+                    <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl mb-6">
+                        {{ sections?.testimonials?.content?.title || 'Lo que dice la comunidad' }}
+                    </h2>
+                    <p class="text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
+                        {{ sections?.testimonials?.content?.subtitle || 'Opiniones verificadas de profesionales destacados que ya consiguieron empleo.' }}
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div v-for="(testimonial, index) in testimonials" :key="index" class="bg-slate-50 dark:bg-slate-800/40 p-8 rounded-3xl border border-slate-200 dark:border-slate-700/50 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 scroll-animate group">
+                        <!-- Stars -->
+                        <div class="flex gap-1 text-yellow-400 mb-6">
+                            <Star v-for="i in 5" :key="i" class="w-5 h-5 fill-current" :class="i <= testimonial.rating ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'" />
+                        </div>
+                        
+                        <p class="text-slate-700 dark:text-slate-300 mb-8 leading-relaxed text-lg italic">
+                            "{{ testimonial.content }}"
+                        </p>
+                        
+                        <div class="flex items-center gap-4 mt-auto border-t border-slate-200 dark:border-slate-700/50 pt-6">
+                            <div class="h-12 w-12 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700 ring-2 ring-white dark:ring-slate-800">
+                                <img 
+                                    v-if="testimonial.avatar" 
+                                    :src="testimonial.avatar" 
+                                    :alt="testimonial.name" 
+                                    class="h-full w-full object-cover"
+                                />
+                                <div v-else class="h-full w-full flex items-center justify-center text-slate-400">
+                                    <Users class="h-6 w-6" />
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ testimonial.name }}</h4>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">{{ testimonial.role }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section id="nosotros" class="py-32 bg-slate-50 dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">
+             <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+            
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="max-w-4xl mx-auto text-center mb-20 scroll-animate">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-4 py-1.5 shadow-sm backdrop-blur-sm mb-8">
+                         <Info class="h-4 w-4 text-indigo-600" />
+                         <span class="text-sm font-semibold text-indigo-700">{{ sections?.about?.content?.title || 'Sobre Nosotros' }}</span>
+                    </div>
+                    
+                    <h2 class="text-3xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-8">
+                        Construyendo el futuro del <br>
+                        <span class="bg-clip-text text-transparent bg-linear-to-r from-indigo-500 to-purple-600">talento digital</span>
+                    </h2>
+                    
+                    <p class="text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
+                        {{ sections?.about?.content?.who_we_are || 'Somos un equipo de desarrolladores y diseñadores apasionados por la tecnología y el crecimiento profesional.' }}
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+                     <!-- Mission Card -->
+                    <div class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 scroll-animate hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group">
+                        <div class="h-14 w-14 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                             <Rocket class="h-7 w-7" />
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">{{ sections?.about?.content?.mission_title || 'Nuestra Misión' }}</h3>
+                        <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                            {{ sections?.about?.content?.mission || 'Democratizar el acceso al éxito profesional.' }}
+                        </p>
+                    </div>
+
+                    <!-- Vision Card -->
+                    <div class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 scroll-animate hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 group">
+                        <div class="h-14 w-14 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                             <Globe class="h-7 w-7" />
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">{{ sections?.about?.content?.vision_title || 'Nuestra Visión' }}</h3>
+                        <p class="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">
+                            {{ sections?.about?.content?.vision || 'Convertirnos en el ecosistema integral de carrera líder a nivel global.' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- CTA Section -->
         <section class="py-24 bg-slate-900 relative isolate overflow-hidden">
-            <div class="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,theme(colors.indigo.100),white)] opacity-20"></div>
+            <div class="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,var(--color-indigo-100),white)] opacity-20"></div>
             <div class="absolute inset-y-0 right-1/2 -z-10 mr-16 w-[200%] origin-bottom-left skew-x-[-30deg] bg-slate-900 shadow-xl shadow-indigo-600/10 ring-1 ring-indigo-50 sm:mr-28 lg:mr-0 xl:mr-16 xl:origin-center"></div>
             <div class="mx-auto max-w-2xl text-center px-4">
-                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Comienza a construir tu futuro hoy.</h2>
+                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">{{ sections?.cta?.content?.title || 'Comienza a construir tu futuro hoy.' }}</h2>
                 <p class="mx-auto mt-6 text-lg leading-8 text-slate-300">
-                    Únete a miles de profesionales que ya están acelerando su carrera con nuestras herramientas de IA.
+                    {{ sections?.cta?.content?.description || 'Únete a miles de profesionales que ya están acelerando su carrera con nuestras herramientas de IA.' }}
                 </p>
                 <div class="mt-10 flex items-center justify-center gap-x-6">
-<a href="/register" class="rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all hover:-translate-y-1">
-                        Crear Cuenta Gratis
+<a :href="sections?.cta?.content?.primary_button_link || '/register'" class="rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all hover:-translate-y-1">
+                        {{ sections?.cta?.content?.primary_button_text || 'Crear Cuenta Gratis' }}
                     </a>
-                    <a href="#" class="text-sm font-semibold leading-6 text-white group">
-                        Saber más <span aria-hidden="true" class="inline-block transition-transform group-hover:translate-x-1">→</span>
+                    <a :href="sections?.cta?.content?.secondary_button_link || '#'" class="text-sm font-semibold leading-6 text-white group">
+                        {{ sections?.cta?.content?.secondary_button_text || 'Saber más' }} <span aria-hidden="true" class="inline-block transition-transform group-hover:translate-x-1">→</span>
                     </a>
                 </div>
             </div>
@@ -464,14 +587,20 @@ onUnmounted(() => {
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
                     <div class="col-span-2 lg:col-span-2">
-                        <div class="flex items-center gap-2 mb-6">
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-                                <Sparkles class="h-4 w-4" />
+                        <div class="flex items-center gap-3 mb-4">
+                            <img 
+                                v-if="sections?.header?.images?.logo" 
+                                :src="sections?.header?.images?.logo" 
+                                alt="Logo" 
+                                class="h-10 w-10 rounded-xl object-contain"
+                            />
+                            <div v-else class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
+                                <Sparkles class="h-5 w-5" />
                             </div>
-                            <span class="text-lg font-bold text-white">PortafolioAI</span>
+                            <span class="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white via-indigo-200 to-slate-200 tracking-tight">{{ sections?.header?.content?.brand_name || 'PortafolioAI' }}</span>
                         </div>
                         <p class="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
-                            Empoderando a la próxima generación de profesionales con herramientas impulsadas por inteligencia artificial.
+                            {{ sections?.footer?.content?.brand_description || 'Empoderando a la próxima generación de profesionales con herramientas impulsadas por inteligencia artificial.' }}
                         </p>
                         <div class="flex gap-4 text-slate-500">
                              <a href="#" class="hover:text-indigo-400 transition-colors"><Twitter class="h-5 w-5" /></a>
@@ -509,7 +638,7 @@ onUnmounted(() => {
                 </div>
                 
                 <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
-                    <p>&copy; {{ new Date().getFullYear() }} PortafolioAI. Todos los derechos reservados.</p>
+                    <p>&copy; {{ new Date().getFullYear() }} {{ sections?.footer?.content?.copyright_text || 'PortafolioAI. Todos los derechos reservados.' }}</p>
                     <div class="flex gap-6 items-center">
                         <div class="flex items-center gap-2">
                              <div class="h-2 w-2 rounded-full bg-green-500"></div>

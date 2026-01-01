@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use App\Models\Portfolio;
 use App\Models\PortfolioSection;
+use App\Models\LandingPageSection;
 use Illuminate\Support\Facades\Storage;
 
 class TemplateController extends Controller
@@ -85,8 +86,11 @@ class TemplateController extends Controller
             ]
         ];
 
+        $sections = LandingPageSection::all()->keyBy('key');
+
         return Inertia::render('Dashboard/SelectTemplate', [
-            'templates' => $templates
+            'templates' => $templates,
+            'sections' => $sections
         ]);
     }
 

@@ -8,6 +8,8 @@ const routes: Record<string, string> = {
     'community.comment.store': '/dashboard/comunidad/:postId/comentar',
     'community.comment.update': '/dashboard/comunidad/comentarios/:comment',
     'community.comment.destroy': '/dashboard/comunidad/comentarios/:comment',
+    'admin.landing.update': '/admin/landing/:key',
+    'settings': '/admin/settings',
 };
 
 export function route(name: string, params?: any): string {
