@@ -7,6 +7,7 @@ export interface Project {
     image: string | null;
     link: string;
     technologies: string[];
+    images?: string[];
 }
 
 export interface ProjectErrors {

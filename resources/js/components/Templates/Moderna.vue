@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import ImageGallery from '../Shared/ImageGallery.vue';
 import {
     Briefcase,
     Calendar,
@@ -8,7 +10,10 @@ import {
     Mail,
     MapPin,
     Phone,
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-vue-next';
+
 
 
 const props = defineProps<{
@@ -46,8 +51,44 @@ const props = defineProps<{
     theme?: any;
 }>();
 
+// Carousel state
+const galleryOpen = ref(false);
+const galleryImages = ref<string[]>([]);
+const galleryStartIndex = ref(0);
+
+function openGallery(images: string[], startIdx: number = 0) {
+  galleryImages.value = images;
+  galleryStartIndex.value = startIdx;
+  galleryOpen.value = true;
+}
+const projectIndex = ref(0);
+const experienceIndex = ref(0);
+
+const nextProject = () => {
+    if (props.data.projects && projectIndex.value < props.data.projects.length - 1) {
+        projectIndex.value++;
+    }
+};
+const prevProject = () => {
+    if (projectIndex.value > 0) {
+        projectIndex.value--;
+    }
+};
+const nextExperience = () => {
+    if (props.data.experience && experienceIndex.value < props.data.experience.length - 1) {
+        experienceIndex.value++;
+    }
+};
+const prevExperience = () => {
+    if (experienceIndex.value > 0) {
+        experienceIndex.value--;
+    }
+};
+
 
 // Formatear fechas
+const ensureUrl = (url: string) => (url?.startsWith('http') ? url : `https://${url}`);
+
 const formatDate = (date: string) => {
     if (!date) return '';
     const [year, month] = date.split('-');
@@ -164,15 +205,15 @@ const calculateDuration = (
 
                         <!-- Links sociales -->
                         <div class="social-links">
-                            <a v-if="data.personal.website" :href="data.personal.website" target="_blank"
+                            <a v-if="data.personal.website" :href="ensureUrl(data.personal.website)" target="_blank"
                                 class="social-icon">
                                 <Globe class="icon" />
                             </a>
-                            <a v-if="data.personal.linkedin" :href="`https://${data.personal.linkedin}`" target="_blank"
+                            <a v-if="data.personal.linkedin" :href="ensureUrl(data.personal.linkedin)" target="_blank"
                                 class="social-icon">
                                 <Linkedin class="icon" />
                             </a>
-                            <a v-if="data.personal.github" :href="`https://${data.personal.github}`" target="_blank"
+                            <a v-if="data.personal.github" :href="ensureUrl(data.personal.github)" target="_blank"
                                 class="social-icon">
                                 <Github class="icon" />
                             </a>
@@ -209,54 +250,74 @@ const calculateDuration = (
                             Experiencia Laboral
                         </h2>
 
+                        <!-- Carousel Container -->
+                        <div class="relative group">
+                            <!-- Navigation Arrows - Elegant glassmorphism style -->
+                            <button 
+                                v-if="experienceIndex > 0"
+                                @click="prevExperience"
+                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-600 shadow-md hover:shadow-lg hover:bg-white hover:text-blue-600 hover:border-blue-300 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                            >
+                                <ChevronLeft class="h-5 w-5" />
+                            </button>
+                            <button 
+                                v-if="experienceIndex < data.experience.length - 1"
+                                @click="nextExperience"
+                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-600 shadow-md hover:shadow-lg hover:bg-white hover:text-blue-600 hover:border-blue-300 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                            >
+                                <ChevronRight class="h-5 w-5" />
+                            </button>
 
-                        <div class="experience-list">
-                            <div v-for="(exp, index) in data.experience" :key="index"
-                                class="experience-card">
-                                <!-- Línea temporal -->
+                            <!-- Single Experience Display -->
+                            <div class="experience-card transition-all duration-300">
                                 <div class="timeline-indicator"></div>
-
-
                                 <div class="experience-content">
                                     <div class="experience-header">
                                         <div>
                                             <h3 class="experience-position">
-                                                {{ exp.position }}
+                                                {{ data.experience[experienceIndex].position }}
                                             </h3>
                                             <p class="experience-company">
-                                                {{ exp.company }}
+                                                {{ data.experience[experienceIndex].company }}
                                             </p>
                                         </div>
                                     </div>
 
-
                                     <div class="experience-meta">
                                         <span class="meta-item">
                                             <Calendar class="meta-icon" />
-                                            {{ formatDate(exp.startDate) }} -
+                                            {{ formatDate(data.experience[experienceIndex].startDate) }} -
                                             {{
-                                                exp.current
+                                                data.experience[experienceIndex].current
                                                     ? 'Actualidad'
-                                                    : formatDate(
-                                                        exp.endDate || '',
-                                                    )
+                                                    : formatDate(data.experience[experienceIndex].endDate || '')
                                             }}
                                         </span>
                                         <span class="meta-separator">•</span>
                                         <span class="meta-item">{{
                                             calculateDuration(
-                                                exp.startDate,
-                                                exp.endDate,
-                                                exp.current,
+                                                data.experience[experienceIndex].startDate,
+                                                data.experience[experienceIndex].endDate,
+                                                data.experience[experienceIndex].current,
                                             )
                                         }}</span>
                                     </div>
 
-
                                     <p class="experience-description">
-                                        {{ exp.description }}
+                                        {{ data.experience[experienceIndex].description }}
                                     </p>
                                 </div>
+                            </div>
+
+                            <!-- Dots Indicator - Modern pill style -->
+                            <div v-if="data.experience.length > 1" class="flex justify-center items-center gap-1.5 mt-6">
+                                <button 
+                                    v-for="(_, idx) in data.experience" 
+                                    :key="idx"
+                                    @click="experienceIndex = idx"
+                                    class="rounded-full transition-all duration-300"
+                                    :class="idx === experienceIndex ? 'w-6 h-2 bg-blue-500' : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'"
+                                />
                             </div>
                         </div>
                     </section>
@@ -269,36 +330,71 @@ const calculateDuration = (
                             Proyectos Destacados
                         </h2>
 
+                        <!-- Carousel Container -->
+                        <div class="relative group">
+                            <!-- Navigation Arrows - Elegant glassmorphism style -->
+                            <button 
+                                v-if="projectIndex > 0"
+                                @click="prevProject"
+                                class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-600 shadow-md hover:shadow-lg hover:bg-white hover:text-blue-600 hover:border-blue-300 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                            >
+                                <ChevronLeft class="h-5 w-5" />
+                            </button>
+                            <button 
+                                v-if="projectIndex < data.projects.length - 1"
+                                @click="nextProject"
+                                class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-600 shadow-md hover:shadow-lg hover:bg-white hover:text-blue-600 hover:border-blue-300 transition-all duration-300 opacity-0 group-hover:opacity-100"
+                            >
+                                <ChevronRight class="h-5 w-5" />
+                            </button>
 
-                        <div class="projects-grid">
-                            <div v-for="(project, index) in data.projects" :key="index"
-                                class="project-card">
-                                <!-- Imagen del proyecto (opcional) -->
-                                <img v-if="project.image" :src="project.image" :alt="project.name"
-                                    class="project-image" />
-
+                            <!-- Single Project Display -->
+                            <div class="project-card transition-all duration-300">
+                                <!-- Multi-image gallery grid -->
+                                <div v-if="data.projects[projectIndex].images && data.projects[projectIndex].images.length > 1" class="gallery-grid">
+                                    <img 
+                                        v-for="(img, idx) in data.projects[projectIndex].images.slice(0, 4)" 
+                                        :key="idx" 
+                                        :src="img" 
+                                        :alt="`${data.projects[projectIndex].name} - ${Number(idx) + 1}`"
+                                        class="gallery-thumbnail cursor-pointer"
+                                        @click="openGallery(data.projects[projectIndex].images, Number(idx))"
+                                    />
+                                    <div 
+                                        v-if="data.projects[projectIndex].images.length > 4" 
+                                        class="gallery-more"
+                                        @click="openGallery(data.projects[projectIndex].images, 4)"
+                                    >
+                                        +{{ data.projects[projectIndex].images.length - 4 }}
+                                    </div>
+                                </div>
+                                <!-- Single image fallback -->
+                                <img 
+                                    v-else-if="data.projects[projectIndex].image" 
+                                    :src="data.projects[projectIndex].image" 
+                                    :alt="data.projects[projectIndex].name"
+                                    class="project-image cursor-pointer" 
+                                    @click="openGallery([data.projects[projectIndex].image], 0)"
+                                />
 
                                 <h3 class="project-name">
-                                    {{ project.name }}
+                                    {{ data.projects[projectIndex].name }}
                                 </h3>
 
-
                                 <p class="project-description">
-                                    {{ project.description }}
+                                    {{ data.projects[projectIndex].description }}
                                 </p>
 
-
                                 <!-- Tecnologías -->
-                                <div v-if="project.technologies?.length" class="technologies-list">
-                                    <span v-for="tech in project.technologies" :key="tech"
+                                <div v-if="data.projects[projectIndex].technologies?.length" class="technologies-list">
+                                    <span v-for="tech in data.projects[projectIndex].technologies" :key="tech"
                                         class="technology-tag">
                                         {{ tech }}
                                     </span>
                                 </div>
 
-
                                 <!-- Link/URL del proyecto -->
-                                <a v-if="project.link" :href="project.link" target="_blank" rel="noopener noreferrer"
+                                <a v-if="data.projects[projectIndex].link" :href="data.projects[projectIndex].link" target="_blank" rel="noopener noreferrer"
                                     class="project-link">
                                     Ver proyecto
                                     <svg class="link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -307,7 +403,26 @@ const calculateDuration = (
                                     </svg>
                                 </a>
                             </div>
+
+                            <!-- Dots Indicator - Modern pill style -->
+                            <div v-if="data.projects.length > 1" class="flex justify-center items-center gap-1.5 mt-6">
+                                <button 
+                                    v-for="(_, idx) in data.projects" 
+                                    :key="idx"
+                                    @click="projectIndex = idx"
+                                    class="rounded-full transition-all duration-300"
+                                    :class="idx === projectIndex ? 'w-6 h-2 bg-blue-500' : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'"
+                                />
+                            </div>
                         </div>
+
+                        <!-- Image Gallery Modal -->
+                        <ImageGallery 
+                            v-if="galleryOpen" 
+                            :images="galleryImages" 
+                            :initialIndex="galleryStartIndex"
+                            @close="galleryOpen = false"
+                        />
                     </section>
                 </div>
 
@@ -889,6 +1004,56 @@ const calculateDuration = (
     width: 100%;
     border-radius: 0.5rem;
     object-fit: cover;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.project-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Gallery Grid for Multiple Images */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-bottom: clamp(0.75rem, 2vw, 1rem);
+    position: relative;
+}
+
+.gallery-thumbnail {
+    width: 100%;
+    height: clamp(5rem, 12vw, 7rem);
+    object-fit: cover;
+    border-radius: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gallery-thumbnail:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-more {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: calc(50% - 0.25rem);
+    height: clamp(5rem, 12vw, 7rem);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.gallery-more:hover {
+    background: rgba(0, 0, 0, 0.8);
 }
 
 

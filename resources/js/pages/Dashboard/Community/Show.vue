@@ -1,53 +1,29 @@
 <script setup lang="ts">
+/**
+ * Vista de Post - Diseño Minimalista y Profesional
+ */
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { MessageSquare, ArrowLeft, ExternalLink, Calendar, Eye, Send, Trash2 } from 'lucide-vue-next';
+import { MessageSquare, ArrowLeft, ExternalLink, Eye, Send, Trash2, Star } from 'lucide-vue-next';
 import { route } from '@/utils/route';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea/index';
 import CommentItem from './Partials/CommentItem.vue';
 
-interface User {
-    id: number;
-    first_name: string;
-    last_name: string;
-    profile_photo_path?: string;
-}
+// Template Previews
+import AcademicaPreview from '@/components/Templates/Academica.vue';
+import CreativaPreview from '@/components/Templates/Creativa.vue';
+import EjecutivaPreview from '@/components/Templates/Ejecutiva.vue';
+import MinimalistaPreview from '@/components/Templates/Minimalista.vue';
+import ModernaPreview from '@/components/Templates/Moderna.vue';
+import TecnologicaPreview from '@/components/Templates/Tecnologica.vue';
 
-interface Portfolio {
-    id: number;
-    title: string;
-    slug: string;
-    user_id: number;
-    theme_settings?: any;
-    custom_domain?: string;
-}
-
-interface Comment {
-    id: number;
-    user_id: number;
-    content: string;
-    created_at: string;
-    user: User;
-    replies?: Comment[];
-}
-
-interface Post {
-    id: number;
-    title: string;
-    content: string;
-    views_count: number;
-    created_at: string;
-    comments_count: number;
-    ratings_count?: number;
-    user: User;
-    portfolio: Portfolio;
-}
+import type { User, Portfolio, Comment, Post, PaginatedComments } from '@/types/community';
 
 const props = defineProps<{
     post: Post;
-    comments: Comment[];
+    comments: PaginatedComments;
     hasRated: boolean;
     userRating: number | null;
     averageRating: number;
@@ -56,35 +32,52 @@ const props = defineProps<{
 const page = usePage();
 const isAuthor = computed(() => page.props?.auth?.user?.id === props.post.user.id);
 
+// Estado local para las estrellas (no envía al servidor inmediatamente)
+const selectedRating = ref(props.userRating ?? 0);
+const isSubmitting = ref(false);
+
 const form = useForm({
     content: '',
     parent_id: null
 });
 
 const deletePostForm = useForm({});
-const ratingForm = useForm({
-    rating: props.userRating ?? 0,
-});
 
-const submitComment = () => {
-    form.post(route('community.comment.store', props.post.id), {
-        onSuccess: () => form.reset(),
-        preserveScroll: true
-    });
+// Solo actualiza el estado local, NO envía al servidor
+const selectRating = (value: number) => {
+    selectedRating.value = value;
 };
 
-const setRating = (value: number) => {
-    ratingForm.rating = value;
-    ratingForm.post(route('community.rate', props.post.id), {
-        preserveScroll: true,
-    });
+// Envía calificación y comentario juntos
+const submitFeedback = async () => {
+    isSubmitting.value = true;
+    
+    try {
+        // Si hay calificación seleccionada, enviarla primero
+        if (selectedRating.value > 0) {
+            await router.post(route('community.rate', props.post.id), {
+                rating: selectedRating.value
+            }, {
+                preserveScroll: true,
+                preserveState: true,
+                only: ['hasRated', 'userRating', 'averageRating', 'post', 'comments'],
+            });
+        }
+        
+        // Si hay comentario, enviarlo
+        if (form.content.trim()) {
+            form.post(route('community.comment.store', props.post.id), {
+                preserveScroll: true,
+                onSuccess: () => form.reset(),
+            });
+        }
+    } finally {
+        isSubmitting.value = false;
+    }
 };
 
 const deletePost = () => {
-    if (!confirm('¿Seguro que quieres eliminar esta publicación? Esto también eliminará los comentarios asociados.')) {
-        return;
-    }
-
+    if (!confirm('¿Eliminar esta publicación?')) return;
     deletePostForm.delete(route('community.destroy', props.post.id), {
         preserveScroll: true,
     });
@@ -93,18 +86,88 @@ const deletePost = () => {
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
         year: 'numeric',
-        month: 'long',
+        month: 'short',
         day: 'numeric'
     });
 };
 
-// URL logic for external link
-const getPortfolioUrl = (portfolio: Portfolio) => {
-    if (portfolio.custom_domain) {
-        return `https://${portfolio.custom_domain}`;
-    }
-    // Adjust this base URL logic as needed for the app
+const getPortfolioUrl = (portfolio: Portfolio | null) => {
+    if (!portfolio) return '#';
+    if (portfolio.custom_domain) return `https://${portfolio.custom_domain}`;
     return `/p/${portfolio.slug}`;
+};
+
+// Component map
+const previewComponents: Record<string, any> = {
+    Academica: AcademicaPreview,
+    Moderna: ModernaPreview,
+    Minimalista: MinimalistaPreview,
+    Ejecutiva: EjecutivaPreview,
+    Creativa: CreativaPreview,
+    Tecnologica: TecnologicaPreview,
+};
+
+// Preview data (Mock data)
+const previewData = {
+    personal: {
+        name: 'Tu Nombre',
+        title: 'Tu Título Profesional',
+        email: 'tu.email@ejemplo.com',
+        phone: '+00 000 000 000',
+        location: 'Tu Ciudad, País',
+        summary: 'Aquí aparecerá tu resumen profesional una vez que completes tu perfil.',
+    },
+    experience: [
+        {
+            company: 'Empresa Ejemplo',
+            position: 'Rol Principal',
+            startDate: '2022-01',
+            current: true,
+            description: 'Liderando proyectos increíbles y creando valor.',
+        },
+    ],
+    education: [],
+    skills: { technical: [{ name: 'Habilidad 1', level: 90 }, { name: 'Habilidad 2', level: 80 }], soft: [] },
+    projects: [],
+};
+
+const getTemplateData = (portfolio: any = null) => {
+    // 1. Si el portafolio tiene datos reales, usarlos
+    if (portfolio && portfolio.template_data) {
+        const data = portfolio.template_data;
+        // Fix: Asegurar que personal.name existe
+        if (data.personal && !data.personal.name && data.personal.firstName) {
+            data.personal.name = `${data.personal.firstName} ${data.personal.lastName || ''}`.trim();
+        }
+        return data;
+    }
+
+    // 2. Fallback: Construir datos usando la info del usuario del post
+    // Usamos el mock como base ESTRUCTURAL, pero sobrescribimos contenido visible
+    const fallback = JSON.parse(JSON.stringify(previewData));
+    
+    // Sobrescribir header/personal info con datos del autor del post
+    if (props.post && props.post.user) {
+        fallback.personal.name = `${props.post.user.first_name} ${props.post.user.last_name}`;
+        fallback.personal.title = 'Profesional'; // Título genérico si no hay data
+        
+        // Limpiar datos dummy que podrían confundir (ej. experiencia falsa)
+        // Opcional: Podríamos dejar algunos placeholders genéricos o borrarlos
+        fallback.personal.email = '';
+        fallback.personal.phone = '';
+        fallback.personal.location = '';
+        fallback.personal.summary = 'Este portafolio aún no tiene contenido detallado.';
+    }
+
+    return fallback;
+};
+
+const getPreviewComponent = (type: string) => {
+    if (!type) return null;
+    if (previewComponents[type]) return previewComponents[type];
+    const capitalized = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+    if (previewComponents[capitalized]) return previewComponents[capitalized];
+    return null;
 };
 </script>
 
@@ -112,166 +175,296 @@ const getPortfolioUrl = (portfolio: Portfolio) => {
     <DashboardLayout>
         <Head :title="post.title" />
 
-        <div class="min-h-screen bg-gray-50/50 py-8 px-4 sm:px-6 lg:px-8">
-            <div class="max-w-4xl mx-auto">
+        <div class="min-h-screen bg-slate-50/50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+            <div class="max-w-5xl mx-auto space-y-8">
                 
-                <!-- Back Link + Actions -->
-                <div class="mb-6 flex items-center justify-between gap-3">
-                    <Link :href="route('community')" class="inline-flex items-center text-sm text-gray-500 hover:text-indigo-600 transition-colors">
-                        <ArrowLeft class="h-4 w-4 mr-1" /> Volver a la Comunidad
+                <!-- Navigation -->
+                <div class="flex items-center justify-between">
+                    <Link :href="route('community')" class="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                        <div class="p-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 group-hover:border-slate-300 dark:group-hover:border-slate-600 transition-colors shadow-sm">
+                            <ArrowLeft class="h-4 w-4" />
+                        </div>
+                        Volver a la Comunidad
                     </Link>
-                    <Button 
+                    
+                    <button 
                         v-if="isAuthor" 
                         type="button" 
-                        variant="ghost" 
-                        class="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        class="inline-flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-700 bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20 px-3 py-1.5 rounded-lg transition-colors border border-transparent dark:border-red-900/30"
                         :disabled="deletePostForm.processing"
                         @click="deletePost"
                     >
-                        <Trash2 class="h-4 w-4 mr-1" /> Eliminar publicación
-                    </Button>
+                        <Trash2 class="h-4 w-4" />
+                        Eliminar Publicación
+                    </button>
                 </div>
 
-                <!-- Post Content -->
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-                    <!-- Header -->
-                    <div class="bg-indigo-900 p-8 text-white relative overflow-hidden">
-                        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 brightness-100"></div>
-                        <div class="absolute top-0 right-0 h-48 w-48 bg-purple-500 rounded-full blur-3xl opacity-20 transform translate-x-10 -translate-y-10"></div>
+                <!-- Hero Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200/60 dark:border-slate-800/60 shadow-xl shadow-slate-200/40 dark:shadow-none overflow-hidden transition-colors">
+                    <div class="flex flex-col md:flex-row">
                         
-                        <div class="relative z-10">
-                            <div class="flex items-center gap-3 mb-4 text-indigo-200 text-sm font-medium">
-                                <span class="bg-indigo-800/50 backdrop-blur px-3 py-1 rounded-full border border-indigo-700/50 flex items-center gap-2">
-                                    <Calendar class="h-3 w-3" /> {{ formatDate(post.created_at) }}
-                                </span>
-                                <span class="bg-indigo-800/50 backdrop-blur px-3 py-1 rounded-full border border-indigo-700/50 flex items-center gap-2">
-                                    <Eye class="h-3 w-3" /> {{ post.views_count }} vistas
-                                </span>
-                            </div>
-                            
-                            <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-6 leading-tight">
-                                {{ post.title }}
-                            </h1>
+                        <!-- Left: Content & Info -->
+                        <div class="flex-1 p-8 md:p-10 flex flex-col justify-center relative">
+                            <!-- Background Decoration -->
+                            <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-linear-to-br from-indigo-50 to-violet-50 dark:from-indigo-900/10 dark:to-violet-900/10 blur-3xl opacity-50 pointer-events-none"></div>
 
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div v-if="post.user.profile_photo_path" class="h-10 w-10 rounded-full border-2 border-indigo-400 overflow-hidden">
-                                        <img :src="post.user.profile_photo_path" :alt="post.user.first_name" class="h-full w-full object-cover">
+                            <!-- Author Meta -->
+                            <div class="relative z-10 flex items-center gap-4 mb-6">
+                                <div class="relative group cursor-pointer">
+                                    <div class="absolute -inset-0.5 bg-linear-to-br from-indigo-500 to-violet-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-sm"></div>
+                                    <div 
+                                        v-if="post.user.avatar_url" 
+                                        class="relative h-12 w-12 rounded-full ring-2 ring-white dark:ring-slate-800 overflow-hidden shadow-sm"
+                                    >
+                                        <img :src="post.user.avatar_url" :alt="post.user.first_name" class="h-full w-full object-cover">
                                     </div>
-                                    <div v-else class="h-10 w-10 rounded-full bg-indigo-700 flex items-center justify-center text-white font-bold border-2 border-indigo-400">
+                                    <div 
+                                        v-else 
+                                        class="relative h-12 w-12 rounded-full ring-2 ring-white dark:ring-slate-800 bg-linear-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold text-lg shadow-sm"
+                                    >
                                         {{ post.user.first_name.charAt(0) }}
                                     </div>
-                                    <div>
-                                        <div class="font-semibold text-white">{{ post.user.first_name }} {{ post.user.last_name }}</div>
-                                        <div class="text-xs text-indigo-300">Autor</div>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-900 dark:text-white leading-tight">
+                                        {{ post.user.first_name }} {{ post.user.last_name }}
+                                    </h3>
+                                    <div class="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                                        <span>{{ formatDate(post.created_at) }}</span>
+                                        <span>•</span>
+                                        <span class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-600 dark:text-slate-300">
+                                            <Eye class="h-3 w-3" />
+                                            {{ post.views_count }}
+                                        </span>
                                     </div>
                                 </div>
-                                
-                                <a :href="getPortfolioUrl(post.portfolio)" target="_blank" class="hidden sm:inline-flex items-center gap-2 bg-white text-indigo-900 hover:bg-indigo-50 px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm">
-                                    Ver Portafolio <ExternalLink class="h-4 w-4" />
+                            </div>
+
+                            <!-- Title & Pitch -->
+                            <div class="relative z-10 mb-8">
+                                <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-4 leading-tight">
+                                    {{ post.title }}
+                                </h1>
+                                <p class="text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-light text-pretty">
+                                    {{ post.content }}
+                                </p>
+                            </div>
+
+                            <!-- Action -->
+                            <div class="relative z-10 flex items-center gap-4">
+                                <a 
+                                    v-if="post.portfolio" 
+                                    :href="getPortfolioUrl(post.portfolio)" 
+                                    target="_blank" 
+                                    class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                                >
+                                    Ver Portafolio Completo
+                                    <ExternalLink class="h-4 w-4" />
                                 </a>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Body -->
-                    <div class="p-8 md:p-10">
-                        <!-- Mobile CTA -->
-                        <div class="sm:hidden mb-8">
-                             <a :href="getPortfolioUrl(post.portfolio)" target="_blank" class="w-full flex justify-center items-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700 px-5 py-3 rounded-xl font-bold transition-all shadow-md text-sm">
-                                Ver Portafolio <ExternalLink class="h-4 w-4" />
-                            </a>
+                        <!-- Right: Visual Preview -->
+                        <div class="w-full md:w-[45%] bg-slate-50 dark:bg-slate-950 border-t md:border-t-0 md:border-l border-slate-100 dark:border-slate-800 p-8 flex items-center justify-center relative overflow-hidden group">
+                            <!-- Background Pattern -->
+                             <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" style="background-image: radial-gradient(#6366f1 1px, transparent 1px); background-size: 20px 20px;"></div>
+                            
+                            <!-- Perspective Container -->
+                             <div class="relative w-full max-w-sm perspective-1000">
+                                <div class="relative aspect-3/4 w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl transition-transform duration-500 group-hover:rotate-y-2 group-hover:rotate-x-2 transform-style-3d border-[6px] border-slate-900/5 dark:border-white/5 overflow-hidden">
+                                     <!-- Scaling Wrapper for Template -->
+                                    <div 
+                                        v-if="post.portfolio && getPreviewComponent(post.portfolio.template_type)" 
+                                        class="absolute inset-0 h-[250%] w-[250%] origin-top-left scale-[0.4] pointer-events-none select-none bg-white dark:bg-slate-900"
+                                    >
+                                        <component
+                                            :is="getPreviewComponent(post.portfolio.template_type)"
+                                            :data="getTemplateData(post.portfolio)"
+                                        />
+                                    </div>
+                                    <div v-else class="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500">
+                                        <span class="text-sm font-medium">Vista previa no disponible</span>
+                                    </div>
+
+                                    <!-- Overlay CTA -->
+                                    <a 
+                                        v-if="post.portfolio"
+                                        :href="getPortfolioUrl(post.portfolio)"
+                                        target="_blank"
+                                        class="absolute inset-0 flex items-center justify-center bg-slate-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 cursor-pointer"
+                                    >
+                                        <div class="bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-6 py-3 rounded-full font-bold shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 flex items-center gap-2">
+                                            Explorar
+                                            <ExternalLink class="h-4 w-4" />
+                                        </div>
+                                    </a>
+                                </div>
+                             </div>
                         </div>
-
-                        <div class="prose prose-lg text-gray-700 max-w-none leading-relaxed">
-                             <p class="whitespace-pre-wrap">{{ post.content }}</p>
+                    </div>
+                    
+                    <!-- Footer Info -->
+                    <div class="px-8 py-4 bg-slate-50/80 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-sm">
+                        <div class="text-slate-500 dark:text-slate-400">
+                            Publicado el {{ formatDate(post.created_at) }}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-medium text-slate-700 dark:text-slate-300">Calificación Global:</span>
+                            <div class="flex items-center gap-1 bg-white dark:bg-slate-800 px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm">
+                                <Star class="h-4 w-4 text-amber-400 fill-amber-400" />
+                                <span class="font-bold text-slate-900 dark:text-white">{{ averageRating.toFixed(1) }}</span>
+                                <span class="text-slate-400 text-xs">({{ post.ratings_count ?? 0 }})</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Rating Gate -->
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10 mb-8">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-900">Califica la publicación</h2>
-                            <p class="text-gray-500 mt-1">
-                                Para acceder al hilo necesitas calificar este portafolio. Tu voto ayuda a destacar lo mejor de la comunidad.
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="flex items-center gap-1">
-                                <button
-                                    v-for="i in 5"
-                                    :key="i"
-                                    type="button"
-                                    class="transition-colors"
-                                    :class="i <= ratingForm.rating ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-300'"
-                                    :disabled="ratingForm.processing"
-                                    @click="setRating(i)"
-                                >
-                                    <svg class="h-7 w-7 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="text-sm text-gray-500">
-                                <div class="font-semibold text-gray-900">{{ props.averageRating.toFixed(1) }}</div>
-                                <div>{{ props.post.ratings_count ?? 0 }} votos</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Stacked Layout: Feedback & Comments -->
+                <div class="space-y-8">
+                    
+                    <!-- Feedback Section -->
+                    <div class="bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200 dark:border-slate-800 p-6 shadow-sm transition-colors">
+                        <form @submit.prevent="submitFeedback" class="space-y-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Tu Opinión</h3>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">¿Qué te pareció este portafolio?</p>
+                                </div>
 
-                <!-- Discussion Section -->
-                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-                        <MessageSquare class="h-6 w-6 text-indigo-600" />
-                        Conversación <span class="text-gray-400 text-lg font-normal">({{ post.comments_count }})</span>
-                    </h2>
+                                <!-- Interactive Stars -->
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700">
+                                        <button
+                                            v-for="i in 5"
+                                            :key="i"
+                                            type="button"
+                                            class="group p-0.5 focus:outline-none transition-transform active:scale-95"
+                                            @click="selectRating(i)"
+                                        >
+                                            <Star 
+                                                class="h-6 w-6 transition-all duration-200" 
+                                                :class="i <= selectedRating 
+                                                    ? 'text-amber-400 fill-amber-400 drop-shadow-sm' 
+                                                    : 'text-slate-900 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300'"
+                                            />
+                                        </button>
+                                    </div>
+                                    
+                                    <div v-if="selectedRating > 0" class="flex items-center justify-center h-11 w-14 bg-amber-50/50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-900/30 transition-all animate-in fade-in slide-in-from-left-2">
+                                        <span class="text-lg font-black text-amber-500">{{ selectedRating }}.0</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <!-- New Comment Form -->
-                    <div v-if="!props.hasRated" class="mb-12 rounded-2xl border border-dashed border-indigo-200 bg-indigo-50 p-6 text-indigo-700">
-                        <p class="font-semibold">Primero califica esta publicación.</p>
-                        <p class="text-sm mt-1">Después de votar podrás ver el hilo completo y comentar.</p>
-                    </div>
-                    <form v-else @submit.prevent="submitComment" class="mb-12 bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Participa en la discusión</label>
-                        <div class="space-y-4">
                             <Textarea 
                                 v-model="form.content" 
-                                placeholder="Comparte tu feedback, haz preguntas o felicita al autor..." 
+                                placeholder="Comparte tus comentarios constructivos..." 
                                 rows="3"
-                                class="bg-white"
-                                required
+                                class="w-full bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl resize-none text-sm shadow-sm text-slate-900 dark:text-white placeholder:text-slate-400"
                             />
+
+                            <div v-if="props.hasRated" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-900/20 py-2 px-4 rounded-lg border border-emerald-100 dark:border-emerald-900/30 inline-block">
+                                ✨ Ya enviaste una calificación
+                            </div>
+
                             <div class="flex justify-end">
                                 <Button 
                                     type="submit" 
-                                    class="bg-indigo-600 hover:bg-indigo-700 text-white"
-                                    :disabled="form.processing"
+                                    class="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 rounded-xl py-2 px-6 shadow-lg shadow-slate-900/10 transition-all active:scale-[0.98]"
+                                    :disabled="isSubmitting || (selectedRating === 0 && !form.content.trim())"
                                 >
-                                    <Send class="h-4 w-4 mr-2" /> Comentar
+                                    <span v-if="isSubmitting" class="flex items-center gap-2">
+                                        <div class="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                        Enviando...
+                                    </span>
+                                    <span v-else class="flex items-center gap-2">
+                                        <Send class="h-4 w-4" />
+                                        Enviar Feedback
+                                    </span>
                                 </Button>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
 
-                    <!-- Threads -->
-                    <div class="space-y-8">
-                        <CommentItem 
-                            v-for="comment in comments" 
-                            :key="comment.id" 
-                            :comment="comment" 
-                            :postId="post.id"
-                        />
-                        
-                        <div v-if="props.hasRated && comments.length === 0" class="text-center py-10 text-gray-400 italic">
-                            Aún no hay comentarios. Sé el primero en iniciar la conversación.
+                    <!-- Comments Section -->
+                    <div class="bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
+                        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <MessageSquare class="h-5 w-5 text-indigo-500" />
+                                Comentarios
+                            </h3>
+                            <span class="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2.5 py-1 rounded-full">
+                                {{ post.comments_count }}
+                            </span>
+                        </div>
+
+                        <div class="p-6">
+                            <div class="space-y-6">
+                                <CommentItem 
+                                    v-for="comment in comments.data" 
+                                    :key="comment.id" 
+                                    :comment="comment" 
+                                    :postId="post.id"
+                                />
+                                
+                                <div v-if="comments.data.length === 0" class="py-12 flex flex-col items-center justify-center text-center">
+                                    <div class="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                                        <MessageSquare class="h-8 w-8 text-slate-300 dark:text-slate-600" />
+                                    </div>
+                                    <p class="text-slate-900 dark:text-white font-medium">Sé el primero en comentar</p>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Comparte tu opinión con la comunidad</p>
+                                </div>
+
+                                <!-- Pagination Controls -->
+                                <div v-if="comments.links.length > 3" class="mt-8 flex justify-center">
+                                    <div class="flex items-center gap-1 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                        <template v-for="(link, k) in comments.links" :key="k">
+                                            <div 
+                                                v-if="link.url === null"  
+                                                class="px-3 py-1.5 text-xs text-slate-400 dark:text-slate-500 font-medium"
+                                                v-html="link.label"
+                                            />
+                                            <Link 
+                                                v-else 
+                                                :href="link.url" 
+                                                class="px-3 py-1.5 text-xs font-medium rounded-lg transition-colors border"
+                                                :class="link.active 
+                                                    ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300' 
+                                                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-200'"
+                                                v-html="link.label"
+                                                preserve-scroll
+                                            />
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
+                
             </div>
         </div>
     </DashboardLayout>
 </template>
+
+<style scoped>
+.perspective-1000 {
+    perspective: 1000px;
+}
+.transform-style-3d {
+    transform-style: preserve-3d;
+}
+.rotate-y-2 {
+    transform: rotateY(2deg);
+}
+.rotate-x-2 {
+    transform: rotateX(2deg);
+}
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+</style>

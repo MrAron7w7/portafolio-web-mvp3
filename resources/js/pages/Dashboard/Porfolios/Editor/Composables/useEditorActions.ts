@@ -74,12 +74,44 @@ export function useEditorActions(
 
             const templateData = serializeFormData();
 
+            // Si es edición pública, usar fetch en lugar de Inertia router
+            if (props.isPublicEdit) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const response = await fetch(`/p/${props.portfolio.slug}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ template_data: templateData })
+                });
+
+                if (response.ok) {
+                    isSaving.value = false;
+                    isSaved.value = true;
+                    originalFormData.value = JSON.parse(JSON.stringify(formData));
+
+                    setTimeout(() => {
+                        isSaved.value = false;
+                    }, SUCCESS_DURATION);
+                    return true;
+                } else {
+                    const error = await response.json();
+                    console.error('Error al guardar (público):', error);
+                    isSaving.value = false;
+                    return false;
+                }
+            }
+
+            // Modo normal (autenticado) - usar Inertia router
             return new Promise((resolve) => {
                 router.put(
                     `/dashboard/portfolio/${props.portfolio.id}`,
                     {
                         template_data: templateData,
                         config: {
+                            title: formData.config.title,
                             theme: formData.config.theme,
                             is_public: formData.config.is_public,
                         },
@@ -129,6 +161,7 @@ export function useEditorActions(
                     {
                         template_data: templateData,
                         config: {
+                            title: formData.config.title,
                             theme: formData.config.theme,
                             is_public: formData.config.is_public,
                             is_completed: true
@@ -182,6 +215,7 @@ export function useEditorActions(
                     {
                         template_data: templateData,
                         config: {
+                            title: formData.config.title,
                             theme: formData.config.theme,
                             is_public: newPublicStatus,
                         },

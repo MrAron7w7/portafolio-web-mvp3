@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import { User, RefreshCw, Upload, Trash2, Mail, Phone, MapPin, Globe } from 'lucide-vue-next';
 import { usePersonalValidation, type PersonalData } from './Composables/usePersonalValidation';
 
 
@@ -75,16 +77,44 @@ const removePhoto = () => {
     photoPreview.value = null;
     updateField('photo', null);
 };
+
+// Sincronizar con datos del perfil de usuario (auth)
+const syncWithProfile = () => {
+    const page = usePage();
+    const user = (page.props.auth as any)?.user;
+    
+    if (user) {
+        if (!props.modelValue.firstName && user.first_name) updateField('firstName', user.first_name);
+        if (!props.modelValue.lastName && user.last_name) updateField('lastName', user.last_name);
+        if (!props.modelValue.email && user.email) updateField('email', user.email);
+        
+        // Si no hay foto y el usuario tiene avatar_url
+        if (!photoPreview.value && user.avatar_url) {
+            photoPreview.value = user.avatar_url;
+            updateField('photo', user.avatar_url);
+        }
+    }
+};
 </script>
 
 
 <template>
     <div>
-        <div class="mb-12">
-            <h1 class="mb-3 text-3xl font-bold text-gray-900 lg:text-4xl">Información Personal</h1>
-            <p class="text-lg text-gray-600">
-                Completa tu información básica para comenzar tu portafolio profesional.
-            </p>
+        <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+                <h1 class="mb-3 text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">Información Personal</h1>
+                <p class="text-lg text-gray-600 dark:text-slate-400">
+                    Completa tu información básica para comenzar tu portafolio profesional.
+                </p>
+            </div>
+            <button 
+                type="button"
+                @click="syncWithProfile"
+                class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-xl font-semibold text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-300 dark:hover:border-indigo-800 transition-all shadow-sm hover:shadow group"
+            >
+                <RefreshCw class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
+                <span>Sincronizar con mi Perfil</span>
+            </button>
         </div>
 
 
@@ -92,43 +122,41 @@ const removePhoto = () => {
             <!-- Foto de Perfil -->
             <div class="flex items-start space-x-6">
                 <div>
-                    <div v-if="!photoPreview" class="relative rounded-full border-2 border-dashed border-gray-300 w-30 h-30 flex items-center justify-center transition-colors hover:border-[#005aeb]">
+                    <div v-if="!photoPreview" class="relative rounded-full border-2 border-dashed border-gray-300 dark:border-slate-700 w-32 h-32 flex items-center justify-center transition-colors hover:border-indigo-500 dark:hover:border-indigo-500 bg-gray-50/50 dark:bg-slate-800/50">
                         <input
                             type="file"
                             accept="image/png,image/jpeg"
                             @change="handlePhotoUpload"
-                            class="absolute inset-0 h-full w-full cursor-pointer opacity-0 rounded-full"
+                            class="absolute inset-0 h-full w-full cursor-pointer opacity-0 rounded-full z-10"
                         />
-                        <div class="pointer-events-none text-center">
-                            <div class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 mb-1">
-                                <svg class="h-3 w-3 text-[#005aeb]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                </svg>
+                        <div class="pointer-events-none text-center p-4">
+                            <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/40 mb-2">
+                                <Upload class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                             </div>
-                            <p class="text-xs font-semibold text-gray-900">Subir foto</p>
+                            <p class="text-xs font-bold text-gray-900 dark:text-white">Subir foto</p>
                         </div>
                     </div>
 
 
-                    <div v-else class="relative inline-block">
+                    <div v-else class="relative group">
                         <img
                             :src="photoPreview"
                             alt="Profile preview"
-                            class="h-30 w-30 rounded-full border-3 border-[#005aeb] object-cover shadow-lg"
+                            class="h-32 w-32 rounded-full border-4 border-indigo-500 object-cover shadow-xl transition-transform group-hover:scale-105"
                         />
                         <button
                             @click="removePhoto"
                             type="button"
-                            class="absolute -right-0 -top-0 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-all hover:bg-red-600 hover:scale-110"
+                            class="absolute -right-1 -top-1 flex h-9 w-9 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-all hover:bg-red-600 hover:scale-110 border-2 border-white dark:border-slate-800"
                         >
-                            ✕
+                            <Trash2 class="w-4 h-4" />
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Foto de Perfil</h2>
-                    <p class="mt-1 text-sm text-gray-600">Recomendado: 400x400 px, formato JPG o PNG</p>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Foto de Perfil</h2>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">Recomendado: 400x400 px, formato JPG o PNG</p>
                 </div>
             </div>
 
@@ -136,12 +164,12 @@ const removePhoto = () => {
             <!-- Nombre y Apellido -->
             <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700">Nombre *</label>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Nombre *</label>
                     <input
                         :value="modelValue.firstName"
                         @input="updateField('firstName', ($event.target as HTMLInputElement).value)"
                         type="text"
-                        class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                        class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                         :class="getErrorClass('firstName', false)"
                         placeholder="Tu nombre"
                     />
@@ -152,12 +180,12 @@ const removePhoto = () => {
 
 
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700">Apellido *</label>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Apellido *</label>
                     <input
                         :value="modelValue.lastName"
                         @input="updateField('lastName', ($event.target as HTMLInputElement).value)"
                         type="text"
-                        class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                        class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                         :class="getErrorClass('lastName', false)"
                         placeholder="Tu apellido"
                     />
@@ -170,33 +198,39 @@ const removePhoto = () => {
 
             <!-- Título Profesional -->
             <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Título Profesional *</label>
-                <input
-                    :value="modelValue.title"
-                    @input="updateField('title', ($event.target as HTMLInputElement).value)"
-                    type="text"
-                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
-                    :class="getErrorClass('title', false)"
-                    placeholder="Ej: Desarrollador Web, Diseñador UX, Ingeniero en Software"
-                />
+                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Título Profesional *</label>
+                <div class="relative">
+                    <User class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
+                    <input
+                        :value="modelValue.title"
+                        @input="updateField('title', ($event.target as HTMLInputElement).value)"
+                        type="text"
+                        class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 pl-10 pr-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        :class="getErrorClass('title', false)"
+                        placeholder="Ej: Desarrollador Web, Diseñador UX, Ingeniero en Software"
+                    />
+                </div>
                 <p v-if="personalErrors.title" class="mt-2 text-sm text-red-500">
                     {{ personalErrors.title }}
                 </p>
-                <p class="mt-2 text-sm text-gray-500">Este título se mostrará en la sección principal de tu perfil</p>
+                <p class="mt-2 text-xs text-gray-500 dark:text-slate-500">Este título se mostrará en la sección principal de tu perfil</p>
             </div>
 
 
             <!-- Email -->
             <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Email *</label>
-                <input
-                    :value="modelValue.email"
-                    @input="updateField('email', ($event.target as HTMLInputElement).value)"
-                    type="email"
-                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
-                    :class="getErrorClass('email', false)"
-                    placeholder="tu@email.com"
-                />
+                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Email *</label>
+                <div class="relative">
+                    <Mail class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
+                    <input
+                        :value="modelValue.email"
+                        @input="updateField('email', ($event.target as HTMLInputElement).value)"
+                        type="email"
+                        class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 pl-10 pr-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        :class="getErrorClass('email', false)"
+                        placeholder="tu@email.com"
+                    />
+                </div>
                 <p v-if="personalErrors.email" class="mt-2 text-sm text-red-500">
                     {{ personalErrors.email }}
                 </p>
@@ -205,45 +239,54 @@ const removePhoto = () => {
 
             <!-- Teléfono -->
             <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Teléfono</label>
-                <input
-                    :value="modelValue.phone"
-                    @input="updateField('phone', ($event.target as HTMLInputElement).value)"
-                    type="tel"
-                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
-                    :class="getErrorClass('phone', false)"
-                    placeholder="+1 (555) 123-4567"
-                />
+                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Teléfono</label>
+                <div class="relative">
+                    <Phone class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
+                    <input
+                        :value="modelValue.phone"
+                        @input="updateField('phone', ($event.target as HTMLInputElement).value)"
+                        type="tel"
+                        class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 pl-10 pr-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        :class="getErrorClass('phone', false)"
+                        placeholder="+1 (555) 123-4567"
+                    />
+                </div>
                 <p v-if="personalErrors.phone" class="mt-2 text-sm text-red-500">
                     {{ personalErrors.phone }}
                 </p>
-                <p class="mt-2 text-sm text-gray-500">Opcional - Número al que puedes ser llamado</p>
+                <p class="mt-2 text-xs text-gray-500 dark:text-slate-500">Opcional - Para que puedan contactarte directamente</p>
             </div>
 
 
-            <!-- Ciudad -->
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Ciudad</label>
-                <input
-                    :value="modelValue.city"
-                    @input="updateField('city', ($event.target as HTMLInputElement).value)"
-                    type="text"
-                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/200"
-                    placeholder="Ej: Madrid"
-                />
-            </div>
+            <!-- Ciudad y País -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Ciudad</label>
+                    <div class="relative">
+                        <MapPin class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
+                        <input
+                            :value="modelValue.city"
+                            @input="updateField('city', ($event.target as HTMLInputElement).value)"
+                            type="text"
+                            class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 pl-10 pr-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            placeholder="Ej: Madrid"
+                        />
+                    </div>
+                </div>
 
-
-            <!-- País -->
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">País</label>
-                <input
-                    :value="modelValue.country"
-                    @input="updateField('country', ($event.target as HTMLInputElement).value)"
-                    type="text"
-                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-base text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
-                    placeholder="Ej: España"
-                />
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">País</label>
+                    <div class="relative">
+                        <Globe class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
+                        <input
+                            :value="modelValue.country"
+                            @input="updateField('country', ($event.target as HTMLInputElement).value)"
+                            type="text"
+                            class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 pl-10 pr-3 py-2 text-base text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            placeholder="Ej: España"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     </div>

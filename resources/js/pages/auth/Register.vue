@@ -14,7 +14,7 @@ import { Form, Head } from '@inertiajs/vue3';
 <template>
     <Head title="Register" />
 
-    <div class="bg-background-light dark:bg-background-dark flex min-h-screen">
+    <div class="bg-slate-50 dark:bg-slate-950 flex min-h-screen transition-colors duration-300">
         <!-- Sección izquierda - Formulario -->
         <div
             class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24"
@@ -26,7 +26,7 @@ import { Form, Head } from '@inertiajs/vue3';
                         class="mb-10 flex items-center justify-center gap-3 lg:justify-start"
                     >
                         <svg
-                            class="h-8 w-auto text-primary"
+                            class="h-8 w-auto text-indigo-600 dark:text-indigo-500"
                             fill="none"
                             height="32"
                             viewBox="0 0 35 32"
@@ -39,7 +39,7 @@ import { Form, Head } from '@inertiajs/vue3';
                             />
                         </svg>
                         <span
-                            class="text-text-primary-light dark:text-text-primary-dark text-xl font-bold"
+                            class="text-slate-900 dark:text-white text-xl font-bold"
                             >Portafolio IA</span
                         >
                     </div>
@@ -47,12 +47,12 @@ import { Form, Head } from '@inertiajs/vue3';
                     <div class="flex flex-wrap justify-between gap-3">
                         <div class="flex w-full flex-col gap-3">
                             <p
-                                class="text-text-primary-light dark:text-text-primary-dark text-3xl leading-tight font-black tracking-[-0.033em]"
+                                class="text-slate-900 dark:text-white text-3xl leading-tight font-black tracking-[-0.033em]"
                             >
                                 Crea tu cuenta
                             </p>
                             <p
-                                class="text-text-secondary-light dark:text-text-secondary-dark text-base leading-normal font-normal"
+                                class="text-slate-500 dark:text-slate-400 text-base leading-normal font-normal"
                             >
                                 Regístrate para crear tu portafolio profesional
                                 con IA.
@@ -76,7 +76,7 @@ import { Form, Head } from '@inertiajs/vue3';
                         <div class="space-y-2">
                             <Label
                                 for="first_name"
-                                class="text-text-primary-light dark:text-text-primary-dark text-sm leading-normal font-medium"
+                                class="text-slate-900 dark:text-white text-sm leading-normal font-medium"
                             >
                                 Nombre(s)
                             </Label>
@@ -89,7 +89,7 @@ import { Form, Head } from '@inertiajs/vue3';
                                 autocomplete="first_name"
                                 name="first_name"
                                 placeholder="Tus nombres"
-                                class="text-text-primary-light dark:text-text-primary-dark border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-primary/50 focus:outline-0"
+                                class="text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                             />
                             <InputError :message="errors.name" />
                         </div>
@@ -98,7 +98,7 @@ import { Form, Head } from '@inertiajs/vue3';
                         <div class="space-y-2">
                             <Label
                                 for="last_name"
-                                class="text-text-primary-light dark:text-text-primary-dark text-sm leading-normal font-medium"
+                                class="text-slate-900 dark:text-white text-sm leading-normal font-medium"
                             >
                                 Apellidos
                             </Label>
@@ -111,7 +111,7 @@ import { Form, Head } from '@inertiajs/vue3';
                                 autocomplete="last_name"
                                 name="last_name"
                                 placeholder="Tus Apellidos"
-                                class="text-text-primary-light dark:text-text-primary-dark border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-primary/50 focus:outline-0"
+                                class="text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                             />
                             <InputError :message="errors.name" />
                         </div>
@@ -120,7 +120,7 @@ import { Form, Head } from '@inertiajs/vue3';
                         <div class="space-y-2">
                             <Label
                                 for="email"
-                                class="text-text-primary-light dark:text-text-primary-dark text-sm leading-normal font-medium"
+                                class="text-slate-900 dark:text-white text-sm leading-normal font-medium"
                             >
                                 Email
                             </Label>
@@ -132,7 +132,7 @@ import { Form, Head } from '@inertiajs/vue3';
                                 autocomplete="email"
                                 name="email"
                                 placeholder="tu@email.com"
-                                class="text-text-primary-light dark:text-text-primary-dark border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-primary/50 focus:outline-0"
+                                class="text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                             />
                             <InputError :message="errors.email" />
                         </div>
@@ -141,7 +141,7 @@ import { Form, Head } from '@inertiajs/vue3';
                         <div class="space-y-2">
                             <Label
                                 for="password"
-                                class="text-text-primary-light dark:text-text-primary-dark text-sm leading-normal font-medium"
+                                class="text-slate-900 dark:text-white text-sm leading-normal font-medium"
                             >
                                 Contraseña
                             </Label>
@@ -156,12 +156,12 @@ import { Form, Head } from '@inertiajs/vue3';
                                     autocomplete="new-password"
                                     name="password"
                                     placeholder="Crea una contraseña segura"
-                                    class="text-text-primary-light dark:text-text-primary-dark border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg rounded-r-none border border-r-0 px-4 pr-2 text-base leading-normal font-normal focus:ring-2 focus:ring-primary/50 focus:outline-0"
+                                    class="text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg rounded-r-none border border-r-0 px-4 pr-2 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                                 />
                                 <button
                                     type="button"
                                     aria-label="Toggle password visibility"
-                                    class="text-text-secondary-light dark:text-text-secondary-dark border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark flex items-center justify-center rounded-r-lg border border-l-0 pr-4 focus:ring-2 focus:ring-primary/50 focus:outline-none"
+                                    class="text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center rounded-r-lg border border-l-0 pr-4 focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-none"
                                 >
                                     <span
                                         class="material-symbols-outlined"
@@ -180,7 +180,7 @@ import { Form, Head } from '@inertiajs/vue3';
                         <div class="space-y-2">
                             <Label
                                 for="password_confirmation"
-                                class="text-text-primary-light dark:text-text-primary-dark text-sm leading-normal font-medium"
+                                class="text-slate-900 dark:text-white text-sm leading-normal font-medium"
                             >
                                 Confirmar contraseña
                             </Label>
@@ -195,12 +195,12 @@ import { Form, Head } from '@inertiajs/vue3';
                                     autocomplete="new-password"
                                     name="password_confirmation"
                                     placeholder="Repite tu contraseña"
-                                    class="text-text-primary-light dark:text-text-primary-dark border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-secondary-light dark:placeholder:text-text-secondary-dark flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg rounded-r-none border border-r-0 px-4 pr-2 text-base leading-normal font-normal focus:ring-2 focus:ring-primary/50 focus:outline-0"
+                                    class="text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg rounded-r-none border border-r-0 px-4 pr-2 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                                 />
                                 <button
                                     type="button"
                                     aria-label="Toggle password visibility confirmation"
-                                    class="text-text-secondary-light dark:text-text-secondary-dark border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark flex items-center justify-center rounded-r-lg border border-l-0 pr-4 focus:ring-2 focus:ring-primary/50 focus:outline-none"
+                                    class="text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center rounded-r-lg border border-l-0 pr-4 focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-none"
                                 >
                                     <span
                                         class="material-symbols-outlined"
@@ -221,7 +221,7 @@ import { Form, Head } from '@inertiajs/vue3';
                         <div>
                             <Button
                                 type="submit"
-                                class="focus:ring-offset-background-light dark:focus:ring-offset-background-dark flex h-12 w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg px-5 text-base leading-normal font-bold tracking-[0.015em] text-white transition-colors duration-200 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"
+                                class="focus:ring-offset-white dark:focus:ring-offset-slate-950 flex h-12 w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg px-5 text-base leading-normal font-bold tracking-[0.015em] text-white transition-colors duration-200 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:outline-none"
                                 tabindex="5"
                                 :disabled="processing"
                                 data-test="register-user-button"
@@ -245,14 +245,14 @@ import { Form, Head } from '@inertiajs/vue3';
                                     class="absolute inset-0 flex items-center"
                                 >
                                     <div
-                                        class="border-border-light dark:border-border-dark w-full border-t"
+                                        class="border-slate-200 dark:border-slate-800 w-full border-t"
                                     ></div>
                                 </div>
                                 <div
                                     class="relative flex justify-center text-sm leading-6 font-medium"
                                 >
                                     <span
-                                        class="bg-background-light dark:bg-background-dark text-text-secondary-light dark:text-text-secondary-dark px-6"
+                                        class="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 px-6"
                                     >
                                         O regístrate con
                                     </span>
@@ -261,7 +261,7 @@ import { Form, Head } from '@inertiajs/vue3';
 
                             <div class="mt-6 grid grid-cols-2 gap-4">
                                 <a
-                                    class="border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:ring-offset-background-light dark:focus:ring-offset-background-dark flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-gray-50 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none dark:hover:bg-white/5"
+                                    class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-offset-white dark:focus:ring-offset-slate-950 flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-slate-50 focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:outline-none dark:hover:bg-slate-800"
                                     :href="google.login().url"
                                 >
                                     <svg
@@ -290,7 +290,7 @@ import { Form, Head } from '@inertiajs/vue3';
                                     <span>Google</span>
                                 </a>
                                 <a
-                                    class="border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark focus:ring-offset-background-light dark:focus:ring-offset-background-dark flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-gray-50 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none dark:hover:bg-white/5"
+                                    class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-offset-white dark:focus:ring-offset-slate-950 flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-slate-50 focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:outline-none dark:hover:bg-slate-800"
                                     href="#"
                                 >
                                     <svg
@@ -310,12 +310,12 @@ import { Form, Head } from '@inertiajs/vue3';
 
                         <!-- Login Link -->
                         <div
-                            class="text-text-secondary-light dark:text-text-secondary-dark mt-10 text-center text-sm"
+                            class="text-slate-500 dark:text-slate-400 mt-10 text-center text-sm"
                         >
                             ¿Ya tienes una cuenta?
                             <TextLink
                                 :href="login()"
-                                class="leading-6 font-semibold text-primary transition-colors duration-200 hover:text-accent dark:hover:text-accent"
+                                class="leading-6 font-semibold text-indigo-600 dark:text-indigo-400 transition-colors duration-200 hover:text-indigo-700 dark:hover:text-indigo-300"
                                 :tabindex="6"
                             >
                                 Iniciar sesión
@@ -336,7 +336,7 @@ import { Form, Head } from '@inertiajs/vue3';
                 "
             >
                 <div
-                    class="to-background-light/10 dark:to-background-dark/10 absolute inset-0 h-full w-full bg-gradient-to-br from-primary/30 via-accent/30 dark:from-primary/50 dark:via-accent/50"
+                    class="to-slate-50/10 dark:to-slate-900/10 absolute inset-0 h-full w-full bg-linear-to-br from-indigo-600/30 via-violet-600/30 dark:from-indigo-600/50 dark:via-violet-600/50"
                 ></div>
             </div>
         </div>
@@ -346,18 +346,4 @@ import { Form, Head } from '@inertiajs/vue3';
 <style scoped>
 /* Asegurar que los estilos de los iconos de materiales se carguen */
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
-
-/* Variables CSS para los colores personalizados */
-:root {
-    --primary: #005aeb;
-    --background-light: #f5f6f8;
-    --background-dark: #0f1723;
-    --accent: #7b2ff7;
-    --text-primary-light: #111827;
-    --text-primary-dark: #f5f6f8;
-    --text-secondary-light: #6b7280;
-    --text-secondary-dark: #94a3b8;
-    --border-light: #e5e7eb;
-    --border-dark: #334155;
-}
 </style>

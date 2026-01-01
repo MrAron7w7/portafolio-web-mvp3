@@ -39,20 +39,20 @@
                     leave-from-class="opacity-100 scale-100"
                     leave-to-class="opacity-0 scale-95">
                     <div v-if="isOpen"
-                        class="max-h-[90vh] w-full max-w-9xl transform rounded-2xl bg-white shadow-2xl overflow-hidden"
+                        class="max-h-[90vh] w-full max-w-9xl transform rounded-2xl bg-white dark:bg-slate-900 shadow-2xl overflow-hidden"
                         @click.stop>
                         <!-- Header del modal -->
-                        <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-6">
+                        <div class="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900/50 p-6">
                             <div>
-                                <h3 class="text-xl font-semibold text-gray-900">
+                                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                                     Vista Previa: {{ portfolio.template_type }}
                                 </h3>
-                                <p class="mt-1 text-gray-600">
+                                <p class="mt-1 text-gray-600 dark:text-slate-400">
                                     Vista previa completa de tu portafolio
                                 </p>
                             </div>
                             <button @click="$emit('close')"
-                                class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-200">
+                                class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-200 dark:hover:bg-slate-800 text-gray-500 dark:text-slate-400">
                                 <X class="h-5 w-5" />
                             </button>
                         </div>

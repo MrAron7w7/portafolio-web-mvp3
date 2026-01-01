@@ -91,7 +91,7 @@ const getTextColor = (stepId: number, step: any) => {
 
 <template>
     <div class="lg:col-span-3">
-        <div class="sticky top-8 rounded-2xl border border-gray-200/60 bg-white p-6 shadow-xs">
+        <div class="sticky top-8 rounded-2xl border border-gray-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs transition-colors duration-300">
             <!-- Lista de pasos -->
             <nav class="space-y-2">
                 <div v-for="(step, index) in steps" :key="step.id"
@@ -102,14 +102,14 @@ const getTextColor = (stepId: number, step: any) => {
                         <div :class="[
                             'flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-300 relative',
                             !step.enabled
-                                ? 'border-gray-300 bg-gray-100 text-gray-400'
+                                ? 'border-gray-300 dark:border-slate-800 bg-gray-100 dark:bg-slate-800/50 text-gray-400 dark:text-slate-600'
                                 : currentStep === step.id
                                     ? 'border-[#005aeb] bg-[#005aeb] text-white scale-110 shadow-lg'
                                     : getStepStatus(step.id, step).isCompleted
-                                        ? 'border-green-500 bg-green-50 text-green-600'
+                                        ? 'border-green-500 dark:border-green-500/50 bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400'
                                         : shouldShowIndicator(step.id, step) && !getStepStatus(step.id, step).isCompleted
-                                            ? 'border-orange-500 bg-orange-50 text-orange-600'
-                                            : 'border-gray-300 bg-white text-gray-400',
+                                            ? 'border-orange-500 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                                            : 'border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-400 dark:text-slate-500',
                         ]">
                             <!-- ✨ Iconos: SOLO si está habilitado y es paso actual O tiene indicador -->
                             <!-- CÍRCULO CON ICONOS/NÚMEROS -->
@@ -125,7 +125,7 @@ const getTextColor = (stepId: number, step: any) => {
 
                             <!-- 3. RESTO DE CASOS (Incluye Deshabilitados): Muestra el número -->
                             <!-- Aquí el 'text-gray-400' del padre debería actuar, pero si quieres asegurarlo, usa la clase condicional aquí -->
-                            <span v-else :class="{ 'text-gray-400': !step.enabled }">
+                            <span v-else :class="{ 'text-gray-400 dark:text-slate-600': !step.enabled }">
                                 {{ step.id }}
                             </span>
 
@@ -136,12 +136,12 @@ const getTextColor = (stepId: number, step: any) => {
                                     'absolute -top-2 -right-2 flex items-center justify-center rounded-full text-xs font-bold',
                                     'w-5 h-5 text-white',
                                     !step.enabled
-                                        ? 'bg-gray-400'
+                                        ? 'bg-gray-400 dark:bg-slate-600'
                                         : currentStep === step.id
                                             ? 'bg-[#005aeb]'
                                             : getStepStatus(step.id, step).isCompleted
                                                 ? 'bg-green-500'
-                                                : 'bg-orange-400',
+                                                : 'bg-orange-400 dark:bg-orange-500',
                                 ]">
                                 {{ sectionCounts[step.id as keyof typeof sectionCounts] }}
                             </div>
@@ -150,12 +150,12 @@ const getTextColor = (stepId: number, step: any) => {
                         <div v-if="index < steps.length - 1" :class="[
                             'mt-2 h-8 w-0.5 transition-all duration-300',
                             !step.enabled
-                                ? 'bg-gray-300'
+                                ? 'bg-gray-300 dark:bg-slate-800'
                                 : getStepStatus(step.id, step).isCompleted
-                                    ? 'bg-green-500'
+                                    ? 'bg-green-500 dark:bg-green-500/50'
                                     : currentStep > step.id
                                         ? 'bg-[#005aeb]'
-                                        : 'bg-gray-200',
+                                        : 'bg-gray-200 dark:bg-slate-800',
                         ]"></div>
                     </div>
 
@@ -169,12 +169,12 @@ const getTextColor = (stepId: number, step: any) => {
                                 <p :class="[
                                     'font-medium transition-colors duration-200',
                                     !step.enabled
-                                        ? 'text-gray-400'
+                                        ? 'text-gray-400 dark:text-slate-600'
                                         : currentStep === step.id
                                             ? 'text-[#005aeb]'
                                             : getStepStatus(step.id, step).isCompleted
-                                                ? 'text-gray-900'
-                                                : 'text-gray-900',
+                                                ? 'text-gray-900 dark:text-slate-200'
+                                                : 'text-gray-900 dark:text-slate-200',
                                 ]">
                                     {{ step.title }}
                                 </p>
@@ -182,14 +182,14 @@ const getTextColor = (stepId: number, step: any) => {
                                 <span
                                     v-if="[3, 4, 5, 6, 7].includes(step.id) && sectionCounts[step.id as keyof typeof sectionCounts] > 0"
                                     :class="[
-                                        'text-xs font-semibold ml-2 flex-shrink-0',
+                                        'text-xs font-semibold ml-2 shrink-0',
                                         !step.enabled
-                                            ? 'text-gray-400'
+                                            ? 'text-gray-400 dark:text-slate-600'
                                             : currentStep === step.id
                                                 ? 'text-[#005aeb]'
                                                 : getStepStatus(step.id, step).isCompleted
-                                                    ? 'text-green-600'
-                                                    : 'text-gray-600',
+                                                    ? 'text-green-600 dark:text-green-400'
+                                                    : 'text-gray-600 dark:text-slate-400',
                                     ]">
                                     ({{ sectionCounts[step.id as keyof typeof sectionCounts] }})
                                 </span>
@@ -205,7 +205,7 @@ const getTextColor = (stepId: number, step: any) => {
                                 ]"></div>
                                 <p :class="[
                                     'text-xs transition-colors duration-200',
-                                    getTextColor(step.id, step)
+                                    getTextColor(step.id, step).replace('text-green-600', 'text-green-600 dark:text-green-400').replace('text-orange-600', 'text-orange-600 dark:text-orange-400')
                                 ]">
                                     {{ getStepStatus(step.id, step).message }}
                                 </p>
@@ -220,7 +220,7 @@ const getTextColor = (stepId: number, step: any) => {
                                 ]"></div>
                                 <p :class="[
                                     'text-xs transition-colors duration-200',
-                                    isCurrentStepValid ? 'text-green-600' : 'text-orange-600'
+                                    isCurrentStepValid ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'
                                 ]">
                                     {{ isCurrentStepValid ? 'Completado' : 'Incompleto' }}
                                 </p>
@@ -231,48 +231,48 @@ const getTextColor = (stepId: number, step: any) => {
             </nav>
 
             <!-- Progreso y enlaces -->
-            <div class="mt-4 space-y-4 border-t border-gray-200 pt-6">
+            <div class="mt-4 space-y-4 border-t border-gray-200 dark:border-slate-800 pt-6">
                 <!-- Barra de progreso -->
                 <div>
-                    <div class="mb-2 flex justify-between text-sm text-gray-600">
+                    <div class="mb-2 flex justify-between text-sm text-gray-600 dark:text-slate-400">
                         <span>Progreso total</span>
                         <span class="font-medium text-[#005aeb]">{{ progress }}%</span>
                     </div>
-                    <div class="h-2 w-full rounded-full bg-gray-200">
+                    <div class="h-2 w-full rounded-full bg-gray-200 dark:bg-slate-800">
                         <div class="h-2 rounded-full bg-[#005aeb] transition-all duration-500"
                             :style="{ width: progress + '%' }"></div>
                     </div>
                 </div>
 
                 <!-- Información del portfolio -->
-                <div class="rounded-lg bg-gray-50 p-4">
-                    <p class="text-sm font-medium text-gray-900">
+                <div class="rounded-lg bg-gray-50 dark:bg-slate-800/50 p-4">
+                    <p class="text-sm font-medium text-gray-900 dark:text-slate-200">
                         Plantilla: <span class="text-[#005aeb]">{{ portfolio.template_type }}</span>
                     </p>
-                    <p class="mt-2 text-sm font-medium text-gray-900 flex items-center">
+                    <p class="mt-2 text-sm font-medium text-gray-900 dark:text-slate-200 flex items-center">
                         Estado:
                         <span :class="[
                             'flex items-center ml-2 gap-1',
-                            isPortfolioPublic ? 'text-blue-600' : 'text-gray-600'
+                            isPortfolioPublic ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400'
                         ]">
-                            <Globe v-if="isPortfolioPublic" class="h-4 w-4 flex-shrink-0" />
-                            <Lock v-else class="h-4 w-4 flex-shrink-0" />
+                            <Globe v-if="isPortfolioPublic" class="h-4 w-4 shrink-0" />
+                            <Lock v-else class="h-4 w-4 shrink-0" />
                             <span>{{ isPortfolioPublic ? 'Público' : 'Privado' }}</span>
                         </span>
                     </p>
-                    <p class="mt-1 text-xs text-gray-600">
+                    <p class="mt-1 text-xs text-gray-600 dark:text-slate-500">
                         ID: {{ portfolio.id }}
                     </p>
                 </div>
 
                 <!-- Enlaces legales -->
-                <div class="space-y-2 text-xs text-gray-500">
+                <div class="space-y-2 text-xs text-gray-500 dark:text-slate-500">
                     <div class="flex space-x-4">
-                        <a href="#" class="transition-colors duration-200 hover:text-gray-700">Condiciones</a>
-                        <a href="#" class="transition-colors duration-200 hover:text-gray-700">Privacidad</a>
-                        <a href="#" class="transition-colors duration-200 hover:text-gray-700">Contacto</a>
+                        <a href="#" class="transition-colors duration-200 hover:text-gray-700 dark:hover:text-slate-300">Condiciones</a>
+                        <a href="#" class="transition-colors duration-200 hover:text-gray-700 dark:hover:text-slate-300">Privacidad</a>
+                        <a href="#" class="transition-colors duration-200 hover:text-gray-700 dark:hover:text-slate-300">Contacto</a>
                     </div>
-                    <p class="text-gray-400">
+                    <p class="text-gray-400 dark:text-slate-600">
                         &copy; 2024 PortafolioAI. Todos los derechos reservados.
                     </p>
                 </div>

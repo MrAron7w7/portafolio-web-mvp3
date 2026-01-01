@@ -12,7 +12,6 @@ import ExperienceSection from '@/pages/Dashboard/Porfolios/Components/Experience
 import SkillsSection from '@/pages/Dashboard/Porfolios/Components/SkillsSection.vue';
 import ProjectsSection from '@/pages/Dashboard/Porfolios/Components/ProjectsSection.vue';
 import SocialSection from '@/pages/Dashboard/Porfolios/Components/SocialSection.vue';
-import ConfigSection from '@/pages/Dashboard/Porfolios/Components/ConfigSection.vue';
 
 interface Props {
     formData: any;
@@ -45,16 +44,16 @@ defineEmits<{
 
 <template>
     <div class="lg:col-span-5">
-        <div class="rounded-2xl border border-gray-200/60 bg-white p-8 shadow-xs">
+        <div class="rounded-2xl border border-gray-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-xs transition-colors duration-300">
             <!-- Alerta de validación -->
             <Transition enter-active-class="transition-all duration-300 ease-out" enter-from-class="opacity-0 scale-95"
                 enter-to-class="opacity-100 scale-100" leave-active-class="transition-all duration-150 ease-in"
                 leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
-                <div v-if="showValidationError" class="flex items-center gap-2 rounded-full bg-red-100 px-3 mb-4 py-1.5">
-                    <AlertCircle class="h-4 w-4 text-red-600 flex-shrink-0" />
-                    <span class="text-xs font-medium text-red-700">Completa o corrige los campos faltantes</span>
+                <div v-if="showValidationError" class="flex items-center gap-2 rounded-full bg-red-100 dark:bg-red-900/20 px-3 mb-4 py-1.5">
+                    <AlertCircle class="h-4 w-4 text-red-600 dark:text-red-400 shrink-0" />
+                    <span class="text-xs font-medium text-red-700 dark:text-red-300">Completa o corrige los campos faltantes</span>
                     <button @click="$emit('update:showValidationError', false)"
-                        class="ml-1 text-red-500 hover:text-red-700 transition-colors">
+                        class="ml-1 text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors">
                         <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
@@ -91,15 +90,13 @@ defineEmits<{
                     <SocialSection v-if="currentStep === 8" :model-value="formData.social"
                         @update:model-value="formData.social = $event" :validation="socialValidation" />
 
-                    <ConfigSection v-if="currentStep === 9" :model-value="formData.config"
-                        @update:model-value="formData.config = $event" />
                 </div>
             </Transition>
 
             <!-- Navegación entre pasos -->
-            <div class="mt-8 flex items-center justify-between border-t border-gray-200 pt-8">
+            <div class="mt-8 flex items-center justify-between border-t border-gray-200 dark:border-slate-800 pt-8">
                 <button @click="$emit('prev')"
-                    class="flex items-center space-x-2 rounded-lg border border-gray-300 px-6 py-3 text-gray-700 transition-all duration-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="flex items-center space-x-2 rounded-lg border border-gray-300 dark:border-slate-800 px-6 py-3 text-gray-700 dark:text-slate-300 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
                     :disabled="currentStep === 1">
                     <ArrowLeft class="h-4 w-4" />
                     <span>Anterior</span>

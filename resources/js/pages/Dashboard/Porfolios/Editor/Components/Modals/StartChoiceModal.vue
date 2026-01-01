@@ -80,7 +80,7 @@
                     @click.stop
                 >
                     <!-- Header -->
-                    <div class="relative overflow-hidden bg-gradient-to-r from-teal-500 to-teal-600 px-8 py-12 text-white">
+                    <div class="relative overflow-hidden bg-linear-to-r from-teal-500 to-teal-600 px-8 py-12 text-white">
                         <!-- Decorative elements -->
                         <div class="absolute top-0 right-0 w-40 h-40 bg-teal-400 rounded-full -mr-20 -mt-20 opacity-20" />
                         <div class="absolute bottom-0 left-0 w-32 h-32 bg-teal-400 rounded-full -ml-16 -mb-16 opacity-20" />
@@ -119,7 +119,7 @@
                                 ]"
                             >
                                 <!-- Background gradient -->
-                                <div class="absolute inset-0 bg-gradient-to-br from-teal-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div class="absolute inset-0 bg-linear-to-br from-teal-50 dark:from-teal-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 
                                 <!-- Content -->
                                 <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
@@ -164,7 +164,7 @@
                                 ]"
                             >
                                 <!-- Background gradient -->
-                                <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div class="absolute inset-0 bg-linear-to-br from-blue-50 dark:from-blue-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 
                                 <!-- Content -->
                                 <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">

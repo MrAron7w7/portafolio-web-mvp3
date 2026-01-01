@@ -53,7 +53,17 @@ interface Skills {
 }
 
 interface PersonalInfo {
+    firstName?: string;
+    lastName?: string;
+    title?: string;
     summary: string;
+    email?: string;
+    phone?: string;
+    city?: string;
+    country?: string;
+    linkedin?: string;
+    github?: string;
+    website?: string;
 }
 
 // Respuesta exacta del endpoint IA
@@ -229,6 +239,119 @@ export const useAIAnalysis = () => {
     };
 
     /**
+     * Intenta extraer Toda la información personal del texto (fallback)
+     */
+    const extractInfoFromText = (text: string): { 
+        firstName?: string, 
+        lastName?: string, 
+        title?: string,
+        email?: string,
+        phone?: string,
+        city?: string,
+        country?: string,
+        linkedin?: string,
+        github?: string,
+        website?: string
+    } => {
+        const result: any = {};
+
+        // 1. NOMBRES (Búsqueda más precisa de la identidad)
+        const namePatterns = [
+            /(?:Soy|soy|nombre es|llamo)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3})/,
+            /([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3})/
+        ];
+
+        let fullNameFound = "";
+        for (const pattern of namePatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                fullNameFound = match[1].trim();
+                const parts = fullNameFound.split(/\s+/);
+                result.firstName = parts[0];
+                result.lastName = parts.slice(1).join(' ');
+                break;
+            }
+        }
+
+        // 2. TÍTULO PROFESIONAL (Evitando capturar el nombre)
+        // Buscamos patrones que sigan al nombre o que usen "un/una/como"
+        const titlePatterns = [
+            // Patrón: "Nombre, un [Título]" o "Nombre, [Título] radicado en"
+            new RegExp(`(?:${result.firstName}|${result.lastName}|${fullNameFound})\\s*,?\\s+(?:un|una|el|la)?\\s*([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\\s+(?:de|en|para|y|Cloud|IT|Sr|Jr|Lead|Manager)\\s+|\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+\\s*){0,6})`, 'i'),
+            // Patrón general: "Soy [Título]" o "Trabajo como [Título]" excluyendo el nombre ya encontrado
+            /(?:Trabajo como|como|Cargo:|Puesto:)\s+(?:un|una|el|la)?\s*([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+(?:de|en|para|y|Cloud|IT|Sr|Jr|Lead|Manager)\s+|\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+\s*){0,6})/i,
+            /(?:Soy|soy)\s+(?:un|una|el|la)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+(?:de|en|para|y|Cloud|IT|Sr|Jr|Lead|Manager)\s+|\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+\s*){0,6})/i
+        ];
+
+        for (const pattern of titlePatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                const potentialTitle = match[1].trim();
+                // Validar que el título no sea el mismo nombre, apellido ni nombre completo
+                if (potentialTitle !== result.firstName && 
+                    potentialTitle !== result.lastName && 
+                    potentialTitle !== fullNameFound &&
+                    !fullNameFound.includes(potentialTitle)) {
+                    result.title = potentialTitle;
+                    break;
+                }
+            }
+        }
+
+        // 3. CONTACTO (RESTAURADO)
+        const emailPattern = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
+        const phonePattern = /(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4,6})/;
+        
+        // 4. UBICACIÓN (Ciudad, País)
+        const locationPatterns = [
+            /(?:Vivo en|ubicado en|Resido en|Desde|en)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)(?:,?\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+))?/,
+        ];
+
+        // 5. REDES SOCIALES
+        const socialPatterns = {
+            linkedin: /(?:linkedin\.com\/in\/|linkedin:)\s*([a-zA-Z0-9-ñÑ\._]+)/i,
+            github: /(?:github\.com\/|github:)\s*([a-zA-Z0-9-ñÑ\._]+)/i,
+            website: /(?:sitio web|portfolio|web:)\s*(https?:\/\/[^\s]+)/i
+        };
+
+        const emailMatch = text.match(emailPattern);
+        if (emailMatch) result.email = emailMatch[1];
+
+        const phoneMatch = text.match(phonePattern);
+        if (phoneMatch) result.phone = phoneMatch[0].trim();
+
+        for (const pattern of locationPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                result.city = match[1].trim();
+                if (match[2]) result.country = match[2].trim();
+                break;
+            }
+        }
+
+        if (socialPatterns.linkedin.test(text)) {
+            const m = text.match(socialPatterns.linkedin);
+            if (m) {
+                const val = m[1];
+                result.linkedin = val.startsWith('http') ? val : `https://linkedin.com/in/${val}`;
+            }
+        }
+        if (socialPatterns.github.test(text)) {
+            const m = text.match(socialPatterns.github);
+            if (m) {
+                const val = m[1];
+                result.github = val.startsWith('http') ? val : `https://github.com/${val}`;
+            }
+        }
+        if (socialPatterns.website.test(text)) {
+            const m = text.match(socialPatterns.website);
+            if (m) result.website = m[1];
+        }
+        
+        return result;
+    };
+
+    /**
      * Crea un summary automático basado en los datos
      */
     const generateSummary = (response: IAEndpointResponse): string => {
@@ -272,8 +395,72 @@ export const useAIAnalysis = () => {
     const ensureDefaults = (response: IAEndpointResponse): IAEndpointResponse => {
         console.log('🛡️ [DEFAULTS] Aplicando valores por defecto...');
 
+        // Intentar extraer nombre del texto si no viene en el JSON
+        const extracted = extractInfoFromText(userDescription.value);
+        const personal = (response.personal && response.personal.length > 0 ? response.personal[0] : {}) as any;
+
+        // Log detallado para debugging
+        console.log('📋 [DEFAULTS] Datos personales de IA:', {
+            firstName: personal.firstName,
+            lastName: personal.lastName,
+            title: personal.title,
+            position: personal.position, // Por si viene así
+            name: personal.name
+        });
+        console.log('📋 [DEFAULTS] Datos extraídos por regex:', {
+            firstName: extracted.firstName,
+            lastName: extracted.lastName,
+            title: extracted.title
+        });
+
+        // Si viene un campo 'name' lo intentamos dividir
+        if (personal.name && !personal.firstName && !personal.lastName) {
+            const parts = personal.name.trim().split(/\s+/);
+            personal.firstName = parts[0];
+            personal.lastName = parts.slice(1).join(' ');
+            console.log('✨ [DEFAULTS] Nombre dividido desde campo "name":', { firstName: personal.firstName, lastName: personal.lastName });
+        }
+
+        // Determinar el título final con validación
+        let finalTitle = personal.title || personal.position || '';
+        const finalFirstName = personal.firstName || extracted.firstName || '';
+        const finalLastName = personal.lastName || extracted.lastName || '';
+        const fullName = `${finalFirstName} ${finalLastName}`.trim();
+
+        // Validación: Si el título de la IA es en realidad el nombre/apellido, usar el extraído
+        if (finalTitle === finalFirstName || 
+            finalTitle === finalLastName || 
+            finalTitle === fullName ||
+            fullName.includes(finalTitle)) {
+            console.warn('⚠️ [DEFAULTS] La IA devolvió el nombre como título, usando fallback regex');
+            finalTitle = extracted.title || '';
+        }
+
+        // Si aún no hay título, intentar extraer más agresivamente
+        if (!finalTitle && userDescription.value) {
+            const titleMatch = userDescription.value.match(/(?:un|una|el|la)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+(?:de|en|para|y|Cloud|IT|Senior|Junior|Lead|Manager|Developer|Desarrollador|Arquitecto|Ingeniero|Diseñador|Analista)\s*){1,6})/i);
+            if (titleMatch) {
+                finalTitle = titleMatch[1].trim();
+                console.log('✨ [DEFAULTS] Título extraído por búsqueda agresiva:', finalTitle);
+            }
+        }
+
+        console.log('✅ [DEFAULTS] Título final:', finalTitle);
+
         return {
-            personal: response.personal || [{ summary: '' }],
+            personal: [{
+                summary: personal.summary || '',
+                firstName: finalFirstName,
+                lastName: finalLastName,
+                title: finalTitle,
+                email: personal.email || extracted.email || '',
+                phone: personal.phone || extracted.phone || '',
+                city: personal.city || personal.location?.split(',')?.[0]?.trim() || extracted.city || '',
+                country: personal.country || personal.location?.split(',')?.[1]?.trim() || extracted.country || '',
+                linkedin: personal.linkedin || extracted.linkedin || '',
+                github: personal.github || extracted.github || '',
+                website: personal.website || extracted.website || '',
+            }],
             experience: (response.experience || []).map(exp => ({
                 company: exp.company || 'Sin empresa',
                 position: exp.position || 'Sin título',

@@ -24,7 +24,7 @@ defineProps<{
 
         <div
             v-if="status"
-            class="mb-4 text-center text-sm font-medium text-green-600"
+            class="mb-4 text-center text-sm font-medium text-green-600 dark:text-green-400"
         >
             {{ status }}
         </div>
@@ -32,7 +32,7 @@ defineProps<{
         <div class="space-y-6">
             <Form v-bind="password.email.form()" v-slot="{ errors, processing }">
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="email" class="dark:text-slate-300">Email address</Label>
                     <Input
                         id="email"
                         type="email"
@@ -40,13 +40,14 @@ defineProps<{
                         autocomplete="off"
                         autofocus
                         placeholder="email@example.com"
+                        class="dark:bg-slate-950 dark:border-slate-800 dark:placeholder:text-slate-600"
                     />
                     <InputError :message="errors.email" />
                 </div>
 
                 <div class="my-6 flex items-center justify-start">
                     <Button
-                        class="w-full"
+                        class="w-full bg-slate-900 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
                         :disabled="processing"
                         data-test="email-password-reset-link-button"
                     >
@@ -56,9 +57,9 @@ defineProps<{
                 </div>
             </Form>
 
-            <div class="space-x-1 text-center text-sm text-muted-foreground">
+            <div class="space-x-1 text-center text-sm text-muted-foreground dark:text-slate-400">
                 <span>Or, return to</span>
-                <TextLink :href="login()">log in</TextLink>
+                <TextLink :href="login()" class="dark:text-white dark:hover:text-indigo-400">log in</TextLink>
             </div>
         </div>
     </AuthLayout>

@@ -59,7 +59,6 @@ const steps = ref([
     { id: 6, title: 'Habilidades', completed: false, enabled: false, hasError: false, icon: 'Star' },
     { id: 7, title: 'Proyectos', completed: false, enabled: false, hasError: false, icon: 'Zap' },
     { id: 8, title: 'Redes sociales', completed: false, enabled: false, hasError: false, icon: 'Link' },
-    { id: 9, title: 'Configuración', completed: false, enabled: false, hasError: false, icon: 'Settings' },
 ]);
 
 
@@ -138,9 +137,12 @@ const steps = ref([
         projects: props.templateData.projects || [],
         education: props.templateData.education || [],
         config: {
+            title: props.portfolio.title || 'Mi Portafolio',
             theme: 'moderna',
             is_public: props.portfolio.is_public || false,
             is_completed: props.portfolio.is_completed || false,
+            accessType: props.portfolio.is_public ? 'link' : 'private', // 'private' | 'link'
+            linkPermission: 'view', // 'view' | 'edit'
         },
         languages: props.templateData.languages || [],
         certifications: props.templateData.certifications || [],

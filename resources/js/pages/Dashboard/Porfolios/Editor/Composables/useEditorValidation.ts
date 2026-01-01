@@ -55,8 +55,7 @@ export function useEditorValidation(formData: any, currentStep: any) {
 
     const validateAbout = (): boolean => {
         return aboutValidation.validateAll({
-            summary: formData.personal.summary,
-            description: formData.personal.description
+            summary: formData.personal.summary
         });
     };
 
@@ -84,9 +83,7 @@ export function useEditorValidation(formData: any, currentStep: any) {
         return socialValidation.validateAll(formData.social);
     };
 
-    const validateConfig = (): boolean => {
-        return true;
-    };
+
 
     const validations = [
         validatePersonal,
@@ -97,14 +94,13 @@ export function useEditorValidation(formData: any, currentStep: any) {
         validateSkills,
         validateProjects,
         validateSocial,
-        validateConfig,
     ];
 
     // ============================================
     // ESTADO DE VALIDACIÓN
     // ============================================
     const showValidationError = ref(false);
-    const validationErrorTimeout = ref<NodeJS.Timeout | null>(null);
+    const validationErrorTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 
     // ============================================
     // COMPUTED PROPERTIES

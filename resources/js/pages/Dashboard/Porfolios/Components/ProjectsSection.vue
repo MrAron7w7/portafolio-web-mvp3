@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Plus, Trash2, ChevronDown, AlertCircle, Sparkles, X } from 'lucide-vue-next';
+import { Plus, Trash2, ChevronDown, AlertCircle, Sparkles, X, Star, Image as ImageIcon } from 'lucide-vue-next';
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useProjectValidation, type Project } from './Composables/useProjectValidation';
 
@@ -234,7 +234,7 @@ const updateProject = (index: number, field: keyof Project, value: any) => {
     }
 };
 
-// Manejar upload de imagen
+// Manejar upload de imagen principal
 const handleImageUpload = (index: number, event: Event) => {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -252,9 +252,25 @@ const handleImageUpload = (index: number, event: Event) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const updated = [...props.modelValue];
+            const newImage = e.target?.result as string;
+            
+            // Si no hay array images, inicializarlo con la nueva imagen
+            let currentImages = updated[index].images || [];
+            
+            // Si la imagen no está en el array, agregarla
+            if (!currentImages.includes(newImage)) {
+                // Si la imagen anterior existe y no está en el array, añadirla primero
+                if (updated[index].image && !currentImages.includes(updated[index].image)) {
+                    currentImages = [updated[index].image, ...currentImages];
+                }
+                // Añadir la nueva al principio
+                currentImages = [newImage, ...currentImages];
+            }
+
             updated[index] = {
                 ...updated[index],
-                image: e.target?.result as string,
+                image: newImage,
+                images: currentImages
             };
             emit('update:modelValue', updated);
         };
@@ -262,11 +278,105 @@ const handleImageUpload = (index: number, event: Event) => {
     }
 };
 
-// Eliminar imagen
+// Eliminar imagen principal
 const removeImage = (index: number) => {
     clearImageError(index);
     const updated = [...props.modelValue];
+    // No eliminamos del array images, solo quitamos la principal visualmente o seteamos otra?
+    // Mejor lógica: set null la image principal.
     updated[index] = { ...updated[index], image: null };
+    emit('update:modelValue', updated);
+};
+
+// Manejar upload de galería (múltiples imágenes)
+const handleGalleryUpload = (index: number, event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+
+    if (!files || files.length === 0) return;
+
+    const id = props.modelValue[index].id;
+    if (newItems.value.has(id)) {
+        newItems.value.delete(id);
+    }
+
+    // Validar y procesar cada archivo
+    const updated = [...props.modelValue];
+    let currentImages = updated[index].images ? [...updated[index].images!] : [];
+    
+    // Si hay una imagen principal y no está en el array, agregarla primero
+    if (updated[index].image && !currentImages.includes(updated[index].image)) {
+        currentImages.unshift(updated[index].image!);
+    }
+
+    let processedCount = 0;
+    const totalFiles = files.length;
+
+    Array.from(files).forEach(file => {
+        if (validateImage(index, file)) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const result = e.target?.result as string;
+                if (!currentImages.includes(result)) {
+                    currentImages.push(result);
+                }
+                
+                processedCount++;
+                
+                // Si es el último archivo procesado, actualizar estado
+                if (processedCount === totalFiles) { // Simplificado: en prod se usaría Promise.all
+                     // Si no había imagen principal, usar la primera de las nuevas
+                    let mainImage = updated[index].image;
+                    if (!mainImage && currentImages.length > 0) {
+                        mainImage = currentImages[0];
+                    }
+
+                    updated[index] = {
+                        ...updated[index],
+                        images: currentImages,
+                        image: mainImage
+                    };
+                    emit('update:modelValue', updated);
+                }
+            };
+            reader.readAsDataURL(file);
+        } else {
+            processedCount++;
+        }
+    });
+};
+
+// Eliminar imagen de la galería
+const removeGalleryImage = (index: number, imgIndex: number) => {
+    const updated = [...props.modelValue];
+    const project = updated[index];
+    const images = project.images ? [...project.images] : [];
+    const removedImage = images[imgIndex];
+    
+    // Eliminar del array
+    images.splice(imgIndex, 1);
+    
+    // Si la imagen eliminada era la principal, asignar otra o null
+    let mainImage = project.image;
+    if (mainImage === removedImage) {
+        mainImage = images.length > 0 ? images[0] : null;
+    }
+
+    updated[index] = {
+        ...project,
+        images: images,
+        image: mainImage
+    };
+    emit('update:modelValue', updated);
+};
+
+// Establecer imagen principal desde la galería
+const setMainImage = (index: number, imgUrl: string) => {
+    const updated = [...props.modelValue];
+    updated[index] = {
+        ...updated[index],
+        image: imgUrl
+    };
     emit('update:modelValue', updated);
 };
 
@@ -315,12 +425,12 @@ const removeTechnology = (index: number, tech: string) => {
 // NUEVO: Función para obtener clase de error del contenedor
 const getContainerClass = (index: number, id: number) => {
     if (hasProjectError(index)) {
-        return 'border-red-300 bg-red-50';
+        return 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/10';
     }
     if (newItems.value.has(id)) {
-        return 'border-emerald-300 bg-emerald-50';
+        return 'border-emerald-300 dark:border-emerald-500/50 bg-emerald-50 dark:bg-emerald-500/10';
     }
-    return 'border-gray-200 bg-white';
+    return 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900';
 };
 
 // NUEVO: Verificar si un proyecto tiene errores
@@ -338,8 +448,8 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
 <template>
     <div>
         <div class="mb-8">
-            <h1 class="mb-3 text-2xl font-bold text-gray-900 lg:text-3xl">Proyectos</h1>
-            <p class="text-lg text-gray-600">
+            <h1 class="mb-3 text-2xl font-bold text-gray-900 dark:text-white lg:text-3xl">Proyectos</h1>
+            <p class="text-lg text-gray-600 dark:text-slate-400">
                 Muestra tus mejores trabajos y proyectos realizados.
             </p>
         </div>
@@ -353,14 +463,15 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                 :class="getContainerClass(index, project.id)"
             >
                 <!-- Header del acordeón -->
-                <button
+                <div
                     @click="toggleProject(project.id)"
-                    class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50"
-                    type="button"
+                    class="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50/50 dark:hover:bg-slate-800/50 cursor-pointer"
+                    role="button"
+                    tabindex="0"
                 >
                     <div class="flex flex-1 items-center gap-3 text-left">
                         <ChevronDown
-                            class="h-5 w-5 flex-shrink-0 text-gray-600 transition-transform duration-400 ease-out"
+                            class="h-5 w-5 shrink-0 text-gray-600 transition-transform duration-400 ease-out"
                             :class="{ 'rotate-180 transform': expandedIndex === project.id }"
                         />
 
@@ -369,9 +480,9 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                                 <span
                                     class="text-base font-medium transition-colors duration-300"
                                     :class="{
-                                        'text-red-700': hasProjectError(index),
-                                        'text-emerald-700': newItems.has(project.id),
-                                        'text-gray-900': !hasProjectError(index) && !newItems.has(project.id)
+                                        'text-red-700 dark:text-red-400': hasProjectError(index),
+                                        'text-emerald-700 dark:text-emerald-400': newItems.has(project.id),
+                                        'text-gray-900 dark:text-white': !hasProjectError(index) && !newItems.has(project.id)
                                     }"
                                 >
                                     {{ project.name || 'Nuevo proyecto' }}
@@ -399,11 +510,11 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                     <button
                         @click.stop="openDeleteConfirm(index, $event)"
                         type="button"
-                        class="flex-shrink-0 p-1.5 text-gray-400 transition-colors hover:text-red-500"
+                        class="shrink-0 p-1.5 text-gray-400 dark:text-slate-500 transition-colors hover:text-red-500 dark:hover:text-red-400"
                     >
                         <Trash2 class="h-4 w-4" />
                     </button>
-                </button>
+                </div>
 
                 <!-- Contenido del acordeón -->
                 <transition
@@ -416,8 +527,8 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                 >
                     <div
                         v-if="expandedIndex === project.id"
-                        class="border-t px-4 py-4 bg-white/50"
-                        :class="hasProjectError(index) ? 'border-red-200' : 'border-gray-200'"
+                        class="border-t px-4 py-4 bg-white/50 dark:bg-slate-900/50"
+                        :class="hasProjectError(index) ? 'border-red-200 dark:border-red-500/30' : 'border-gray-200 dark:border-slate-800'"
                     >
                         <div class="space-y-6">
                             <!-- Imagen -->
@@ -425,7 +536,7 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                                 <label class="mb-2 block text-sm font-medium text-gray-700">Imagen del proyecto</label>
                                 <div
                                     v-if="!project.image"
-                                    class="relative rounded-lg border-2 border-dashed border-gray-300 p-6 text-center"
+                                    class="relative rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-800 p-6 text-center"
                                 >
                                     <input
                                         type="file"
@@ -434,8 +545,8 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                                         class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                                     />
                                     <div class="pointer-events-none">
-                                        <p class="text-sm font-medium text-gray-700">Haz clic para subir</p>
-                                        <p class="text-xs text-gray-500">PNG, JPG, GIF, WebP (MAX. 2MB)</p>
+                                        <p class="text-sm font-medium text-gray-700 dark:text-slate-300">Haz clic para subir</p>
+                                        <p class="text-xs text-gray-500 dark:text-slate-500">PNG, JPG, GIF, WebP (MAX. 2MB)</p>
                                     </div>
                                 </div>
                                 <div v-else class="relative">
@@ -457,6 +568,66 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                                 </p>
                             </div>
 
+                            <!-- Galería de imágenes -->
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">Galería de imágenes</label>
+                                <p class="mb-3 text-xs text-gray-500 dark:text-slate-500">
+                                    Sube múltiples imágenes para crear una galería. Puedes elegir cuál será la portada haciendo clic en la estrella.
+                                </p>
+                                
+                                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5">
+                                    <!-- Botón Upload -->
+                                    <div class="relative flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 text-gray-400 dark:text-slate-500 transition-colors hover:border-[#005aeb] dark:hover:border-blue-500 hover:bg-[#005aeb]/5 dark:hover:bg-blue-900/10 hover:text-[#005aeb] dark:hover:text-blue-400">
+                                         <input
+                                            type="file"
+                                            multiple
+                                            accept="image/png,image/jpeg,image/gif,image/webp"
+                                            @change="handleGalleryUpload(index, $event)"
+                                            class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                                        />
+                                        <ImageIcon class="mb-1 h-6 w-6" />
+                                        <span class="text-xs font-medium">Agregar</span>
+                                    </div>
+
+                                    <!-- Miniaturas -->
+                                    <div 
+                                         v-for="(img, imgIdx) in (project.images || [])" 
+                                         :key="imgIdx"
+                                         class="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-100 dark:bg-slate-800"
+                                    >
+                                        <img :src="img" class="h-full w-full object-cover" />
+                                        
+                                        <!-- Overlay Acciones -->
+                                        <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                                            <!-- Hacer Principal -->
+                                            <button
+                                                @click="setMainImage(index, img)"
+                                                type="button"
+                                                class="rounded-full bg-white dark:bg-slate-700 p-1.5 text-yellow-500 hover:bg-yellow-50 dark:hover:bg-slate-600 shadow-sm transition-transform hover:scale-110"
+                                                :title="project.image === img ? 'Es la portada actual' : 'Usar como portada'"
+                                            >
+                                                <Star class="h-3.5 w-3.5" :fill="project.image === img ? 'currentColor' : 'none'" />
+                                            </button>
+                                            
+                                            <!-- Eliminar -->
+                                            <button
+                                                @click="removeGalleryImage(index, imgIdx)"
+                                                type="button"
+                                                class="rounded-full bg-white dark:bg-slate-700 p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-slate-600 shadow-sm transition-transform hover:scale-110"
+                                                title="Eliminar imagen"
+                                            >
+                                                <X class="h-3.5 w-3.5" />
+                                            </button>
+                                        </div>
+
+                                         <!-- Badge Portada -->
+                                        <div v-if="project.image === img" class="absolute left-1 top-1 rounded bg-yellow-400 px-1.5 py-0.5 text-[0.6rem] font-bold text-yellow-900 shadow-sm z-10 pointer-events-none">
+                                            PORTADA
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Nombre -->
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700">Nombre del proyecto *</label>
@@ -470,7 +641,7 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                                         )
                                     "
                                     type="text"
-                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-sm text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                                     :class="getErrorClassForInput(index, 'name')"
                                     placeholder="Nombre del proyecto"
                                 />
@@ -492,7 +663,7 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                                         )
                                     "
                                     type="url"
-                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-sm text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                                     :class="getErrorClassForInput(index, 'link')"
                                     placeholder="https://ejemplo.com"
                                 />
@@ -510,7 +681,7 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                                     @input="techInput[index] = ($event.target as HTMLInputElement).value"
                                     @keydown="addTechnology(index, $event)"
                                     type="text"
-                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-sm text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                                     :class="getErrorClassForInput(index, 'technologies')"
                                     placeholder="Vue.js, Tailwind CSS..."
                                 />
@@ -521,13 +692,13 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                                     <span
                                         v-for="tech in project.technologies"
                                         :key="tech"
-                                        class="inline-flex items-center gap-2 rounded-full bg-[#005aeb]/10 px-3 py-1 text-xs font-medium text-[#005aeb]"
+                                        class="inline-flex items-center gap-2 rounded-full bg-[#005aeb]/10 dark:bg-blue-900/30 px-3 py-1 text-xs font-medium text-[#005aeb] dark:text-blue-400"
                                     >
                                         {{ tech }}
                                         <button
                                             @click="removeTechnology(index, tech)"
                                             type="button"
-                                            class="text-[#005aeb] hover:text-[#0047b2]"
+                                            class="text-[#005aeb] dark:text-blue-400 hover:text-[#0047b2] dark:hover:text-blue-300"
                                         >
                                             <X class="h-3 w-3" />
                                         </button>
@@ -551,7 +722,7 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                                         )
                                     "
                                     rows="4"
-                                    class="w-full rounded-lg border bg-gray-50 px-3 py-2 text-sm text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
+                                    class="w-full rounded-lg border dark:border-slate-800 bg-gray-50 dark:bg-slate-800 px-3 py-2 text-sm text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#005aeb]/20"
                                     :class="getErrorClassForInput(index, 'description')"
                                     placeholder="Describe brevemente el proyecto..."
                                 ></textarea>
@@ -587,7 +758,7 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
             <!-- Botón agregar proyecto -->
             <button
                 @click="addProject"
-                class="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 p-4 text-gray-600 transition-colors hover:border-[#005aeb] hover:text-[#005aeb]"
+                class="flex w-full items-center justify-center space-x-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-800 p-4 text-gray-600 dark:text-slate-400 transition-colors hover:border-[#005aeb] dark:hover:border-blue-500 hover:text-[#005aeb] dark:hover:text-blue-400"
             >
                 <Plus class="h-5 w-5" />
                 <span>Agregar nuevo proyecto</span>
@@ -612,7 +783,7 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
         >
             <div
                 v-if="deleteConfirmIndex !== null"
-                class="pointer-events-auto fixed z-50 w-56 rounded-lg border border-gray-200 bg-white p-4 shadow-2xl"
+                class="pointer-events-auto fixed z-50 w-56 rounded-lg border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-2xl"
                 :style="{
                     top: popoverPosition.top + 'px',
                     left: popoverPosition.left + 'px',
@@ -621,7 +792,7 @@ const getErrorClassForInput = (index: number, field: keyof any) => {
                 <!-- Flecha arriba -->
                 <div
                     v-if="popoverPosition.positionY === 'below'"
-                    class="absolute -top-2 h-4 w-4 rotate-45 border-l border-t border-gray-200 bg-white"
+                    class="absolute -top-2 h-4 w-4 rotate-45 border-l border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900"
                     :style="{ left: popoverPosition.arrowLeft + 'px' }"
                 ></div>
 

@@ -17,12 +17,12 @@ class CommunityController extends Controller
     public function index()
     {
         $posts = CommunityPost::with([
-                'user:id,first_name,last_name,profile_photo_path',
-                'portfolio:id,title,slug,theme_settings',
+                'user:id,first_name,last_name,avatar_url',
+                'portfolio:id,title,slug,theme_settings,template_data',
                 'comments' => function ($query) {
                     $query->latest()
                         ->take(2)
-                        ->with('user:id,first_name,last_name,profile_photo_path');
+                        ->with('user:id,first_name,last_name,avatar_url');
                 }
             ])
             ->withCount(['comments', 'ratings'])
@@ -42,16 +42,15 @@ class CommunityController extends Controller
      */
     public function dashboardIndex()
     {
-        $posts = CommunityPost::with(['user:id,first_name,last_name,profile_photo_path', 'portfolio:id,title,slug,user_id,theme_settings'])
+        $posts = CommunityPost::with(['user:id,first_name,last_name,avatar_url', 'portfolio:id,title,slug,user_id,theme_settings,template_data'])
             ->withCount(['comments', 'ratings'])
             ->withAvg('ratings', 'rating')
             ->orderByDesc('ratings_avg_rating')
             ->orderByDesc('created_at')
             ->paginate(12);
 
-        // Get user's eligible portfolios for posting (must be public and not already posted)
+        // Get user's eligible portfolios for posting (not already posted)
         $userPortfolios = Portfolio::where('user_id', Auth::id())
-            ->where('is_public', true)
             ->whereDoesntHave('communityPost')
             ->select('id', 'title')
             ->get();
@@ -69,14 +68,12 @@ class CommunityController extends Controller
     {
         $validated = $request->validate([
             'portfolio_id' => 'required|exists:portfolios,id',
-            'title' => 'required|string|max:255',
             'content' => 'required|string|max:5000',
         ]);
 
-        // Verify ownership and public status
+        // Verify ownership
         $portfolio = Portfolio::where('id', $validated['portfolio_id'])
             ->where('user_id', Auth::id())
-            ->where('is_public', true)
             ->firstOrFail();
 
         // Verify uniqueness (one post per portfolio)
@@ -87,7 +84,7 @@ class CommunityController extends Controller
         CommunityPost::create([
             'user_id' => Auth::id(),
             'portfolio_id' => $portfolio->id,
-            'title' => $validated['title'],
+            'title' => $portfolio->title,
             'content' => $validated['content'],
             'views_count' => 0,
         ]);
@@ -121,13 +118,23 @@ class CommunityController extends Controller
         
         $comments = collect();
         if ($hasRated) {
+            $userWithRating = function ($query) use ($post) {
+                $query->select('id', 'first_name', 'last_name', 'avatar_url')
+                      ->with(['communityPostRatings' => function ($q) use ($post) {
+                          $q->where('community_post_id', $post->id)->select('user_id', 'rating');
+                      }]);
+            };
+
             $comments = $post->comments()
-                ->with('user:id,first_name,last_name,profile_photo_path')
+                ->with(['user' => $userWithRating])
                 ->whereNull('parent_id') // Top level
-                ->with('replies.user:id,first_name,last_name,profile_photo_path') // Second level
-                ->with('replies.replies.user:id,first_name,last_name,profile_photo_path') // Third level (optional depth)
+                ->with(['replies.user' => $userWithRating]) // Second level
+                ->with(['replies.replies.user' => $userWithRating]) // Third level
                 ->latest()
-                ->get();
+                ->paginate(10);
+        } else {
+            // Return empty paginator structure
+            $comments = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
         }
 
         return Inertia::render('Dashboard/Community/Show', [

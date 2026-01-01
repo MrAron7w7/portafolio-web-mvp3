@@ -1,24 +1,27 @@
 <script setup lang="ts">
+/**
+ * Comunidad - Diseño Minimalista y Profesional
+ * Filosofía: Claridad, simplicidad, enfoque en el contenido
+ */
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import { Head, usePage, useForm, Link } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
-import { MessageSquare, Star, Send, Plus, Search, Eye, ExternalLink } from 'lucide-vue-next';
+import { MessageSquare, Star, Plus, Eye } from 'lucide-vue-next';
 import { route } from '@/utils/route';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// Tipos definidos localmente para este componente
+// Types
 interface User {
     id: number;
     first_name: string;
@@ -58,7 +61,6 @@ const isCreateModalOpen = ref(false);
 
 const form = useForm({
     portfolio_id: '',
-    title: '',
     content: '',
 });
 
@@ -78,27 +80,8 @@ const formatDate = (dateString: string) => {
     });
 };
 
-const withAlpha = (hex: string, alpha: number) => {
-    if (!hex || !hex.startsWith('#') || (hex.length !== 7 && hex.length !== 4)) return hex;
-    const normalized = hex.length === 4
-        ? `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`
-        : hex;
-    const opacity = Math.round(alpha * 255).toString(16).padStart(2, '0');
-    return `${normalized}${opacity}`;
-};
-
-const getPreviewStyle = (portfolio: Portfolio) => {
-    const base = portfolio?.theme_settings?.primary_color || '#4f46e5';
-    return {
-        background: `radial-gradient(circle at 20% 20%, ${withAlpha(base, 0.18)}, transparent 35%), 
-                     radial-gradient(circle at 80% 0%, ${withAlpha(base, 0.12)}, transparent 25%),
-                     linear-gradient(135deg, ${withAlpha(base, 0.16)} 0%, #eef2ff 100%)`,
-    };
-};
-
-const getAccentStyle = (portfolio: Portfolio) => {
-    const base = portfolio?.theme_settings?.primary_color || '#4f46e5';
-    return { backgroundColor: base };
+const getThemeColor = (portfolio: Portfolio) => {
+    return portfolio?.theme_settings?.primary_color || '#6366f1';
 };
 
 // Toast Logic
@@ -119,107 +102,109 @@ watch(() => page.props.flash.success, (msg) => {
     <DashboardLayout>
         <Head title="Comunidad" />
 
-        <div class="min-h-screen bg-gray-50/50 py-8 px-4 sm:px-6 lg:px-8">
+        <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
             <!-- Toast -->
-            <transition enter-active-class="transition ease-out duration-300" enter-from-class="transform opacity-0 translate-y-2" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0">
-                <div v-if="showSuccess" class="fixed top-24 right-4 z-50 bg-green-600 text-white px-6 py-4 rounded-xl shadow-xl flex items-center gap-3">
-                    <MessageSquare class="h-6 w-6" />
-                    <span class="font-medium">{{ successMessage }}</span>
+            <transition 
+                enter-active-class="transition ease-out duration-300" 
+                enter-from-class="opacity-0 translate-y-2" 
+                enter-to-class="opacity-100 translate-y-0" 
+                leave-active-class="transition ease-in duration-200" 
+                leave-from-class="opacity-100" 
+                leave-to-class="opacity-0"
+            >
+                <div v-if="showSuccess" class="fixed top-20 right-4 z-50 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 text-sm font-medium">
+                    <MessageSquare class="h-4 w-4" />
+                    {{ successMessage }}
                 </div>
             </transition>
 
-            <div class="max-w-7xl mx-auto space-y-8">
+            <div class="max-w-6xl mx-auto space-y-8">
                 
-                <!-- Hero Header -->
-                <div class="relative overflow-hidden rounded-3xl bg-indigo-900 px-8 py-12 shadow-2xl">
-                    <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100"></div>
-                    <div class="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-indigo-500 blur-3xl opacity-30"></div>
-                    <div class="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-purple-500 blur-3xl opacity-20"></div>
-                    
-                    <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
-                        <div class="space-y-4 max-w-2xl text-center md:text-left">
-                            <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                                Descubre lo que otros <br>
-                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300">están construyendo</span>
-                            </h1>
-                            <p class="text-indigo-200 text-lg">
-                                Un espacio curado para compartir tus portafolios públicos, recibir feedback real y conectar con creadores.
-                            </p>
-                        </div>
-                        
-                        <div>
-                            <Button 
-                                @click="isCreateModalOpen = true"
-                                size="lg" 
-                                class="bg-white text-indigo-900 hover:bg-gray-100 font-bold border-0 shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all hover:scale-105"
-                            >
-                                <Plus class="mr-2 h-5 w-5" /> Publicar Proyecto
-                            </Button>
-                        </div>
+                <!-- Header - Clean & Minimal -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Comunidad</h1>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Descubre portafolios y conecta con creadores</p>
                     </div>
+                    
+                    <button 
+                        @click="isCreateModalOpen = true"
+                        class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/20"
+                    >
+                        <Plus class="h-4 w-4" />
+                        Publicar
+                    </button>
                 </div>
 
-                <!-- Posts Grid -->
-                <div v-if="posts.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Posts Grid - Minimalist Cards -->
+                <div v-if="posts.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     <Link 
                         v-for="post in posts.data" 
                         :key="post.id" 
                         :href="route('community.show', post.id)"
-                        class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-indigo-100 hover:shadow-xl transition-all duration-300 flex flex-col h-full ring-offset-2 focus:ring-2 ring-indigo-500 outline-none"
+                        class="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 hover:-translate-y-0.5"
                     >
-                        <!-- Thumbnail / Preview -->
-                        <div class="h-48 w-full relative overflow-hidden group-hover:opacity-95 transition-opacity p-4" :style="getPreviewStyle(post.portfolio)">
-                            <div class="absolute inset-0 bg-white/30 blur-3xl"></div>
-                            <div class="relative z-10 h-full flex flex-col justify-between space-y-3">
-                                <div class="flex justify-between text-[11px] font-semibold text-indigo-900/70">
-                                    <span class="bg-white/70 backdrop-blur px-3 py-1 rounded-full border border-white/60 shadow-sm">Portafolio público</span>
-                                    <span class="bg-white/80 backdrop-blur px-2 py-1 rounded-full flex items-center gap-1 text-indigo-700 shadow-sm">
-                                        <Eye class="h-3 w-3" /> {{ post.views_count }}
-                                    </span>
-                                </div>
-                                <div class="flex-1 flex items-end gap-2">
-                                    <div class="flex-1 space-y-2">
-                                        <div class="h-5 w-28 rounded-full bg-white/80 border border-white/60 shadow-sm" :style="getAccentStyle(post.portfolio)"></div>
-                                        <div class="grid grid-cols-3 gap-2">
-                                            <div class="col-span-2 h-10 rounded-xl bg-white/80 border border-white/70 shadow-sm"></div>
-                                            <div class="h-10 rounded-xl bg-white/60 border border-white/60"></div>
-                                            <div class="h-8 rounded-lg bg-white/75 border border-white/60"></div>
-                                            <div class="col-span-2 h-8 rounded-lg bg-white/70 border border-white/60"></div>
-                                        </div>
-                                    </div>
-                                    <div class="h-14 w-14 rounded-xl bg-white/80 border border-white/70 shadow-inner flex items-center justify-center text-indigo-900 font-bold">
-                                        {{ post.portfolio.title.substring(0,2).toUpperCase() }}
-                                    </div>
-                                </div>
+                        <!-- Preview -->
+                        <div 
+                            class="h-32 relative overflow-hidden"
+                            :style="{ backgroundColor: getThemeColor(post.portfolio) + '15' }"
+                        >
+                            <!-- Simple gradient overlay -->
+                            <div 
+                                class="absolute inset-0 opacity-30"
+                                :style="{ 
+                                    background: `linear-gradient(135deg, ${getThemeColor(post.portfolio)} 0%, transparent 100%)`
+                                }"
+                            ></div>
+                            
+                            <!-- Portfolio initial -->
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span 
+                                    class="text-3xl font-bold opacity-20"
+                                    :style="{ color: getThemeColor(post.portfolio) }"
+                                >
+                                    {{ post.portfolio?.title?.substring(0,2).toUpperCase() ?? 'NA' }}
+                                </span>
+                            </div>
+
+                            <!-- Views badge -->
+                            <div class="absolute top-3 right-3 flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs text-slate-600 dark:text-slate-300 shadow-sm">
+                                <Eye class="h-3 w-3" />
+                                {{ post.views_count }}
                             </div>
                         </div>
 
-                        <div class="p-5 flex-1 flex flex-col">
-                            <h3 class="font-bold text-lg text-gray-900 leading-tight mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                        <!-- Content -->
+                        <div class="p-4">
+                            <h3 class="font-semibold text-slate-900 dark:text-white text-sm leading-tight mb-1 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                 {{ post.title }}
                             </h3>
                             
-                            <p class="text-gray-500 text-sm mb-4 line-clamp-3 flex-1">
+                            <p class="text-slate-500 dark:text-slate-400 text-xs mb-3 line-clamp-2">
                                 {{ post.content }}
                             </p>
 
                             <!-- Footer -->
-                            <div class="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                                 <div class="flex items-center gap-2">
-                                    <div class="h-6 w-6 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-[10px] font-bold">
+                                    <div 
+                                        class="h-5 w-5 rounded-full flex items-center justify-center text-white text-[9px] font-semibold"
+                                        :style="{ backgroundColor: getThemeColor(post.portfolio) }"
+                                    >
                                         {{ post.user.first_name.charAt(0) }}
                                     </div>
-                                    <span class="text-xs text-gray-600 font-medium truncate max-w-[80px]">
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[60px]">
                                         {{ post.user.first_name }}
                                     </span>
                                 </div>
-                                <div class="flex items-center gap-3 text-xs text-gray-400">
-                                    <span class="flex items-center gap-1">
-                                        <Star class="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                                <div class="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+                                    <span class="flex items-center gap-0.5">
+                                        <Star class="h-3 w-3 text-amber-400 fill-amber-400" />
                                         {{ Number(post.ratings_avg_rating ?? 0).toFixed(1) }}
                                     </span>
-                                    <span class="flex items-center gap-1">
-                                        <MessageSquare class="h-3 w-3" /> {{ post.comments_count }}
+                                    <span class="flex items-center gap-0.5">
+                                        <MessageSquare class="h-3 w-3" />
+                                        {{ post.comments_count }}
                                     </span>
                                     <span>{{ formatDate(post.created_at) }}</span>
                                 </div>
@@ -229,30 +214,38 @@ watch(() => page.props.flash.success, (msg) => {
                 </div>
 
                 <!-- Empty State -->
-                <div v-else class="text-center py-20">
-                    <div class="bg-indigo-50 h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Search class="h-10 w-10 text-indigo-400" />
+                <div v-else class="text-center py-16">
+                    <div class="h-16 w-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
+                        <MessageSquare class="h-8 w-8 text-slate-400 dark:text-slate-500" />
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Aún no hay publicaciones</h3>
-                    <p class="text-gray-500 max-w-md mx-auto mb-8">
-                        Sé el primero en compartir tu portafolio con la comunidad y recibe feedback temprano.
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-1">Sin publicaciones</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto mb-6">
+                        Sé el primero en compartir tu portafolio con la comunidad.
                     </p>
-                    <Button 
+                    <button 
                         @click="isCreateModalOpen = true"
-                        variant="outline" 
-                        class="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                        class="inline-flex items-center gap-2 rounded-xl bg-slate-100 dark:bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-200 dark:hover:bg-slate-700"
                     >
+                        <Plus class="h-4 w-4" />
                         Publicar ahora
-                    </Button>
+                    </button>
                 </div>
 
-                <!-- Pagination (Simple) -->
-                 <div v-if="posts.data.length > 0" class="flex justify-center mt-12 gap-2">
+                <!-- Pagination -->
+                <div v-if="posts.data.length > 0" class="flex justify-center gap-1.5">
                     <template v-for="(link, key) in posts.links" :key="key">
-                        <div v-if="link.url === null" class="px-4 py-2 text-sm text-gray-400 border rounded-lg" v-html="link.label" />
-                        <Link v-else :href="link.url" 
-                            class="px-4 py-2 text-sm border rounded-lg transition-colors"
-                            :class="link.active ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                        <span 
+                            v-if="link.url === null" 
+                            class="px-3 py-1.5 text-xs text-slate-400 dark:text-slate-600 rounded-lg" 
+                            v-html="link.label" 
+                        />
+                        <Link 
+                            v-else 
+                            :href="link.url" 
+                            class="px-3 py-1.5 text-xs rounded-lg transition-colors"
+                            :class="link.active 
+                                ? 'bg-indigo-600 text-white' 
+                                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'"
                             v-html="link.label" 
                         />
                     </template>
@@ -263,35 +256,31 @@ watch(() => page.props.flash.success, (msg) => {
 
         <!-- Create Post Modal -->
         <Dialog v-model:open="isCreateModalOpen">
-            <DialogContent class="sm:max-w-xl">
+            <DialogContent class="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                 <DialogHeader>
-                    <DialogTitle class="text-2xl font-bold flex items-center gap-2">
-                        <Send class="h-5 w-5 text-indigo-600" /> Publicar Portafolio
-                    </DialogTitle>
-                    <DialogDescription>
-                        Comparte tu trabajo para que otros puedan verlo y comentar.
-                        Solo puedes elegir portafolios que estén marcados como <strong>públicos</strong>.
+                    <DialogTitle class="text-lg font-semibold text-slate-900 dark:text-white">Publicar Portafolio</DialogTitle>
+                    <DialogDescription class="text-sm text-slate-500 dark:text-slate-400">
+                        Comparte tu trabajo con la comunidad.
                     </DialogDescription>
                 </DialogHeader>
 
-                <form @submit.prevent="submitPost" class="space-y-6 py-4">
-                    <div class="space-y-4">
-                        <div class="space-y-2">
-                            <Label>Selecciona un Portafolio</Label>
-                            <div v-if="eligiblePortfolios.length === 0" class="p-4 bg-yellow-50 text-yellow-800 rounded-lg text-sm border border-yellow-200">
-                                No tienes portafolios públicos disponibles para publicar. 
-                                <br>
-                                <span class="text-xs opacity-75">Asegúrate de que tu portafolio esté en estado <strong>Público</strong> y no haya sido publicado antes.</span>
+                <form @submit.prevent="submitPost" class="space-y-4 py-2">
+                    <div class="space-y-3">
+                        <div class="space-y-1.5">
+                            <Label class="text-sm text-slate-700 dark:text-slate-300">Portafolio</Label>
+                            <div v-if="eligiblePortfolios.length === 0" class="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-lg text-xs">
+                                No tienes portafolios disponibles para publicar.
                             </div>
                             <Select v-else v-model="form.portfolio_id">
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Elige un proyecto..." />
+                                <SelectTrigger class="h-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
+                                    <SelectValue placeholder="Seleccionar..." />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent class="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                                     <SelectItem 
                                         v-for="portfolio in eligiblePortfolios" 
                                         :key="portfolio.id" 
                                         :value="String(portfolio.id)"
+                                        class="text-slate-700 dark:text-slate-200 focus:bg-slate-100 dark:focus:bg-slate-800"
                                     >
                                         {{ portfolio.title }}
                                     </SelectItem>
@@ -300,37 +289,30 @@ watch(() => page.props.flash.success, (msg) => {
                             <p class="text-xs text-red-500" v-if="form.errors.portfolio_id">{{ form.errors.portfolio_id }}</p>
                         </div>
 
-                        <div class="space-y-2">
-                            <Label>Título del Post</Label>
-                            <Input 
-                                v-model="form.title" 
-                                placeholder="Eje: Mi primer portafolio como diseñador UX" 
-                                required
-                            />
-                            <p class="text-xs text-red-500" v-if="form.errors.title">{{ form.errors.title }}</p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <Label>Cuéntanos tu experiencia</Label>
+                        <div class="space-y-1.5">
+                            <Label class="text-sm text-slate-700 dark:text-slate-300">Descripción</Label>
                             <Textarea 
                                 v-model="form.content" 
-                                placeholder="¿Qué aprendiste? ¿Qué tecnologías usaste? ¿Qué feedback buscas?" 
-                                rows="5"
+                                placeholder="Cuéntanos sobre tu proyecto..." 
+                                rows="3"
                                 required
+                                class="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400"
                             />
                             <p class="text-xs text-red-500" v-if="form.errors.content">{{ form.errors.content }}</p>
                         </div>
                     </div>
 
-                    <DialogFooter>
-                        <Button type="button" variant="ghost" @click="isCreateModalOpen = false">Cancelar</Button>
+                    <DialogFooter class="gap-2">
+                        <Button type="button" variant="ghost" size="sm" @click="isCreateModalOpen = false" class="text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200">
+                            Cancelar
+                        </Button>
                         <Button 
                             type="submit" 
+                            size="sm"
                             class="bg-indigo-600 hover:bg-indigo-700 text-white" 
                             :disabled="form.processing || eligiblePortfolios.length === 0"
                         >
-                            <span v-if="form.processing">Publicando...</span>
-                            <span v-else>Publicar Ahora</span>
+                            {{ form.processing ? 'Publicando...' : 'Publicar' }}
                         </Button>
                     </DialogFooter>
                 </form>

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use App\Models\Portfolio;
 use App\Models\PortfolioSection;
+use App\Models\LandingPageSection;
 use Illuminate\Support\Facades\Storage;
 
 class TemplateController extends Controller
@@ -72,11 +73,24 @@ class TemplateController extends Controller
                 'popular' => true,
                 'features' => ['Tech', 'Desarrollo', 'Moderno'],
                 'preview_component' => 'Tecnologica'
+            ],
+            [
+                'id' => 'academica',
+                'name' => 'Académica',
+                'description' => 'Ideal para investigadores, docentes y profesionales académicos',
+                'category' => 'Académico',
+                'color' => 'from-emerald-600 to-teal-600',
+                'popular' => false,
+                'features' => ['Investigación', 'Publicaciones', 'Educación'],
+                'preview_component' => 'Academica'
             ]
         ];
 
+        $sections = LandingPageSection::all()->keyBy('key');
+
         return Inertia::render('Dashboard/SelectTemplate', [
-            'templates' => $templates
+            'templates' => $templates,
+            'sections' => $sections
         ]);
     }
 
@@ -124,29 +138,33 @@ class TemplateController extends Controller
     }
 
     /**
-     * Vista del portafolio terminado
-     */
-    public function viewPortfolio(Portfolio $portfolio)
-    {
-        // Verificar acceso: dueño o portafolio público
-        $isOwner = Auth::check() && $portfolio->user_id === Auth::id();
-        
-        if (!$portfolio->is_public && !$isOwner) {
-            abort(404);
-        }
-
-        // URL pública del portafolio
-        $publicUrl = $portfolio->is_public 
-            ? url("/p/{$portfolio->slug}") 
-            : null;
-
-        return Inertia::render('Dashboard/Porfolios/View_Template/Final', [
-            'portfolio' => $portfolio,
-            'isOwner' => $isOwner,
-            'publicUrl' => $publicUrl,
-        ]);
+ * Vista del portafolio terminado
+ */
+public function viewPortfolio(Portfolio $portfolio)
+{
+    // Verificar acceso: dueño o portafolio con acceso por enlace
+    $isOwner = Auth::check() && $portfolio->user_id === Auth::id();
+    
+    // Si es modo owner_only y no es el dueño, denegar acceso
+    if ($portfolio->access_mode === 'owner_only' && !$isOwner) {
+        abort(404);
     }
 
+    // URL pública del portafolio
+    $publicUrl = $portfolio->access_mode === 'link' 
+        ? url("/p/{$portfolio->slug}") 
+        : null;
+
+    // Puede editar: es dueño o tiene permiso view_edit
+    $canEdit = $isOwner || $portfolio->link_permission === 'view_edit';
+
+    return Inertia::render('Dashboard/Porfolios/View_Template/Final', [
+        'portfolio' => $portfolio,
+        'isOwner' => $isOwner,
+        'publicUrl' => $publicUrl,
+        'canEdit' => $canEdit,
+    ]);
+}
     /**
      * Vista pública por slug (lectura)
      */
@@ -157,12 +175,89 @@ class TemplateController extends Controller
         return $this->viewPortfolio($portfolio);
     }
 
+    /**
+     * Editor público por slug (requiere permiso view_edit y autenticación)
+     */
+    public function editPublicBySlug(string $slug)
+    {
+        // 1. Verificar autenticación
+        if (!Auth::check()) {
+            // Guardar la URL intentada para redirigir después del login
+            session()->put('url.intended', url("/p/{$slug}/edit"));
+            
+            return redirect()->route('login')
+                ->with('warning', 'Debes iniciar sesión o registrarte para editar este portafolio.');
+        }
+
+        $portfolio = Portfolio::where('slug', $slug)->firstOrFail();
+
+        // 2. Verificar que el portafolio tenga permiso de edición pública
+        if ($portfolio->access_mode !== 'link' || $portfolio->link_permission !== 'view_edit') {
+            return redirect()->route('portfolio.public.view', $slug)
+                ->with('error', 'No tienes permiso para editar este portafolio.');
+        }
+
+        // Renderizar el editor con modo "público"
+        return Inertia::render('Dashboard/Porfolios/Editor/Editor', [
+            'portfolio' => $portfolio,
+            'templateData' => $portfolio->template_data, // ✅ Datos necesarios para Editor.vue
+            'sections' => $portfolio->sections,          // ✅ Secciones necesarias
+            'isPublicEdit' => true, 
+            'returnUrl' => url("/p/{$slug}"),
+        ]);
+    }
+
+    /**
+     * Guardar cambios desde editor público (requiere permiso view_edit y autenticación)
+     */
+    public function updatePublicBySlug(Request $request, string $slug)
+    {
+        // 1. Verificar autenticación
+        if (!Auth::check()) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Debes iniciar sesión.'], 401);
+            }
+            return redirect()->route('login');
+        }
+
+        $portfolio = Portfolio::where('slug', $slug)->firstOrFail();
+
+        // Verificar permiso
+        if ($portfolio->access_mode !== 'link' || $portfolio->link_permission !== 'view_edit') {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'No tienes permiso para editar este portafolio.'], 403);
+            }
+            return redirect()->route('portfolio.public.view', $slug)
+                ->with('error', 'No tienes permiso para editar este portafolio.');
+        }
+
+        // Validar y actualizar
+        $validated = $request->validate([
+            'template_data' => 'required|array',
+        ]);
+
+        $portfolio->update([
+            'template_data' => $validated['template_data'],
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Portafolio actualizado correctamente.',
+                'portfolio' => $portfolio->refresh(),
+            ]);
+        }
+
+        return redirect()->route('portfolio.public.view', $slug)
+            ->with('success', 'Portafolio actualizado correctamente.');
+    }
+
     private function getTemplateDefaultData($templateType)
     {
         $defaultData = [
             'personal' => [
                 'firstName' => Auth::user()->first_name,
-                'lastName' => '',
+                'lastName' => Auth::user()->last_name ?? '',
                 'title' => '',
                 'email' => Auth::user()->email,
                 'phone' => '',
@@ -278,41 +373,86 @@ class TemplateController extends Controller
         }
 
         $templateData = $request->template_data;
+        $hasNewImages = false;
 
         // ✅ Procesar foto de perfil
         if (isset($templateData['personal']['photo']) && $templateData['personal']['photo']) {
+            $originalPhoto = $templateData['personal']['photo'];
             $templateData['personal']['photo'] = $this->saveProfilePhoto(
                 $templateData['personal']['photo'],
                 $portfolio->id
             );
+            // Si cambió (era base64 y ahora es ruta), marcar cambio
+            if ($originalPhoto !== $templateData['personal']['photo']) {
+                $hasNewImages = true;
+            }
         }
 
         // ✅ Procesar fotos de proyectos
         if (isset($templateData['projects']) && is_array($templateData['projects'])) {
+            $projectsBefore = $templateData['projects'];
             $templateData['projects'] = $this->saveProjectPhotos(
                 $templateData['projects'],
                 $portfolio->id
             );
         
-            // 🔥 Limpiar imágenes que ya no se usan
-            $this->cleanupOldProjectPhotos($portfolio->id, $templateData['projects']);
+            // 🔥 OPTIMIZACIÓN: Solo limpiar disco si hubo imágenes nuevas (base64 detectado)
+            // Verificamos si algún proyecto tenía imagen en base64
+            foreach ($projectsBefore as $p) {
+                if (isset($p['image']) && strpos($p['image'], 'data:image') === 0) {
+                    $hasNewImages = true;
+                    break;
+                }
+            }
+
+            if ($hasNewImages) {
+                $this->cleanupOldProjectPhotos($portfolio->id, $templateData['projects']);
+            }
         }
         
-
         // Actualizar el portfolio
         $dataToUpdate = [
             'template_data' => $templateData,
             'is_public' => $request->config['is_public'] ?? false,
+            'title' => $request->config['title'] ?? $portfolio->title,
         ];
         
-        // 👉 Solo agregar si el parámetro llega
         if (isset($request->config['is_completed'])) {
             $dataToUpdate['is_completed'] = $request->config['is_completed'];
         }
         
         $portfolio->update($dataToUpdate);
 
+        // 🔥 OPTIMIZACIÓN: Retornar JSON para evitar recarga de página lenta con Inertia
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Guardado correctamente',
+                'portfolio' => $portfolio // Opcional, solo si el front lo necesita
+            ]);
+        }
+
         return back()->with('success', 'Portfolio actualizado correctamente');
+    }
+
+    /**
+     * Actualizar solo el título del portafolio (para edición rápida desde Dashboard)
+     */
+    public function updateTitle(Request $request, Portfolio $portfolio)
+    {
+        if ($portfolio->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+        ]);
+
+        $portfolio->update([
+            'title' => $request->title,
+        ]);
+
+        return back()->with('success', 'Título actualizado correctamente');
     }
 
     /**

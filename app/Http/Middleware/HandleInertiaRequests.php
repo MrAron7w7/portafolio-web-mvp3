@@ -39,6 +39,8 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'brand_name' => fn () => \App\Models\LandingPageSection::where('key', 'header')->first()?->content['brand_name'] ?? 'PortafolioAI',
+            'logo_url' => fn () => \App\Models\LandingPageSection::where('key', 'header')->first()?->images['logo'] ?? null,
         ];
     }
 

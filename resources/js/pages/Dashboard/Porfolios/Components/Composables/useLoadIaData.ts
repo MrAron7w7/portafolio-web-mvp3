@@ -1,6 +1,6 @@
 // ============================================
 // composables/useLoadIAData.ts - ACTUALIZADO
-// Con mapeo de personal.summary
+// Mapeo completo de datos incluyendo información de contacto y ubicación
 // ============================================
 
 import { reactive } from 'vue';
@@ -18,7 +18,7 @@ export function useLoadIAData() {
             console.log('🔄 [MAPPING] Iniciando mapeo de datos IA...');
 
             // ============================================
-            // INFORMACIÓN PERSONAL - SUMMARY
+            // INFORMACIÓN PERSONAL
             // ============================================
             if (iaData.personal && Array.isArray(iaData.personal) && iaData.personal.length > 0) {
                 const personalData = iaData.personal[0];
@@ -26,6 +26,58 @@ export function useLoadIAData() {
                 if (personalData.summary) {
                     formData.personal.summary = personalData.summary;
                     console.log('✅ [MAPPING] Personal summary mapeado');
+                }
+
+                if (personalData.firstName) {
+                    formData.personal.firstName = personalData.firstName;
+                    console.log('✅ [MAPPING] Nombre mapeado:', personalData.firstName);
+                }
+
+                if (personalData.lastName) {
+                    formData.personal.lastName = personalData.lastName;
+                    console.log('✅ [MAPPING] Apellido mapeado:', personalData.lastName);
+                }
+
+                if (personalData.title) {
+                    formData.personal.title = personalData.title;
+                    console.log('✅ [MAPPING] Título profesional mapeado:', personalData.title);
+                }
+
+                if (personalData.email) {
+                    formData.personal.email = personalData.email;
+                    console.log('✅ [MAPPING] Email mapeado:', personalData.email);
+                }
+
+                if (personalData.phone) {
+                    formData.personal.phone = personalData.phone;
+                    console.log('✅ [MAPPING] Teléfono mapeado:', personalData.phone);
+                }
+
+                if (personalData.city) {
+                    formData.personal.city = personalData.city;
+                    console.log('✅ [MAPPING] Ciudad mapeada:', personalData.city);
+                }
+
+                if (personalData.country) {
+                    formData.personal.country = personalData.country;
+                    console.log('✅ [MAPPING] País mapeado:', personalData.country);
+                }
+
+                // Sincronizar sociales si vienen en personal
+                if (personalData.linkedin) {
+                    formData.personal.linkedin = personalData.linkedin;
+                    formData.social.linkedin = personalData.linkedin;
+                    console.log('✅ [MAPPING] LinkedIn mapeado');
+                }
+                if (personalData.github) {
+                    formData.personal.github = personalData.github;
+                    formData.social.github = personalData.github;
+                    console.log('✅ [MAPPING] GitHub mapeado');
+                }
+                if (personalData.website) {
+                    formData.personal.website = personalData.website;
+                    formData.social.website = personalData.website;
+                    console.log('✅ [MAPPING] Website mapeado');
                 }
             }
 
@@ -112,6 +164,7 @@ export function useLoadIAData() {
                     image: proj.image || null,
                     link: proj.link || null,
                     technologies: proj.technologies || [],
+                    images: proj.images || [],
                 }));
                 console.log(`✅ [MAPPING] ${formData.projects.length} proyectos mapeados`);
             }
@@ -128,18 +181,6 @@ export function useLoadIAData() {
                     link: cert.link || null,
                 }));
                 console.log(`✅ [MAPPING] ${formData.certifications.length} certificación(es) mapeada(s)`);
-            }
-
-            // ============================================
-            // REDES SOCIALES
-            // ============================================
-            if (iaData.personal) {
-                formData.social = {
-                    linkedin: iaData.personal.linkedin || '',
-                    github: iaData.personal.github || '',
-                    website: iaData.personal.website || '',
-                };
-                console.log('✅ [MAPPING] Redes sociales mapeadas');
             }
 
             console.log('✅ [MAPPING] Mapeo completado exitosamente');

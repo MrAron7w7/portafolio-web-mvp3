@@ -14,7 +14,7 @@
     
     <template>
         <div class="lg:col-span-4">
-            <div class="sticky top-8 h-[calc(100vh-8rem)] overflow-hidden rounded-2xl border border-gray-200/60 bg-white shadow-xs">
+            <div class="sticky top-8 h-[calc(100vh-8rem)] overflow-hidden rounded-2xl border border-gray-200/60 dark:border-slate-800 bg-white dark:bg-slate-950! shadow-xs transition-colors duration-300">
                 <PreviewContainer>
                     <component :is="currentTemplate" :data="{
                         personal: {

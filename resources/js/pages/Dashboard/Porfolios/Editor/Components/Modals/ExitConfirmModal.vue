@@ -25,18 +25,18 @@
                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
                 @click="$emit('cancel')">
                 <Transition name="modal-scale">
-                    <div v-show="true" class="w-full max-w-md transform rounded-2xl bg-white shadow-2xl" @click.stop>
+                    <div v-show="true" class="w-full max-w-md transform rounded-2xl bg-white dark:bg-slate-900 shadow-2xl" @click.stop>
                         <!-- Header del modal -->
-                        <div class="border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-5">
+                        <div class="border-b border-gray-100 dark:border-slate-800 bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 px-6 py-5">
                             <div class="flex items-start space-x-3">
-                                <div class="rounded-full bg-amber-100 p-2.5">
-                                    <AlertCircle class="h-5 w-5 text-amber-600" />
+                                <div class="rounded-full bg-amber-100 dark:bg-amber-900/20 p-2.5">
+                                    <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                                         {{ currentStep === stepsLength ? '¿Terminar edición?' : '¿Salir sin terminar?' }}
                                     </h3>
-                                    <p class="mt-1 text-sm text-gray-600">
+                                    <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">
                                         {{ hasUnsavedChanges
                                             ? 'Tienes cambios sin guardar'
                                             : 'Tu portafolio está actualizado' }}
@@ -47,28 +47,28 @@
     
                         <!-- Contenido -->
                         <div class="px-6 py-4">
-                            <div v-if="hasUnsavedChanges" class="rounded-lg bg-blue-50 p-3 border border-blue-100">
-                                <p class="text-sm text-blue-900">
+                            <div v-if="hasUnsavedChanges" class="rounded-lg bg-blue-50 dark:bg-blue-900/10 p-3 border border-blue-100 dark:border-blue-900/30">
+                                <p class="text-sm text-blue-900 dark:text-blue-400">
                                     <span class="font-semibold">⚠️ Cambios pendientes:</span> Se guardarán automáticamente antes de salir.
                                 </p>
                             </div>
-                            <div v-else class="rounded-lg bg-green-50 p-3 border border-green-100">
-                                <p class="text-sm text-green-900">
+                            <div v-else class="rounded-lg bg-green-50 dark:bg-emerald-900/10 p-3 border border-green-100 dark:border-emerald-900/20">
+                                <p class="text-sm text-green-900 dark:text-emerald-400">
                                     <span class="font-semibold">✓ Actualizado:</span> Tu portafolio está al día. Puedes salir con seguridad.
                                 </p>
                             </div>
                         </div>
     
                         <!-- Acciones -->
-                        <div class="border-t border-gray-100 bg-gray-50 px-6 py-4">
+                        <div class="border-t border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-900/50 px-6 py-4">
                             <div class="grid grid-cols-2 gap-3">
                                 <button @click="$emit('cancel')"
-                                    class="flex items-center justify-center space-x-2 rounded-lg border border-gray-300 px-4 py-2.5 text-gray-700 font-medium transition-all duration-200 hover:bg-gray-100">
+                                    class="flex items-center justify-center space-x-2 rounded-lg border border-gray-300 dark:border-slate-700 px-4 py-2.5 text-gray-700 dark:text-slate-300 font-medium transition-all duration-200 hover:bg-gray-100 dark:hover:bg-slate-800">
                                     <ArrowLeft class="h-4 w-4" />
                                     <span>Volver</span>
                                 </button>
                                 <button @click="$emit('confirm')"
-                                    class="flex items-center justify-center space-x-2 rounded-lg bg-red-500 px-4 py-2.5 text-white font-medium transition-all duration-200 hover:bg-red-600">
+                                    class="flex items-center justify-center space-x-2 rounded-lg bg-red-500 dark:bg-red-600 px-4 py-2.5 text-white font-medium transition-all duration-200 hover:bg-red-600 dark:hover:bg-red-500">
                                     <span>Salir ahora</span>
                                 </button>
                             </div>

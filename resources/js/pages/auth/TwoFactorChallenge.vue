@@ -75,6 +75,7 @@ const codeValue = computed<string>(() => code.value.join(''));
                                 v-model="code"
                                 type="number"
                                 otp
+                                class="text-slate-900 dark:text-white"
                             >
                                 <PinInputGroup>
                                     <PinInputSlot
@@ -83,20 +84,21 @@ const codeValue = computed<string>(() => code.value.join(''));
                                         :index="index"
                                         :disabled="processing"
                                         autofocus
+                                        class="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
                                     />
                                 </PinInputGroup>
                             </PinInput>
                         </div>
                         <InputError :message="errors.code" />
                     </div>
-                    <Button type="submit" class="w-full" :disabled="processing"
+                    <Button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white" :disabled="processing"
                         >Continue</Button
                     >
-                    <div class="text-center text-sm text-muted-foreground">
+                    <div class="text-center text-sm text-slate-500 dark:text-slate-400">
                         <span>or you can </span>
                         <button
                             type="button"
-                            class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                            class="text-indigo-600 dark:text-indigo-400 underline decoration-indigo-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-indigo-500"
                             @click="() => toggleRecoveryMode(clearErrors)"
                         >
                             {{ authConfigContent.toggleText }}
@@ -118,17 +120,18 @@ const codeValue = computed<string>(() => code.value.join(''));
                         placeholder="Enter recovery code"
                         :autofocus="showRecoveryInput"
                         required
+                        class="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
                     />
                     <InputError :message="errors.recovery_code" />
-                    <Button type="submit" class="w-full" :disabled="processing"
+                    <Button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white" :disabled="processing"
                         >Continue</Button
                     >
 
-                    <div class="text-center text-sm text-muted-foreground">
+                    <div class="text-center text-sm text-slate-500 dark:text-slate-400">
                         <span>or you can </span>
                         <button
                             type="button"
-                            class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                            class="text-indigo-600 dark:text-indigo-400 underline decoration-indigo-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-indigo-500"
                             @click="() => toggleRecoveryMode(clearErrors)"
                         >
                             {{ authConfigContent.toggleText }}

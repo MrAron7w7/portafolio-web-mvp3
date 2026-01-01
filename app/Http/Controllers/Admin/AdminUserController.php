@@ -27,7 +27,12 @@ class AdminUserController extends Controller
                 'email' => $user->email,
                 'role' => $user->roles->first()?->name ?? 'user',
                 'created_at' => $user->created_at->format('d M Y'),
-                'status' => $user->status ?? 'active',
+                'created_at_iso' => $user->created_at->toISOString(),
+                // 'status' => $user->status ?? 'active', // Anterior: Estado de cuenta
+                // Nuevo: Estado de actividad (Online si visto en últimos 5 min)
+                'status' => ($user->last_seen_at && $user->last_seen_at->gt(now()->subMinutes(5))) ? 'active' : 'inactive',
+                'last_seen' => $user->last_seen_at ? $user->last_seen_at->diffForHumans() : 'Nunca',
+                'avatar_url' => $user->avatar_url,
                 'portfolios_count' => $user->portfolios()->count(),
             ]);
 

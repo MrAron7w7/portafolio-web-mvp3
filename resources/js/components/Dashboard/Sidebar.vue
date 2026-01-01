@@ -1,6 +1,12 @@
 <script setup lang="ts">
+/**
+ * Sidebar Component - Filosofía "Claridad Vibrante"
+ * - Sidebar Inteligente con ítems activos en Indigo-50
+ * - Micro-interacciones sutiles
+ * - Navegación simplificada
+ */
 import { Link, usePage } from '@inertiajs/vue3';
-import dashboard from '@/routes/dashboard';
+// import dashboard from '@/routes/dashboard';
 import { computed } from 'vue';
 import {
     Folder,
@@ -13,7 +19,8 @@ import {
     Settings2,
     ChevronRight,
     Shield,
-    MessageCircle 
+    MessageCircle,
+    Sparkles,
 } from 'lucide-vue-next';
 import {
     DropdownMenu,
@@ -64,16 +71,16 @@ const menuItems = computed(() => [
         active: page.url === '/dashboard' || page.url === '/dashboard/'
     },
     {
-        name: 'Mis plantillas',
+        name: 'Plantillas',
         icon: LayoutTemplate,
-        href: dashboard.template.url(),
-        active: page.url.includes(dashboard.template.url())
+        href: '/dashboard/plantillas',
+        active: page.url.includes('/dashboard/plantillas')
     },
     {
-        name: 'Mis herramientas',
+        name: 'Herramientas',
         icon: Wrench,
-        href: '#',
-        active: false
+        href: '/dashboard/herramientas',
+        active: page.url.includes('/dashboard/herramientas')
     },
     {
         name: 'Comunidad',
@@ -95,96 +102,125 @@ const settingsItems = computed(() => [
 
 <template>
     <aside :class="[
-        'fixed inset-y-0 left-0 z-50 w-64 transform bg-white border-r border-gray-200/60 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0',
+        'fixed inset-y-0 left-0 z-50 w-72 transform border-r border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 transition-transform duration-300 ease-out lg:static lg:translate-x-0',
         isOpen ? 'translate-x-0' : '-translate-x-full'
     ]">
         <!-- Logo Area -->
-        <div class="flex h-16 items-center justify-between px-6 border-b border-gray-100">
-            <div class="flex items-center space-x-2 group cursor-pointer">
-                <div
-                    class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] transition-transform duration-500 group-hover:rotate-[360deg] shadow-lg shadow-blue-500/30">
-                    <span class="text-lg font-bold text-white">P</span>
+        <div class="flex h-16 items-center justify-between border-b border-slate-100 dark:border-slate-800 px-6">
+            <div class="flex items-center gap-3 group cursor-pointer">
+                <img 
+                    v-if="(page.props as any).logo_url" 
+                    :src="(page.props as any).logo_url" 
+                    alt="Logo" 
+                    class="h-10 w-10 rounded-xl object-contain"
+                />
+                <div v-else class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25 transition-transform duration-500 group-hover:rotate-12">
+                    <Sparkles class="h-5 w-5 text-white" />
                 </div>
-                <span
-                    class="text-lg font-bold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 transition-all duration-300 group-hover:tracking-wider">
-                    Portafolio
+                <span class="text-lg font-black tracking-tight bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                    {{ (page.props as any).brand_name || 'PortafolioAI' }}
                 </span>
             </div>
-            <button @click="emit('close')" class="lg:hidden rounded-lg p-1 text-gray-500 hover:bg-gray-100">
+            <button 
+                @click="emit('close')" 
+                class="rounded-xl p-2 text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600 lg:hidden"
+            >
                 <X class="h-5 w-5" />
             </button>
         </div>
 
         <!-- Navigation -->
-        <div class="flex flex-col justify-between h-[calc(100vh-4rem)] p-4">
+        <div class="flex h-[calc(100vh-4rem)] flex-col justify-between p-4">
             <nav class="space-y-1">
                 <div v-for="item in menuItems" :key="item.name">
-                    <Link :href="item.href" :class="[
-                        'group flex items-center space-x-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 hover:bg-white border border-transparent hover:border-blue-100 relative overflow-hidden',
-                        item.active
-                            ? 'bg-blue-50 text-[#005aeb] shadow-md shadow-blue-500/20 ring-1 ring-blue-100 scale-105'
-                            : 'text-gray-600 hover:text-[#005aeb]'
-                    ]">
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-50/0 via-blue-50/50 to-blue-50/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-                        <component :is="item.icon" :class="[
-                            'h-5 w-5 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110',
-                            item.active ? 'text-[#005aeb] rotate-0' : 'text-gray-400 group-hover:text-[#005aeb]'
-                        ]" />
-                        <span class="relative z-10">{{ item.name }}</span>
+                    <Link 
+                        :href="item.href" 
+                        :class="[
+                            'group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200',
+                            item.active
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 shadow-sm shadow-indigo-500/10'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                        ]"
+                    >
+                        <component 
+                            :is="item.icon" 
+                            :class="[
+                                'h-5 w-5 transition-all duration-200 group-hover:scale-110',
+                                item.active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
+                            ]" 
+                        />
+                        <span>{{ item.name }}</span>
+                        <!-- Active indicator -->
+                        <div 
+                            v-if="item.active" 
+                            class="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-500"
+                        ></div>
                     </Link>
                 </div>
             </nav>
 
             <!-- Secondary Navigation -->
             <div class="space-y-4">
-                <div class="pt-4 border-t border-gray-100">
+                <div class="border-t border-slate-100 dark:border-slate-800 pt-4">
                     <div class="space-y-1">
                         <!-- Panel Admin (solo para admins) -->
-                        <Link v-if="isAdmin" href="/admin"
+                        <Link 
+                            v-if="isAdmin" 
+                            href="/admin"
                             :class="[
-                                'group flex items-center space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-300 hover:translate-x-1',
+                                'group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all duration-200',
                                 $page.url.startsWith('/admin')
-                                    ? 'bg-purple-50 text-purple-700'
-                                    : 'text-gray-600 hover:bg-purple-50 hover:text-purple-700'
-                            ]">
-                            <Shield class="h-5 w-5 transition-transform duration-300 group-hover:scale-110" :class="[
-                                $page.url.startsWith('/admin') ? 'text-purple-600' : 'text-gray-400 group-hover:text-purple-600'
-                            ]" />
+                                    ? 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-400'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 hover:text-violet-700 dark:hover:text-violet-400'
+                            ]"
+                        >
+                            <Shield 
+                                class="h-5 w-5 transition-transform duration-200 group-hover:scale-110" 
+                                :class="[
+                                    $page.url.startsWith('/admin') ? 'text-violet-600' : 'text-slate-400 group-hover:text-violet-600'
+                                ]" 
+                            />
                             <span>Panel Admin</span>
                         </Link>
 
                         <!-- Notificaciones -->
-                        <Link href="#"
-                            class="group flex items-center space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition-all duration-300 hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1">
-                            <Bell class="h-5 w-5 text-gray-400 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12" />
+                        <!-- Notificaciones (Comentado temporalmente)
+                        <Link 
+                            href="#"
+                            class="group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-50 hover:text-slate-900"
+                        >
+                            <Bell class="h-5 w-5 text-slate-400 transition-transform duration-200 group-hover:scale-110" />
                             <span>Notificaciones</span>
-                            <span class="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs font-medium text-red-600 animate-pulse">
+                            <span class="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-100 px-1.5 text-xs font-semibold text-red-600">
                                 3
                             </span>
                         </Link>
+                        -->
 
                         <!-- Configuración (Floating Dropdown) -->
                         <DropdownMenu>
                             <DropdownMenuTrigger as-child>
-                                <button
-                                    class="w-full group flex items-center justify-between space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition-all duration-300 hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1 outline-none">
-                                    <div class="flex items-center space-x-3">
-                                        <Settings2 class="h-5 w-5 text-gray-400 transition-transform duration-300 group-hover:rotate-90" />
+                                <button class="w-full group flex items-center justify-between gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white outline-none">
+                                    <div class="flex items-center gap-3">
+                                        <Settings2 class="h-5 w-5 text-slate-400 dark:text-slate-500 transition-transform duration-300 group-hover:rotate-90" />
                                         <span>Configuración</span>
                                     </div>
-                                    <ChevronRight class="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                                    <ChevronRight class="h-4 w-4 text-slate-400 dark:text-slate-500 opacity-0 transition-all duration-200 group-hover:opacity-100" />
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent side="right" align="start" :side-offset="20" class="w-56 p-2">
-                                <DropdownMenuLabel class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            <DropdownMenuContent side="right" align="start" :side-offset="20" class="w-56 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 shadow-xl">
+                                <DropdownMenuLabel class="px-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                                     Configuración
                                 </DropdownMenuLabel>
-                                <DropdownMenuSeparator />
+                                <DropdownMenuSeparator class="bg-slate-100 dark:bg-slate-800" />
                                 <DropdownMenuItem v-for="item in settingsItems" :key="item.name" as-child>
-                                    <Link :href="item.href" :class="[
-                                        'flex w-full items-center space-x-2 rounded-lg px-2 py-2 text-sm cursor-pointer',
-                                        item.active ? 'bg-blue-50 text-[#005aeb]' : 'text-gray-600 hover:bg-gray-50'
-                                    ]">
+                                    <Link 
+                                        :href="item.href" 
+                                        :class="[
+                                            'flex w-full cursor-pointer items-center gap-2 rounded-xl px-2 py-2 text-sm',
+                                            item.active ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:text-white'
+                                        ]"
+                                    >
                                         <component :is="item.icon" class="h-4 w-4" />
                                         <span>{{ item.name }}</span>
                                     </Link>
@@ -193,42 +229,55 @@ const settingsItems = computed(() => [
                         </DropdownMenu>
 
                         <!-- Ayuda -->
-                        <Link href="#"
-                            class="group flex items-center space-x-3 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition-all duration-300 hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1">
-                            <HelpCircle class="h-5 w-5 text-gray-400 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12" />
+                        <!-- Ayuda -->
+                        <Link 
+                            href="/dashboard/ayuda"
+                            :class="[
+                                'group flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all duration-200',
+                                $page.url === '/dashboard/ayuda'
+                                    ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                            ]"
+                        >
+                            <HelpCircle 
+                                class="h-5 w-5 transition-transform duration-200 group-hover:scale-110" 
+                                :class="[
+                                    $page.url === '/dashboard/ayuda' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
+                                ]"
+                            />
                             <span>Ayuda</span>
                         </Link>
                     </div>
                 </div>
 
                 <!-- User Profile Footer -->
-                <div class="border-t border-gray-100 pt-4 mt-auto">
-                    <div class="flex items-center justify-between p-2 rounded-xl bg-gray-50 border border-gray-100 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:border-purple-100 hover:-translate-y-1 group">
-                        <div class="flex items-center space-x-3 min-w-0">
-                            <!-- Avatar con imagen o iniciales -->
+                <div class="mt-auto border-t border-slate-100 dark:border-slate-800 pt-4">
+                    <div class="flex items-center justify-between rounded-2xl bg-slate-50 dark:bg-slate-800 p-3 transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 group">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <!-- Avatar -->
                             <img 
                                 v-if="user.avatar_url" 
                                 :src="user.avatar_url" 
                                 :alt="user.full_name"
-                                class="h-9 w-9 shrink-0 rounded-full object-cover shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12"
+                                class="h-10 w-10 shrink-0 rounded-xl object-cover shadow-sm transition-transform duration-200 group-hover:scale-105"
                                 @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
                             >
                             <div 
                                 v-if="!user.avatar_url"
-                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#005aeb] to-[#7B2FF7] text-sm font-semibold text-white shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12"
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 text-sm font-semibold text-white shadow-sm transition-transform duration-200 group-hover:scale-105"
                             >
                                 {{ user.initials }}
                             </div>
-                            <div class="min-w-0 flex-1 transition-all duration-300 group-hover:translate-x-1">
-                                <p class="text-sm font-medium text-gray-900 truncate">{{ user.full_name }}</p>
-                                <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-semibold text-slate-900 dark:text-white">{{ user.full_name }}</p>
+                                <p class="truncate text-xs text-slate-500 dark:text-slate-400">{{ user.email }}</p>
                             </div>
                         </div>
                         <Link 
                             :href="logout()" 
                             method="post" 
                             as="button"
-                            class="ml-2 rounded-lg p-2 text-black hover:text-red-600 transition-colors duration-200"
+                            class="rounded-xl p-2 text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-500/10 transition-all duration-200 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-700 dark:hover:text-red-300"
                             title="Cerrar sesión"
                         >
                             <LogOut class="h-5 w-5" />

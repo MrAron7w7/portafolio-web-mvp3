@@ -41,7 +41,13 @@ const props = defineProps<{
     portfolio: any;
     templateData: any;
     sections: any[];
+    isPublicEdit?: boolean; // Indica si es edición pública (sin autenticación)
+    returnUrl?: string; // URL para volver después de editar
 }>();
+
+// Helpers para el template
+const isPublicEdit = computed(() => props.isPublicEdit || false);
+const returnUrl = computed(() => props.returnUrl || '');
 
 
 // Estado para el modal
@@ -220,6 +226,7 @@ const handleCloseStartChoice = () => {
 // HANDLERS - ANÁLISIS IA
 // ============================================
 const handleAnalyzeDescription = async (description: string) => {
+    userDescription.value = description; // Guarda la descripción para el fallback
     isAnalyzing.value = true;
     try {
         console.log('🔄 Analizando descripción...');
@@ -473,7 +480,12 @@ const finishAndRedirect = async () => {
         await saveChanges();
         await new Promise(resolve => setTimeout(resolve, 1500));
     }
-    router.visit('/dashboard');
+    
+    if (isPublicEdit.value && returnUrl.value) {
+        window.location.href = returnUrl.value;
+    } else {
+        router.visit('/dashboard');
+    }
 };
 
 const cancelExit = () => {
@@ -500,9 +512,6 @@ const handleAttemptFinish = () => {
 
     // B. Filtrar pasos incompletos USANDO LA VALIDACIÓN REAL
     const incomplete = steps.value.filter(step => {
-        // 1. Ignorar Configuración (Paso 9)
-        if (step.id === 9) return false;
-
         // 2. Obtener estado real de validación
         // (Si no existe en el registro, asumimos false/invalido)
         const isStepValid = persistentStepValidation.value[step.id] === true;
@@ -523,7 +532,12 @@ const handleSaveAndExit = async () => {
     closeCompleteModal();
     await saveChanges();
     await new Promise(resolve => setTimeout(resolve, 1200)); // ← Delay
-    router.visit('/dashboard');
+    
+    if (isPublicEdit.value && returnUrl.value) {
+        window.location.href = returnUrl.value;
+    } else {
+        router.visit('/dashboard');
+    }
 };
 
 
@@ -590,7 +604,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50/50">
+    <div class="min-h-screen bg-gray-50/50 dark:bg-slate-950 transition-colors duration-300">
         <!-- ✨ BACKDROP COMPARTIDO PARA MODALES IA ✨ -->
         <Transition name="fade">
             <div v-if="isAIModalBackdropVisible" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
@@ -615,7 +629,8 @@ onBeforeUnmount(() => {
         <!-- Header -->
         <EditorHeader :portfolio="portfolio" :progress="progress" :has-unsaved-changes="hasUnsavedChanges"
             :is-saving="isSaving" :is-saved="isSaved" :is-portfolio-public="isPortfolioPublicInHeader"
-            :form-data="formData" @save="saveChanges" @open-preview="openFullPreview"
+            :form-data="formData" :is-public-edit="isPublicEdit" :return-url="returnUrl"
+            @save="saveChanges" @open-preview="openFullPreview"
             @open-public-modal="openPublicToggleModal" @finish="handleFinish" />
 
 

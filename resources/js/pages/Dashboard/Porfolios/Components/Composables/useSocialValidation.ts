@@ -27,20 +27,20 @@ export const useSocialValidation = () => {
     const rules = {
         linkedin: [
             (value: string) => {
-                // Si está vacío, es válido (OPCIONAL)
                 if (!value?.trim()) return null;
-                return /^linkedin\.com\/in\/[a-zA-Z0-9\-]+$/.test(value)
+                // Acepta con o sin https://, pero debe contener linkedin.com/in/
+                return /(linkedin\.com\/in\/[a-zA-Z0-9\-]+)/.test(value)
                     ? null
-                    : 'URL de LinkedIn inválida (ej: linkedin.com/in/usuario)';
+                    : 'URL de LinkedIn inválida (ej: https://linkedin.com/in/usuario)';
             },
         ],
         github: [
             (value: string) => {
-                // Si está vacío, es válido (OPCIONAL)
                 if (!value?.trim()) return null;
-                return /^github\.com\/[a-zA-Z0-9\-]+$/.test(value)
+                // Acepta con o sin https://, pero debe contener github.com/
+                return /(github\.com\/[a-zA-Z0-9\-]+)/.test(value)
                     ? null
-                    : 'URL de GitHub inválida (ej: github.com/usuario)';
+                    : 'URL de GitHub inválida (ej: https://github.com/usuario)';
             },
         ],
         website: [
@@ -147,15 +147,15 @@ export const useSocialValidation = () => {
         const info = {
             linkedin: {
                 label: 'LinkedIn',
-                placeholder: 'usuario',
-                prefix: 'linkedin.com/in/',
-                helper: 'Tu perfil de LinkedIn (solo nombre de usuario) - Opcional',
+                placeholder: 'https://linkedin.com/in/usuario',
+                prefix: null,
+                helper: 'Tu perfil de LinkedIn (link completo) - Opcional',
             },
             github: {
                 label: 'GitHub',
-                placeholder: 'usuario',
-                prefix: 'github.com/',
-                helper: 'Tu perfil de GitHub (solo nombre de usuario) - Opcional',
+                placeholder: 'https://github.com/usuario',
+                prefix: null,
+                helper: 'Tu perfil de GitHub (link completo) - Opcional',
             },
             website: {
                 label: 'Sitio Web Personal',

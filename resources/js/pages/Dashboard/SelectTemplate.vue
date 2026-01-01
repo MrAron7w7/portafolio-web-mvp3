@@ -1,18 +1,20 @@
 <script setup lang="ts">
+/**
+ * Vista de selección de plantillas.
+ * Filosofía de Diseño: "Claridad Vibrante" - Vitrina de Productos de Lujo
+ */
 import { router } from '@inertiajs/vue3';
-import { ArrowRight, Check, Eye, Sparkles, Star, X, Menu } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ArrowRight, Check, Eye, Sparkles, Star, X, Menu, LayoutTemplate, ArrowLeft } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 
-// 1. IMPORTACIONES CORREGIDAS (Usando 'components' en minúscula)
+// Template component imports
+import AcademicaPreview from '@/components/Templates/Academica.vue';
 import CreativaPreview from '@/components/Templates/Creativa.vue';
 import EjecutivaPreview from '@/components/Templates/Ejecutiva.vue';
 import MinimalistaPreview from '@/components/Templates/Minimalista.vue';
 import ModernaPreview from '@/components/Templates/Moderna.vue';
 import TecnologicaPreview from '@/components/Templates/Tecnologica.vue';
-
-// Portfolio routes
-import portfolio from '@/routes/dashboard/portfolio';
 
 const props = defineProps<{
     templates: Array<{
@@ -25,20 +27,22 @@ const props = defineProps<{
         features: string[];
         preview_component: string;
     }>;
+    sections?: any;
 }>();
 
-// Plantilla seleccionada
+// Selected template state
 const selectedTemplate = ref<string | null>(null);
 const isCreating = ref(false);
 
-// Modal de vista previa
+// Preview modal state
 const previewModal = ref({
     open: false,
     template: null as any,
 });
 
-// Map de componentes de preview
+// Component map
 const previewComponents: Record<string, any> = {
+    Academica: AcademicaPreview,
     Moderna: ModernaPreview,
     Minimalista: MinimalistaPreview,
     Ejecutiva: EjecutivaPreview,
@@ -46,7 +50,7 @@ const previewComponents: Record<string, any> = {
     Tecnologica: TecnologicaPreview,
 };
 
-// Datos de ejemplo para preview (Mismo código que tenías)
+// Preview data
 const previewData = {
     personal: {
         name: 'Juan Pérez',
@@ -56,8 +60,7 @@ const previewData = {
         location: 'Lima, Perú',
         linkedin: 'https://linkedin.com/in/juanperez',
         github: 'https://github.com/juanperez',
-        summary:
-            'Desarrollador apasionado con 5+ años de experiencia en crear soluciones web innovadoras y escalables.',
+        summary: 'Desarrollador apasionado con 5+ años de experiencia en crear soluciones web innovadoras y escalables.',
     },
     experience: [
         {
@@ -66,17 +69,8 @@ const previewData = {
             startDate: '2020-01',
             endDate: '',
             current: true,
-            description:
-                'Liderando equipo de desarrollo de aplicaciones empresariales con Laravel y Vue.js.',
-        },
-        {
-            company: 'Startup Innovadora',
-            position: 'Full Stack Developer',
-            startDate: '2018-06',
-            endDate: '2019-12',
-            current: false,
-            description: 'Desarrollo de MVP y features para plataforma SaaS.',
-        },
+            description: 'Liderando equipo de desarrollo de aplicaciones empresariales con Laravel y Vue.js.',
+        }
     ],
     education: [
         {
@@ -89,403 +83,185 @@ const previewData = {
     ],
     skills: {
         technical: [
-            'Laravel',
-            'Vue.js',
-            'PHP',
-            'JavaScript',
-            'MySQL',
-            'Tailwind CSS',
+            { name: 'Laravel', level: 90 },
+            { name: 'Vue.js', level: 85 },
         ],
         soft: [
-            'Liderazgo',
-            'Trabajo en equipo',
-            'Comunicación',
-            'Resolución de problemas',
+            { name: 'Liderazgo', level: 90 },
         ],
     },
     projects: [
         {
             name: 'Sistema de Gestión',
             description: 'Plataforma completa para gestión empresarial',
-            technologies: ['Laravel', 'Vue.js', 'MySQL'],
+            technologies: ['Laravel', 'Vue.js'],
         },
     ],
     certifications: [],
-    languages: [
-        { name: 'Español', level: 'Nativo' },
-        { name: 'Inglés', level: 'Avanzado' },
-    ],
+    languages: [{ name: 'Español', level: 'Nativo' }],
 };
 
-// Función para seleccionar plantilla
+const getTemplateData = (componentName: string) => {
+    return JSON.parse(JSON.stringify(previewData));
+};
+
 const selectTemplate = (templateId: string) => {
     selectedTemplate.value = templateId;
 };
 
-// Función para ver preview
 const openPreview = (template: any) => {
-    previewModal.value = {
-        open: true,
-        template,
-    };
+    previewModal.value = { open: true, template };
+    document.body.classList.add('overflow-hidden');
 };
 
-// Función para cerrar modal
 const closePreview = () => {
     previewModal.value.open = false;
+    document.body.classList.remove('overflow-hidden');
 };
 
-// Función para crear portfolio con plantilla seleccionada
 const createPortfolio = () => {
     if (!selectedTemplate.value) return;
-
     isCreating.value = true;
-
-    router.post(
-        portfolio.create().url,
-        {
-            template_type: selectedTemplate.value,
-        },
-        {
-            onSuccess: () => {
-                // La redirección al editor se maneja en el backend
-            },
-            onError: () => {
-                isCreating.value = false;
-                console.log('Error al crear el portafolio');
-            },
-        },
-    );
+    router.post('/dashboard/portfolio/crear', { template_type: selectedTemplate.value }, {
+        onSuccess: () => {},
+        onError: () => { isCreating.value = false; }
+    });
 };
+
+const goBack = () => router.visit('/dashboard');
 </script>
 
 <template>
     <DashboardLayout v-slot="{ toggleSidebar }">
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/30">
-        <!-- Header -->
-        <header
-            class="sticky top-0 z-40 border-b border-gray-200/60 bg-white/80 backdrop-blur-sm"
-        >
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between py-4">
-                    <!-- Logo -->
-                    <div class="flex items-center space-x-3">
-                        <button
-                            @click="toggleSidebar"
-                            class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-100 lg:hidden mr-2"
-                        >
-                            <Menu class="h-5 w-5" />
-                        </button>
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#005aeb]"
-                        >
-                            <span class="text-sm font-bold text-white">P</span>
-                        </div>
-                        <span class="text-xl font-bold text-gray-900"
-                            >PortafolioAI</span
-                        >
-                    </div>
-
-                    <!-- Progreso -->
-                    <div
-                        class="hidden items-center space-x-2 text-sm text-gray-600 sm:flex"
-                    >
-                        <div class="h-2 w-2 rounded-full bg-[#005aeb]"></div>
-                        <span class="font-medium text-[#005aeb]"
-                            >Paso 1 de 2</span
-                        >
-                        <span>Seleccionar plantilla</span>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Contenido principal -->
-        <main class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-            <!-- Encabezado -->
-            <div class="mx-auto mb-12 max-w-3xl text-center">
-                <h1
-                    class="mb-4 text-3xl font-bold text-gray-900 sm:text-4xl lg:text-5xl"
-                >
-                    Selecciona una plantilla para tu portafolio
-                </h1>
-                <p class="text-lg leading-relaxed text-gray-600 sm:text-xl">
-                    Elige entre diseños profesionales, modernos y totalmente
-                    personalizables.
-                    <span class="font-medium text-[#005aeb]"
-                        >Todas las plantillas son responsive</span
-                    >
-                    y optimizadas para IA.
-                </p>
-            </div>
-
-            <!-- Grid de plantillas -->
-            <div
-                class="mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3"
-            >
-                <div
-                    v-for="template in templates"
-                    :key="template.id"
-                    class="group relative"
-                >
-                    <!-- Tarjeta de plantilla -->
-                    <div
-                        :class="[
-                            'transform cursor-pointer overflow-hidden rounded-2xl border-2 bg-white transition-all duration-300',
-                            selectedTemplate === template.id
-                                ? 'scale-[1.02] border-[#005aeb] shadow-lg shadow-[#005aeb]/20'
-                                : 'border-gray-200/80 hover:border-gray-300 hover:shadow-lg',
-                        ]"
-                    >
-                        <!-- Header de la tarjeta -->
-                        <div class="border-b border-gray-100 p-4">
-                            <div class="mb-2 flex items-center justify-between">
-                                <div class="flex items-center space-x-2">
-                                    <h3
-                                        class="text-lg font-semibold text-gray-900"
-                                    >
-                                        {{ template.name }}
-                                    </h3>
-                                    <span
-                                        v-if="template.popular"
-                                        class="flex items-center space-x-1 rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800"
-                                    >
-                                        <Star class="h-3 w-3" />
-                                        <span>Popular</span>
-                                    </span>
-                                </div>
-                                <span
-                                    class="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500"
-                                >
-                                    {{ template.category }}
-                                </span>
-                            </div>
-                            <p class="text-sm leading-relaxed text-gray-600">
-                                {{ template.description }}
-                            </p>
-                        </div>
-
-                        <!-- Preview de la plantilla -->
-                        <div
-                            class="relative h-48 cursor-pointer bg-gradient-to-br"
-                            :class="template.color"
-                            @click="openPreview(template)"
-                        >
-                            <!-- Mockup del portafolio -->
-                            <div
-                                class="absolute inset-4 rounded-lg border border-white/30 bg-white/20"
-                            >
-                                <div class="flex h-full flex-col p-4">
-                                    <!-- Header del mockup -->
-                                    <div
-                                        class="mb-3 flex items-center justify-between"
-                                    >
-                                        <div
-                                            class="flex items-center space-x-2"
-                                        >
-                                            <div
-                                                class="h-3 w-3 rounded-full bg-white/40"
-                                            ></div>
-                                            <div
-                                                class="h-2 w-8 rounded bg-white/30"
-                                            ></div>
-                                        </div>
-                                        <div class="flex space-x-1">
-                                            <div
-                                                class="h-2 w-2 rounded-full bg-white/40"
-                                            ></div>
-                                            <div
-                                                class="h-2 w-2 rounded-full bg-white/40"
-                                            ></div>
-                                            <div
-                                                class="h-2 w-2 rounded-full bg-white/40"
-                                            ></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Contenido del mockup -->
-                                    <div class="grid flex-1 grid-cols-3 gap-2">
-                                        <div class="rounded bg-white/30"></div>
-                                        <div
-                                            class="col-span-2 rounded bg-white/30"
-                                        ></div>
-                                        <div
-                                            class="col-span-3 h-4 rounded bg-white/30"
-                                        ></div>
-                                        <div
-                                            class="col-span-2 rounded bg-white/30"
-                                        ></div>
-                                        <div class="rounded bg-white/30"></div>
-                                    </div>
-
-                                    <!-- Letra inicial -->
-                                    <div
-                                        class="absolute inset-0 flex items-center justify-center"
-                                    >
-                                        <span
-                                            class="text-6xl font-bold text-white opacity-20"
-                                        >
-                                            {{ template.name[0] }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Botón de vista previa -->
-                            <button
-                                @click.stop="openPreview(template)"
-                                class="absolute top-3 right-3 rounded-lg bg-black/20 p-2 text-white opacity-0 backdrop-blur-sm transition-all duration-200 group-hover:opacity-100 hover:bg-black/30"
-                            >
-                                <Eye class="h-4 w-4" />
+        <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+            <!-- Header Glassmorphism -->
+            <header class="sticky top-0 z-40 border-b border-slate-200/60 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md transition-colors duration-300">
+                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between py-4">
+                        <div class="flex items-center gap-4">
+                            <button @click="toggleSidebar" class="rounded-2xl p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden transition-all">
+                                <Menu class="h-5 w-5" />
                             </button>
-
-                            <!-- Check de selección -->
-                            <div
-                                v-if="selectedTemplate === template.id"
-                                class="absolute top-3 left-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#005aeb]"
-                            >
-                                <Check class="h-4 w-4 text-white" />
-                            </div>
-                        </div>
-
-                        <!-- Features y acciones -->
-                        <div class="p-4">
-                            <!-- Features -->
-                            <div class="mb-4 flex flex-wrap gap-1">
-                                <span
-                                    v-for="feature in template.features"
-                                    :key="feature"
-                                    class="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500"
-                                >
-                                    {{ feature }}
-                                </span>
-                            </div>
-
-                            <!-- Botón de acción -->
-                            <button
-                                @click="selectTemplate(template.id)"
-                                :class="[
-                                    'flex w-full items-center justify-center space-x-2 rounded-lg px-4 py-2.5 font-semibold transition-all duration-200',
-                                    selectedTemplate === template.id
-                                        ? 'bg-[#005aeb] text-white shadow-sm hover:bg-[#0048c4]'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-                                ]"
-                            >
-                                <span>{{
-                                    selectedTemplate === template.id
-                                        ? 'Seleccionada'
-                                        : 'Usar esta plantilla'
-                                }}</span>
-                                <ArrowRight
-                                    v-if="selectedTemplate !== template.id"
-                                    class="h-4 w-4"
+                            <button @click="goBack" class="hidden sm:flex items-center gap-2 rounded-2xl px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                                <ArrowLeft class="h-4 w-4" />
+                                <span class="text-sm font-medium">Volver</span>
+                            </button>
+                            <div class="flex items-center gap-2.5">
+                                <img 
+                                    v-if="sections?.header?.images?.logo" 
+                                    :src="sections?.header?.images?.logo" 
+                                    alt="Logo" 
+                                    class="h-10 w-10 rounded-xl object-contain"
                                 />
-                                <Check v-else class="h-4 w-4" />
+                                <div v-else class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25">
+                                    <LayoutTemplate class="h-5 w-5 text-white" />
+                                </div>
+                                <span class="text-xl font-black tracking-tight bg-linear-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                                    {{ sections?.header?.content?.brand_name || 'PortafolioAI' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Steps Indicator -->
+                        <div class="hidden items-center gap-4 sm:flex">
+                            <div class="flex items-center gap-2">
+                                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-linear-to-br from-indigo-600 to-violet-600 text-xs font-bold text-white shadow-lg shadow-indigo-500/25">1</span>
+                                <span class="text-sm font-semibold text-slate-900 dark:text-white">Plantilla</span>
+                            </div>
+                            <div class="h-px w-8 bg-slate-300 dark:bg-slate-700"></div>
+                            <div class="flex items-center gap-2 opacity-50">
+                                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-xs font-medium text-slate-500">2</span>
+                                <span class="text-sm text-slate-500 dark:text-slate-400">Personalizar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 pb-32">
+                <div class="mb-16 text-center">
+                    <h1 class="mb-4 text-4xl font-black tracking-tighter text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
+                        Elige tu identidad <span class="bg-linear-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">digital</span>
+                    </h1>
+                    <p class="mx-auto max-w-2xl text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Selecciona el diseño perfecto. Todas las plantillas son <span class="font-semibold text-indigo-600 dark:text-indigo-400">responsivas</span> y optimizadas.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    <div
+                        v-for="template in templates"
+                        :key="template.id"
+                        @click="selectTemplate(template.id)"
+                        class="group relative cursor-pointer overflow-hidden rounded-2xl border bg-white dark:bg-slate-900 transition-all duration-200 hover:-translate-y-1"
+                        :class="[selectedTemplate === template.id ? 'border-indigo-500 ring-4 ring-indigo-100 dark:ring-indigo-900/30' : 'border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700']"
+                    >
+                        <div class="relative aspect-[16/10] overflow-hidden bg-slate-50 dark:bg-slate-950" @click.stop="openPreview(template)">
+                            <div class="absolute inset-0 h-[220%] w-[220%] origin-top-left scale-[0.45] pointer-events-none">
+                                <component v-if="previewComponents[template.preview_component]" :is="previewComponents[template.preview_component]" :data="getTemplateData(template.preview_component)" />
+                                <div v-else class="flex h-full w-full items-center justify-center"><LayoutTemplate class="h-16 w-16 text-slate-300 dark:text-slate-700" /></div>
+                            </div>
+                        </div>
+
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-base font-semibold text-slate-900 dark:text-white">{{ template.name }}</h3>
+                                    <span v-if="template.popular" class="rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-400">Popular</span>
+                                </div>
+                                <div class="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 dark:border-slate-700" :class="[selectedTemplate === template.id ? 'border-indigo-500 bg-indigo-500' : '']">
+                                    <Check v-if="selectedTemplate === template.id" class="h-3 w-3 text-white" />
+                                </div>
+                            </div>
+                            <button @click.stop="selectTemplate(template.id)" class="w-full rounded-xl py-2.5 text-sm font-medium transition-all" :class="[selectedTemplate === template.id ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700']">
+                                {{ selectedTemplate === template.id ? 'Seleccionada' : 'Seleccionar' }}
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
+            </main>
 
-            <!-- Botón continuar -->
-            <div
-                class="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 transform"
-            >
-                <button
-                    @click="createPortfolio"
-                    :disabled="!selectedTemplate || isCreating"
-                    :class="[
-                        'flex items-center space-x-3 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg transition-all duration-300',
-                        selectedTemplate && !isCreating
-                            ? 'bg-[#005aeb] text-white hover:scale-105 hover:bg-[#0048c4] hover:shadow-xl'
-                            : 'cursor-not-allowed bg-gray-300 text-gray-500',
-                    ]"
-                >
-                    <Sparkles class="h-5 w-5" />
-                    <span>{{
-                        isCreating
-                            ? 'Creando...'
-                            : 'Continuar con la plantilla seleccionada'
-                    }}</span>
-                    <ArrowRight v-if="!isCreating" class="h-5 w-5" />
+            <!-- Floating Action Button -->
+            <div v-if="selectedTemplate" class="fixed bottom-8 left-1/2 z-[60] -translate-x-1/2 transform">
+                <button @click="createPortfolio" :disabled="isCreating" class="group flex items-center gap-3 rounded-[24px] bg-linear-to-r from-indigo-600 to-violet-600 pl-8 pr-6 py-4 text-lg font-bold text-white shadow-xl shadow-indigo-500/40 transition-all duration-300 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl">
+                    <div v-if="isCreating" class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    <Sparkles v-else class="h-5 w-5" />
+                    <span class="relative z-10">{{ isCreating ? 'Creando...' : 'Continuar' }}</span>
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm group-hover:translate-x-1 transition-transform"><ArrowRight class="h-4 w-4" /></div>
                 </button>
             </div>
-        </main>
 
-        <!-- Modal de vista previa -->
-        <div
-            v-if="previewModal.open"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-            @click="closePreview"
-        >
-            <div
-                class="max-h-[90vh] w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white transition-all duration-300"
-                @click.stop
-            >
-                <!-- Header del modal -->
-                <div
-                    class="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-6"
-                >
-                    <div>
-                        <h3 class="text-xl font-semibold text-gray-900">
-                            {{ previewModal.template?.name }}
-                        </h3>
-                        <p class="mt-1 text-gray-600">
-                            {{ previewModal.template?.description }}
-                        </p>
+            <!-- Preview Modal -->
+            <Teleport to="body">
+                <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                    <div v-if="previewModal.open" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+                        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="closePreview"></div>
+                        <div class="relative z-10 flex h-full max-h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-[28px] bg-white dark:bg-slate-950 shadow-2xl transition-colors" @click.stop>
+                            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-4">
+                                <div><h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ previewModal.template?.name }}</h2><p class="text-sm text-slate-500 dark:text-slate-400">{{ previewModal.template?.category }}</p></div>
+                                <button @click="closePreview" class="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"><X class="h-5 w-5" /></button>
+                            </div>
+                            <div class="flex-1 overflow-auto bg-slate-100 dark:bg-slate-900 p-4 md:p-8 custom-scrollbar">
+                                <div class="relative w-full overflow-hidden rounded-[28px] aspect-16/10 bg-white dark:bg-slate-950 shadow-2xl">
+                                    <component v-if="previewModal.template" :is="previewComponents[previewModal.template.preview_component]" :data="getTemplateData(previewModal.template.preview_component)" />
+                                </div>
+                            </div>
+                            <div class="flex justify-end gap-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-6 py-4">
+                                <button @click="closePreview" class="rounded-2xl px-5 py-2.5 font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">Cerrar</button>
+                                <button @click="selectTemplate(previewModal.template?.id); closePreview();" class="rounded-2xl bg-linear-to-r from-indigo-600 to-violet-600 px-6 py-2.5 font-bold text-white shadow-lg">Elegir plantilla</button>
+                            </div>
+                        </div>
                     </div>
-                    <button
-                        @click="closePreview"
-                        class="rounded-lg p-2 transition-colors duration-200 hover:bg-gray-200"
-                    >
-                        <X class="h-5 w-5" />
-                    </button>
-                </div>
-
-                <!-- Contenido del modal - Preview real del template -->
-                <div class="max-h-[70vh] overflow-auto bg-gray-100 p-6">
-                    <div class="mx-auto max-w-5xl">
-                        <component
-                            v-if="previewModal.template"
-                            :is="
-                                previewComponents[
-                                    previewModal.template.preview_component
-                                ]
-                            "
-                            :data="previewData"
-                        />
-                    </div>
-                </div>
-
-                <!-- Footer del modal -->
-                <div
-                    class="flex items-center justify-between border-t border-gray-200 bg-gray-50 p-6"
-                >
-                    <button
-                        @click="closePreview"
-                        class="rounded-lg border border-gray-300 px-6 py-2.5 text-gray-700 transition-colors duration-200 hover:bg-gray-100"
-                    >
-                        Cerrar vista previa
-                    </button>
-                    <button
-                        @click="
-                            selectTemplate(previewModal.template?.id);
-                            closePreview();
-                        "
-                        class="flex items-center space-x-2 rounded-lg bg-[#005aeb] px-6 py-2.5 text-white transition-colors duration-200 hover:bg-[#0048c4]"
-                    >
-                        <Check class="h-4 w-4" />
-                        <span>Seleccionar esta plantilla</span>
-                    </button>
-                </div>
-            </div>
+                </Transition>
+            </Teleport>
         </div>
-    </div>
     </DashboardLayout>
 </template>
 
 <style scoped>
-.container {
-    max-width: 1200px;
-}
+.custom-scrollbar { scrollbar-width: thin; scrollbar-color: #e2e8f0 transparent; }
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+.animate-shine { animation: shine 3s ease-in-out infinite; }
+@keyframes shine { 0% { transform: translateX(-100%); } 50%, 100% { transform: translateX(100%); } }
 </style>

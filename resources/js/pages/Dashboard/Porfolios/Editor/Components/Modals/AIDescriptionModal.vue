@@ -23,7 +23,7 @@
     // Estado local
     const description = ref('');
     const charCount = computed(() => description.value.length);
-    const maxChars = 2000;
+    const maxChars = 2500;
     const minChars = 50;
     const isValid = computed(() => charCount.value >= minChars);
     const errorMessage = ref('');
@@ -98,7 +98,7 @@
                 @click.stop
             >
                 <!-- Header - STICKY ✨ -->
-                <div class="sticky top-0 z-10 relative overflow-hidden bg-gradient-to-r from-purple-500 to-purple-600 px-8 py-12 text-white flex-shrink-0">
+                <div class="sticky top-0 z-10 overflow-hidden bg-linear-to-r from-purple-500 to-purple-600 px-8 py-12 text-white shrink-0">
                     <!-- Decorative elements -->
                     <div class="absolute top-0 right-0 w-40 h-40 bg-purple-400 rounded-full -mr-20 -mt-20 opacity-20" />
                     
@@ -135,10 +135,44 @@
                     </Transition>
 
                     <!-- Info -->
-                    <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                        <p class="text-sm text-blue-900 dark:text-blue-200">
-                            <span class="font-semibold">💡 Consejo:</span> Cuanto más detallado sea tu descripción, mejor será el análisis de IA. Incluye experiencia, habilidades, idiomas, educación, etc.
+                    <div class="mb-6 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 shadow-sm">
+                        <p class="text-sm font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+                            <span class="text-lg">💡</span> Consejo para un portafolio profesional:
                         </p>
+                        <p class="text-sm text-blue-800 dark:text-blue-300 mb-4 leading-relaxed">
+                            Cuanto más detallada sea tu descripción, más preciso será el análisis de la IA. Te sugerimos estructurar tu texto incluyendo:
+                        </p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                            <div class="space-y-2">
+                                <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                                    <p><b>Sobre ti:</b> Tu nombre, título, ciudad, país, email y teléfono.</p>
+                                </div>
+                                <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                                    <p><b>Experiencia:</b> Cargos, empresas, fechas y tus logros más relevantes.</p>
+                                </div>
+                                <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                                    <p><b>Proyectos:</b> Nombres de proyectos, qué hiciste y qué tecnologías usaste.</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                                    <p><b>Habilidades:</b> Herramientas técnicas (React, SQL) y blandas (Liderazgo).</p>
+                                </div>
+                                <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                                    <p><b>Educación:</b> Títulos obtenidos, instituciones y años de estudio.</p>
+                                </div>
+                                <div class="flex items-start gap-2 text-xs text-blue-800 dark:text-blue-300">
+                                    <div class="mt-1 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                                    <p><b>Redes e Idiomas:</b> Enlaces (LinkedIn/GitHub) e idiomas con su nivel.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Textarea -->
@@ -150,7 +184,7 @@
                             v-model="description"
                             :maxlength="maxChars"
                             :disabled="isAnalyzing"
-                            placeholder="Comienza escribiendo sobre ti... Por ejemplo: 'Soy desarrollador full-stack con 5 años de experiencia...'"
+                            placeholder="Ejemplo: 'Hola, soy Roberto Pérez, Desarrollador Web con 5 años de experiencia en Laravel y Vue. He trabajado en TechCorp donde lideré el rediseño de su plataforma e-commerce. Domino SQL, AWS y metodologías ágiles. Me gradué de la Universidad X y hablo inglés avanzado...'"
                             class="w-full h-48 p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none dark:bg-slate-700 dark:text-white resize-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                         
@@ -162,7 +196,7 @@
                             <span 
                                 :class="[
                                     'font-semibold',
-                                    charCount < minChars ? 'text-orange-600' : 'text-green-600'
+                                    charCount < minChars ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-emerald-400'
                                 ]"
                             >
                                 {{ charCount < minChars ? `Mínimo ${minChars}` : '✓ Listo' }}
@@ -190,7 +224,7 @@
                 </div>
 
                 <!-- Action Button - STICKY ✨ -->
-                <div class="sticky bottom-0 z-10 p-8 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 flex-shrink-0">
+                <div class="sticky bottom-0 z-10 p-8 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 shrink-0">
                     <button
                         @click="handleAnalyze"
                         :disabled="!isValid || isAnalyzing"
@@ -198,7 +232,7 @@
                             'w-full py-3 px-6 rounded-lg font-semibold text-lg transition-all duration-300',
                             'flex items-center justify-center gap-2',
                             isValid && !isAnalyzing
-                                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:shadow-lg hover:-translate-y-0.5'
+                                ? 'bg-linear-to-r from-purple-500 to-purple-600 text-white hover:shadow-lg hover:-translate-y-0.5'
                                 : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                         ]"
                     >
