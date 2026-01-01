@@ -28,7 +28,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Ejecutar seeder de roles y permisos
-        $this->call(RolesAndPermissionsSeeder::class);
+        $this->call([
+            RolesAndPermissionsSeeder::class,
+            LandingPageSeeder::class,
+        ]);
 
         // Asignar roles
         $admin->assignRole('admin');
