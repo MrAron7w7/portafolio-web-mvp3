@@ -20,7 +20,8 @@ import {
     Box,
     Users,
     Star,
-    Info
+    Info,
+    Lock
 } from 'lucide-vue-next';
 
 // Declare route generic to avoid type errors if not strictly typed
@@ -40,6 +41,7 @@ const getObjectUrl = (path: string | File | null) => {
 
 // Toggle accordion state
 const collapsed = ref<Record<string, boolean>>({
+    auth: true,
     header: false,
     hero: true,
     tools: true,
@@ -56,6 +58,15 @@ const toggleSection = (key: string) => {
 
 // Initialize Forms for each section
 const forms = {
+    auth: useForm({
+        content: {
+            welcome_title: props.sections?.auth?.content?.welcome_title || 'Bienvenido',
+            welcome_subtitle: props.sections?.auth?.content?.welcome_subtitle || '',
+            register_title: props.sections?.auth?.content?.register_title || 'Crea tu cuenta',
+            register_subtitle: props.sections?.auth?.content?.register_subtitle || '',
+        },
+        images: { ...props.sections?.auth?.images },
+    }),
     header: useForm({
         content: {
             brand_name: props.sections?.header?.content?.brand_name || 'PortafolioAI',
@@ -190,6 +201,82 @@ const submitSection = (sectionKey: string) => {
 
             <div class="space-y-8">
             
+                <!-- AUTH SECTION -->
+                <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                    <div class="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors" @click="toggleSection('auth')">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 rounded-xl bg-violet-500/10 text-violet-500">
+                                <Lock class="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Login y Sign Up</h2>
+                                <p class="text-sm text-slate-500">Personaliza pantallas de acceso</p>
+                            </div>
+                        </div>
+                        <component :is="collapsed.auth ? ChevronDown : ChevronUp" class="w-5 h-5 text-slate-400" />
+                    </div>
+                    
+                    <div v-show="!collapsed.auth" class="p-8 bg-slate-50/50 dark:bg-slate-950/30">
+                        <form @submit.prevent="submitSection('auth')" class="space-y-6">
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                     <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Imagen de Fondo (Derecha)</label>
+                                     <div class="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 flex flex-col items-center justify-center gap-4 group hover:border-indigo-500/50 transition-colors cursor-pointer relative overflow-hidden h-64">
+                                         <input type="file" @change="(e) => handleImageUpload(e, 'auth', 'background')" class="absolute inset-0 opacity-0 cursor-pointer z-10" accept="image/*">
+                                         
+                                         <div v-if="forms.auth.images.background" class="w-full h-full rounded-lg overflow-hidden relative">
+                                             <img :src="getObjectUrl(forms.auth.images.background) || ''" class="w-full h-full object-cover">
+                                             <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                 <p class="text-white font-medium text-sm">Cambiar Imagen</p>
+                                             </div>
+                                         </div>
+                                         <div v-else class="text-center p-8">
+                                             <div class="w-16 h-16 rounded-full bg-indigo-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4 text-indigo-500">
+                                                 <ImageIcon class="w-8 h-8" />
+                                             </div>
+                                             <p class="text-sm text-slate-500 font-medium">Click para subir una imagen</p>
+                                             <p class="text-xs text-slate-400 mt-1">Recomendado: 1080x1920 (Vertical)</p>
+                                         </div>
+                                     </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-4 p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30">
+                                         <h3 class="text-xs font-bold uppercase text-indigo-500">Pantalla Login</h3>
+                                         <div class="space-y-2">
+                                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Título Bienvenida</label>
+                                            <input v-model="forms.auth.content.welcome_title" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Subtítulo</label>
+                                            <input v-model="forms.auth.content.welcome_subtitle" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="space-y-4 p-4 rounded-xl bg-pink-50/50 dark:bg-pink-900/10 border border-pink-100 dark:border-pink-800/30">
+                                         <h3 class="text-xs font-bold uppercase text-pink-500">Pantalla Sign Up (Registro)</h3>
+                                         <div class="space-y-2">
+                                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Título Registro</label>
+                                            <input v-model="forms.auth.content.register_title" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Subtítulo</label>
+                                            <input v-model="forms.auth.content.register_subtitle" class="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-end pt-6 border-t border-slate-200 dark:border-slate-800">
+                                <button type="submit" :disabled="forms.auth.processing" class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all hover:-translate-y-0.5 disabled:opacity-50">
+                                    <Save class="w-5 h-5" />
+                                    <span>Guardar Auth</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 <!-- HEADER (LOGO) SECTION -->
                 <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
                     <div class="px-8 py-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors" @click="toggleSection('header')">

@@ -23,6 +23,22 @@ class LandingPageSeeder extends Seeder
                 'images' => []
             ]
         );
+        
+        // 0.5. Auth Section (New)
+        \App\Models\LandingPageSection::updateOrCreate(
+            ['key' => 'auth'],
+            [
+                'content' => [
+                    'welcome_title' => 'Bienvenido a Portafolio Profesional IA',
+                    'welcome_subtitle' => 'Crea tu portafolio perfecto con inteligencia artificial.',
+                    'register_title' => 'Crea tu cuenta',
+                    'register_subtitle' => 'Regístrate para crear tu portafolio profesional con IA.',
+                ],
+                'images' => [
+                    'background' => null // Use null to verify fallback first
+                ]
+            ]
+        );
 
         // 1. Hero Section
         \App\Models\LandingPageSection::updateOrCreate(

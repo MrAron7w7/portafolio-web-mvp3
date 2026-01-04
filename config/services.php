@@ -41,6 +41,12 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'linkedin' => [
+        'client_id' => env('LINKEDIN_CLIENT_ID'),
+        'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
+        'redirect' => env('LINKEDIN_REDIRECT_URI'),
+    ],
+
     'browsershot' => [
         'node_path' => env('BROWSERSHOT_NODE_PATH', 'node'),
         'npm_path'  => env('BROWSERSHOT_NPM_PATH', 'npm'),

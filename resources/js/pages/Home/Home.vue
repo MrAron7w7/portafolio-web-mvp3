@@ -214,7 +214,7 @@ onUnmounted(() => {
     <Head title="Bienvenido" />
     <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-indigo-500/30 transition-colors duration-300">
         <!-- Header -->
-        <header class="fixed z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 transition-all duration-300">
+        <header class="fixed z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-300 dark:border-slate-700 transition-all duration-300">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between py-4">
                     <!-- Logo -->
@@ -342,7 +342,7 @@ onUnmounted(() => {
                     <div class="relative lg:h-[600px] w-full hidden lg:block scroll-animate">
                          <!-- Abstract Dashboard Mockup -->
                          <div class="absolute inset-0 bg-linear-to-tr from-indigo-500/10 to-purple-500/10 rounded-3xl transform rotate-3 scale-95 blur-2xl"></div>
-                         <div class="relative h-full w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-700/60 overflow-hidden transform transition-transform hover:scale-[1.01] duration-500">
+                         <div class="relative h-full w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-600 overflow-hidden transform transition-transform hover:scale-[1.01] duration-500">
                             <!-- Image Container -->
                             <div class="absolute inset-0 bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden">
                                 <img 
@@ -377,7 +377,7 @@ onUnmounted(() => {
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div v-for="(tool, index) in tools" :key="index" 
-                        class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700/50 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group scroll-animate"
+                        class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.25)] shadow-slate-400/40 dark:shadow-none border border-slate-300 dark:border-slate-600 hover:-translate-y-2 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.4)] hover:shadow-slate-500/50 transition-all duration-300 group scroll-animate"
                         :style="{ transitionDelay: `${tool.delay}ms` }"
                     >
                         <div class="h-12 w-12 rounded-xl bg-linear-to-br mb-6 flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 transition-transform duration-300" :class="tool.color">
@@ -430,7 +430,7 @@ onUnmounted(() => {
                             <div class="absolute inset-0 bg-linear-to-tr opacity-20 blur-[80px] -z-10 transition-opacity duration-500 group-hover:opacity-30" :class="feature.imageGradient"></div>
                             
                             <!-- 3D Card -->
-                            <div class="relative transform-3d transition-transform duration-500 rounded-3xl border border-slate-200 dark:border-slate-700/50 bg-white/80 dark:bg-slate-800/50 backdrop-blur-xl shadow-2xl overflow-hidden aspect-16/10">
+                            <div class="relative transform-3d transition-transform duration-500 rounded-3xl border border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-800/50 backdrop-blur-xl shadow-2xl overflow-hidden aspect-16/10">
                                  <!-- Glass Reflection -->
                                  <div class="absolute inset-0 bg-linear-to-br from-white/40 dark:from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20 pointer-events-none"></div>
                                  
@@ -482,7 +482,7 @@ onUnmounted(() => {
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-8">
-                    <div v-for="(testimonial, index) in testimonials" :key="index" class="bg-slate-50 dark:bg-slate-800/40 p-8 rounded-3xl border border-slate-200 dark:border-slate-700/50 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 scroll-animate group">
+                    <div v-for="(testimonial, index) in testimonials" :key="index" class="bg-slate-50 dark:bg-slate-800/40 p-8 rounded-3xl border border-slate-300 dark:border-slate-600 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 scroll-animate group">
                         <!-- Stars -->
                         <div class="flex gap-1 text-yellow-400 mb-6">
                             <Star v-for="i in 5" :key="i" class="w-5 h-5 fill-current" :class="i <= testimonial.rating ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'" />
@@ -537,7 +537,7 @@ onUnmounted(() => {
 
                 <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
                      <!-- Mission Card -->
-                    <div class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 scroll-animate hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group">
+                    <div class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-sm border border-slate-300 dark:border-slate-600 scroll-animate hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group">
                         <div class="h-14 w-14 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                              <Rocket class="h-7 w-7" />
                         </div>
@@ -548,7 +548,7 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Vision Card -->
-                    <div class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 scroll-animate hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 group">
+                    <div class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-sm border border-slate-300 dark:border-slate-600 scroll-animate hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 group">
                         <div class="h-14 w-14 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                              <Globe class="h-7 w-7" />
                         </div>

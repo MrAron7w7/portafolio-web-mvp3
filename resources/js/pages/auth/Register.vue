@@ -8,7 +8,34 @@ import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 import google from '@/routes/google';
 import register from '@/routes/register';
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
+
+
+interface PageProps {
+    auth: {
+        user: any;
+    };
+    flash: {
+        success: string | null;
+        error: string | null;
+    };
+    name: string;
+    quote: { author: string; message: string };
+    sidebarOpen: boolean;
+    logo_url?: string;
+    brand_name?: string;
+    auth_bg?: string;
+    auth_content?: {
+        register_title?: string;
+        register_subtitle?: string;
+    };
+    [key: string]: any;
+}
+
+const page = usePage<PageProps>();
+const showPassword = ref(false);
+const showPasswordConfirm = ref(false);
 </script>
 
 <template>
@@ -25,7 +52,14 @@ import { Form, Head } from '@inertiajs/vue3';
                     <div
                         class="mb-10 flex items-center justify-center gap-3 lg:justify-start"
                     >
+                        <img
+                            v-if="page.props.logo_url"
+                            :src="page.props.logo_url"
+                            class="h-8 w-auto object-contain"
+                            alt="Logo"
+                        />
                         <svg
+                            v-else
                             class="h-8 w-auto text-indigo-600 dark:text-indigo-500"
                             fill="none"
                             height="32"
@@ -40,7 +74,7 @@ import { Form, Head } from '@inertiajs/vue3';
                         </svg>
                         <span
                             class="text-slate-900 dark:text-white text-xl font-bold"
-                            >Portafolio IA</span
+                            >{{ page.props.brand_name || 'Portafolio IA' }}</span
                         >
                     </div>
 
@@ -49,13 +83,12 @@ import { Form, Head } from '@inertiajs/vue3';
                             <p
                                 class="text-slate-900 dark:text-white text-3xl leading-tight font-black tracking-[-0.033em]"
                             >
-                                Crea tu cuenta
+                                {{ page.props.auth_content?.register_title || 'Crea tu cuenta' }}
                             </p>
                             <p
                                 class="text-slate-500 dark:text-slate-400 text-base leading-normal font-normal"
                             >
-                                Regístrate para crear tu portafolio profesional
-                                con IA.
+                                {{ page.props.auth_content?.register_subtitle || 'Regístrate para crear tu portafolio profesional con IA.' }}
                             </p>
                         </div>
                     </div>
@@ -89,7 +122,7 @@ import { Form, Head } from '@inertiajs/vue3';
                                 autocomplete="first_name"
                                 name="first_name"
                                 placeholder="Tus nombres"
-                                class="text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
+                                class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                             />
                             <InputError :message="errors.name" />
                         </div>
@@ -111,7 +144,7 @@ import { Form, Head } from '@inertiajs/vue3';
                                 autocomplete="last_name"
                                 name="last_name"
                                 placeholder="Tus Apellidos"
-                                class="text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
+                                class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                             />
                             <InputError :message="errors.name" />
                         </div>
@@ -132,7 +165,7 @@ import { Form, Head } from '@inertiajs/vue3';
                                 autocomplete="email"
                                 name="email"
                                 placeholder="tu@email.com"
-                                class="text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
+                                class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                             />
                             <InputError :message="errors.email" />
                         </div>
@@ -145,31 +178,28 @@ import { Form, Head } from '@inertiajs/vue3';
                             >
                                 Contraseña
                             </Label>
-                            <div
-                                class="flex w-full flex-1 items-stretch rounded-lg"
-                            >
+                            <div class="relative">
                                 <Input
                                     id="password"
-                                    type="password"
+                                    :type="showPassword ? 'text' : 'password'"
                                     required
                                     :tabindex="3"
                                     autocomplete="new-password"
                                     name="password"
                                     placeholder="Crea una contraseña segura"
-                                    class="text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg rounded-r-none border border-r-0 px-4 pr-2 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
+                                    class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg px-4 pr-12 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0 transition-all"
                                 />
                                 <button
                                     type="button"
+                                    @click="showPassword = !showPassword"
                                     aria-label="Toggle password visibility"
-                                    class="text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center rounded-r-lg border border-l-0 pr-4 focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-none"
+                                    class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer z-10"
                                 >
                                     <span
-                                        class="material-symbols-outlined"
-                                        data-icon="Eye"
-                                        data-size="24px"
-                                        data-weight="regular"
+                                        class="material-symbols-outlined select-none"
+                                        style="font-size: 20px;"
                                     >
-                                        visibility_off
+                                        {{ showPassword ? 'visibility' : 'visibility_off' }}
                                     </span>
                                 </button>
                             </div>
@@ -184,31 +214,28 @@ import { Form, Head } from '@inertiajs/vue3';
                             >
                                 Confirmar contraseña
                             </Label>
-                            <div
-                                class="flex w-full flex-1 items-stretch rounded-lg"
-                            >
+                            <div class="relative">
                                 <Input
                                     id="password_confirmation"
-                                    type="password"
+                                    :type="showPasswordConfirm ? 'text' : 'password'"
                                     required
                                     :tabindex="4"
                                     autocomplete="new-password"
                                     name="password_confirmation"
                                     placeholder="Repite tu contraseña"
-                                    class="text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg rounded-r-none border border-r-0 px-4 pr-2 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
+                                    class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg px-4 pr-12 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0 transition-all"
                                 />
                                 <button
                                     type="button"
+                                    @click="showPasswordConfirm = !showPasswordConfirm"
                                     aria-label="Toggle password visibility confirmation"
-                                    class="text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center rounded-r-lg border border-l-0 pr-4 focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-none"
+                                    class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer z-10"
                                 >
                                     <span
-                                        class="material-symbols-outlined"
-                                        data-icon="Eye"
-                                        data-size="24px"
-                                        data-weight="regular"
+                                        class="material-symbols-outlined select-none"
+                                        style="font-size: 20px;"
                                     >
-                                        visibility_off
+                                        {{ showPasswordConfirm ? 'visibility' : 'visibility_off' }}
                                     </span>
                                 </button>
                             </div>
@@ -245,7 +272,7 @@ import { Form, Head } from '@inertiajs/vue3';
                                     class="absolute inset-0 flex items-center"
                                 >
                                     <div
-                                        class="border-slate-200 dark:border-slate-800 w-full border-t"
+                                        class="border-slate-400 dark:border-slate-600 w-full border-t"
                                     ></div>
                                 </div>
                                 <div
@@ -261,7 +288,7 @@ import { Form, Head } from '@inertiajs/vue3';
 
                             <div class="mt-6 grid grid-cols-2 gap-4">
                                 <a
-                                    class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-offset-white dark:focus:ring-offset-slate-950 flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-slate-50 focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:outline-none dark:hover:bg-slate-800"
+                                    class="border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-offset-white dark:focus:ring-offset-slate-950 flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-slate-50 focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:outline-none dark:hover:bg-slate-800"
                                     :href="google.login().url"
                                 >
                                     <svg
@@ -290,7 +317,7 @@ import { Form, Head } from '@inertiajs/vue3';
                                     <span>Google</span>
                                 </a>
                                 <a
-                                    class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-offset-white dark:focus:ring-offset-slate-950 flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-slate-50 focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:outline-none dark:hover:bg-slate-800"
+                                    class="border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-offset-white dark:focus:ring-offset-slate-950 flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-slate-50 focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:outline-none dark:hover:bg-slate-800"
                                     href="#"
                                 >
                                     <svg
@@ -331,9 +358,8 @@ import { Form, Head } from '@inertiajs/vue3';
             <div
                 class="absolute inset-0 h-full w-full bg-cover bg-center bg-no-repeat"
                 data-alt="Abstract gradient illustration with blue and purple geometric shapes on a light gray background, suggesting technology and creativity."
-                style="
-                    background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAX5XnN3gbka49V_brfHg0VNidQ6wlDhG1AvtQAYz23Kj9isy6OLlgBqVOgy_EhJ1zInBv-JgPCbrxb8vHG6fr0gyY4A3tjCeRq6-bUUhjNZFpL1Aq3ah5kbOSHHky6Yk_a97tpzi3E4qbwB8tcHSjvRCeWDWLGC6JWL74lpgiUEC63aCsuodJP73NcbJ6zcpl0tEocEn3gJIVT_1nx5A0QecpiM1CP52J3Zt52KhvPtSyaVvi--bPEwSJk8f4PQwRySLzORZV_XiQ');
-                "
+                style="background-image: url('');"
+                :style="{ backgroundImage: `url(${page.props.auth_bg || 'https://lh3.googleusercontent.com/aida-public/AB6AXuAX5XnN3gbka49V_brfHg0VNidQ6wlDhG1AvtQAYz23Kj9isy6OLlgBqVOgy_EhJ1zInBv-JgPCbrxb8vHG6fr0gyY4A3tjCeRq6-bUUhjNZFpL1Aq3ah5kbOSHHky6Yk_a97tpzi3E4qbwB8tcHSjvRCeWDWLGC6JWL74lpgiUEC63aCsuodJP73NcbJ6zcpl0tEocEn3gJIVT_1nx5A0QecpiM1CP52J3Zt52KhvPtSyaVvi--bPEwSJk8f4PQwRySLzORZV_XiQ'})` }"
             >
                 <div
                     class="to-slate-50/10 dark:to-slate-900/10 absolute inset-0 h-full w-full bg-linear-to-br from-indigo-600/30 via-violet-600/30 dark:from-indigo-600/50 dark:via-violet-600/50"
