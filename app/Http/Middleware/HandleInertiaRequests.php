@@ -41,6 +41,8 @@ class HandleInertiaRequests extends Middleware
             ],
             'brand_name' => fn () => \App\Models\LandingPageSection::where('key', 'header')->first()?->content['brand_name'] ?? 'PortafolioAI',
             'logo_url' => fn () => \App\Models\LandingPageSection::where('key', 'header')->first()?->images['logo'] ?? null,
+            'auth_bg' => fn () => \App\Models\LandingPageSection::where('key', 'auth')->first()?->images['background'] ?? null,
+            'auth_content' => fn () => \App\Models\LandingPageSection::where('key', 'auth')->first()?->content ?? [],
         ];
     }
 

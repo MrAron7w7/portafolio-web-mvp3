@@ -89,6 +89,54 @@ const toggleChangePassword = () => {
     isChangingPassword.value = !isChangingPassword.value;
 };
 
+// 2FA State
+const show2FAModal = ref(false);
+const twoFactorEnabled = ref(props.user.two_factor_enabled);
+
+const twoFactorForm = useForm({
+    password: '',
+});
+
+const toggle2FA = () => {
+    show2FAModal.value = true;
+    twoFactorForm.reset();
+    twoFactorForm.clearErrors();
+};
+
+const close2FAModal = () => {
+    show2FAModal.value = false;
+    twoFactorForm.reset();
+    twoFactorForm.clearErrors();
+};
+
+const confirm2FAAction = () => {
+    if (twoFactorEnabled.value) {
+        // Currently enabled, so disable it
+        twoFactorForm.delete('/settings/two-factor/disable', {
+            preserveScroll: true,
+            onSuccess: () => {
+                twoFactorEnabled.value = false;
+                close2FAModal();
+            },
+            onError: () => {
+                // Handle error - form.errors will contain the password error
+            },
+        });
+    } else {
+        // Currently disabled, so enable it
+        twoFactorForm.post('/settings/two-factor/enable', {
+            preserveScroll: true,
+            onSuccess: () => {
+                twoFactorEnabled.value = true;
+                close2FAModal();
+            },
+            onError: () => {
+                // Handle error - form.errors will contain the password error
+            },
+        });
+    }
+};
+
 const updatePassword = () => {
     changePasswordForm.put(route('settings.password.update'), {
         preserveScroll: true,
@@ -206,33 +254,6 @@ const removeAvatar = () => {
             onSuccess: () => {
                 avatarPreview.value = null;
                 window.location.reload();
-            },
-        });
-    }
-};
-
-
-
-const enableTwoFactorForm = useForm({});
-const disableTwoFactorForm = useForm({});
-
-const toggleTwoFactor = () => {
-    if (props.user.two_factor_enabled) {
-        // Disable
-        if (confirm('¿Estás seguro de desactivar la autenticación de dos factores?')) {
-            disableTwoFactorForm.delete(route('user.email-two-factor.disable'), {
-                preserveScroll: true,
-                onSuccess: () => {
-                    // Update user prop or reload logic handled by Inertia automatically
-                },
-            });
-        }
-    } else {
-        // Enable
-        enableTwoFactorForm.post(route('user.email-two-factor.enable'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                 // Update user prop or reload logic handled by Inertia automatically
             },
         });
     }
@@ -662,8 +683,8 @@ const toggleTwoFactor = () => {
                     </form>
                 </section>
 
-                <!-- 5. SEGURIDAD (New 2FA Section) -->
-                <!-- <section class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
+                <!-- 5. SEGURIDAD (2FA Section) -->
+                <section class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-300">
                      <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-2xl bg-teal-100 dark:bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400">
@@ -677,17 +698,27 @@ const toggleTwoFactor = () => {
                     </div>
 
                     <div class="p-8">
-                         <div class="group flex items-center justify-between p-4 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-all cursor-pointer" @click="toggleTwoFactor">
+                         <div class="group flex items-center justify-between p-4 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-all">
                             <div>
                                 <p class="font-bold text-slate-900 dark:text-white transition-colors">Doble Factor (2FA)</p>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">Solicitar código de verificación al iniciar sesión.</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                    {{ twoFactorEnabled ? 'Protección activa. Recibirás un código por email al iniciar sesión.' : 'Añade una capa extra de seguridad a tu cuenta.' }}
+                                </p>
                             </div>
-                             <div class="relative inline-flex h-6 w-11 items-center rounded-full transition" :class="user.two_factor_enabled ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'">
-                                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition" :class="user.two_factor_enabled ? 'translate-x-6' : 'translate-x-1'"></span>
-                            </div>
+                            <button 
+                                @click="toggle2FA"
+                                type="button"
+                                class="relative inline-flex h-8 w-14 items-center rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+                                :class="twoFactorEnabled ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'"
+                            >
+                                <span 
+                                    class="inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-spring"
+                                    :class="twoFactorEnabled ? 'translate-x-7' : 'translate-x-1'"
+                                ></span>
+                            </button>
                         </div>
                     </div>
-                </section> -->
+                </section>
                 
                 
                 <!-- 6. ZONA DE PELIGRO -->
@@ -764,6 +795,75 @@ const toggleTwoFactor = () => {
                                         :disabled="deleteForm.processing"
                                     >
                                         {{ deleteForm.processing ? 'Eliminando...' : 'Eliminar' }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </Transition>
+
+            <!-- 2FA Confirmation Modal -->
+            <Transition
+                enter-active-class="transition duration-300 ease-out"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition duration-200 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+            >
+                <div v-if="show2FAModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="close2FAModal"></div>
+                    
+                    <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+                        <div class="p-8">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-12 h-12 rounded-2xl flex items-center justify-center" :class="twoFactorEnabled ? 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400' : 'bg-teal-100 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400'">
+                                    <ShieldCheck class="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                                        {{ twoFactorEnabled ? 'Desactivar 2FA' : 'Activar 2FA' }}
+                                    </h3>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400 tracking-tight">Confirma con tu contraseña</p>
+                                </div>
+                            </div>
+
+                            <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                                {{ twoFactorEnabled 
+                                    ? 'Al desactivar la autenticación de dos factores, tu cuenta será menos segura.' 
+                                    : 'Al activar 2FA, recibirás un código por email cada vez que inicies sesión.' 
+                                }}
+                            </p>
+
+                            <form @submit.prevent="confirm2FAAction" class="space-y-6">
+                                <input 
+                                    v-model="twoFactorForm.password"
+                                    type="password" 
+                                    placeholder="Tu contraseña actual"
+                                    class="w-full px-4 py-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder:text-slate-400 dark:text-white"
+                                    required
+                                    autofocus
+                                >
+                                <p v-if="twoFactorForm.errors.password" class="text-xs text-red-500 font-bold px-1">{{ twoFactorForm.errors.password }}</p>
+
+                                <div class="flex gap-4">
+                                    <button 
+                                        type="button"
+                                        @click="close2FAModal"
+                                        class="flex-1 px-4 py-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button 
+                                        type="submit"
+                                        class="flex-1 px-4 py-4 font-bold rounded-2xl shadow-xl transition disabled:opacity-50"
+                                        :class="twoFactorEnabled 
+                                            ? 'bg-red-600 text-white hover:bg-red-700 shadow-red-200 dark:shadow-none' 
+                                            : 'bg-teal-600 text-white hover:bg-teal-700 shadow-teal-200 dark:shadow-none'"
+                                        :disabled="twoFactorForm.processing"
+                                    >
+                                        {{ twoFactorForm.processing ? 'Procesando...' : (twoFactorEnabled ? 'Desactivar' : 'Activar') }}
                                     </button>
                                 </div>
                             </form>
