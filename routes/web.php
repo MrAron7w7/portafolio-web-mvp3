@@ -1,13 +1,33 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\PortfolioPdfController;
 use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\CommunityCommentController;
+use App\Http\Controllers\ToolsController;
+use App\Http\Controllers\PortfolioSharingController;
+use App\Http\Controllers\DashboardController;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
 
-use App\Http\Controllers\WelcomeController;
+// Ruta de diagnóstico para NODE (Solo temporal/debug)
+Route::post('/two-factor-challenge', [App\Http\Controllers\TwoFactorController::class, 'store'])
+    ->middleware(['guest:'.config('fortify.guard')])
+    ->name('two-factor-email.verify');
+    
+Route::get('/debug-node', function () {
+    $nodePath = exec('which node');
+    $npmPath = exec('which npm');
+    $version = exec('node -v');
+    
+    return [
+        'node_path' => $nodePath ?: 'No encontrado (Prueba buscando en /usr/local/bin/node o ~/.nvm)',
+        'npm_path' => $npmPath ?: 'No encontrado',
+        'node_version' => $version ?: 'No se pudo ejecutar',
+        'can_run_process' => function_exists('proc_open') ? 'Sí' : 'No (Browsershot fallará - proc_open deshabilitado en php.ini)'
+    ];
+});
 
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 
@@ -16,8 +36,7 @@ Route::middleware(['auth', 'verified'])
     ->name('dashboard.')
     ->group(function () {
         
-
-        Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])->name('index');
+        Route::get('/', [DashboardController::class, 'index'])->name('index');
 
         // Ayuda
         Route::get('/ayuda', function () {
@@ -25,22 +44,21 @@ Route::middleware(['auth', 'verified'])
         })->name('help');
         
         // Comunidad (Mini-Foro)
-        // Comunidad (Mini-Foro)
-        Route::get('/comunidad', [\App\Http\Controllers\CommunityController::class, 'dashboardIndex'])->name('community');
-        Route::post('/comunidad', [\App\Http\Controllers\CommunityController::class, 'store'])->name('community.store');
-        Route::get('/comunidad/{id}', [\App\Http\Controllers\CommunityController::class, 'show'])->name('community.show');
-        Route::delete('/comunidad/{id}', [\App\Http\Controllers\CommunityController::class, 'destroy'])->name('community.destroy');
-        Route::post('/comunidad/{id}/calificar', [\App\Http\Controllers\CommunityController::class, 'rate'])->name('community.rate');
-        Route::post('/comunidad/{postId}/comentar', [\App\Http\Controllers\CommunityCommentController::class, 'store'])->name('community.comment.store');
-        Route::post('/comunidad/comentarios/{comment}', [\App\Http\Controllers\CommunityCommentController::class, 'update'])->name('community.comment.update');
-        Route::delete('/comunidad/comentarios/{comment}', [\App\Http\Controllers\CommunityCommentController::class, 'destroy'])->name('community.comment.destroy');
+        Route::get('/comunidad', [CommunityController::class, 'dashboardIndex'])->name('community');
+        Route::post('/comunidad', [CommunityController::class, 'store'])->name('community.store');
+        Route::get('/comunidad/{id}', [CommunityController::class, 'show'])->name('community.show');
+        Route::delete('/comunidad/{id}', [CommunityController::class, 'destroy'])->name('community.destroy');
+        Route::post('/comunidad/{id}/calificar', [CommunityController::class, 'rate'])->name('community.rate');
+        Route::post('/comunidad/{postId}/comentar', [CommunityCommentController::class, 'store'])->name('community.comment.store');
+        Route::post('/comunidad/comentarios/{comment}', [CommunityCommentController::class, 'update'])->name('community.comment.update');
+        Route::delete('/comunidad/comentarios/{comment}', [CommunityCommentController::class, 'destroy'])->name('community.comment.destroy');
 
         // Herramientas (Tools)
-        Route::get('/herramientas', [\App\Http\Controllers\ToolsController::class, 'index'])->name('tools');
-        Route::post('/herramientas/analyze-skills', [\App\Http\Controllers\ToolsController::class, 'analyzeSkillsMatch'])->name('tools.analyze-skills');
-        Route::post('/herramientas/interview-questions', [\App\Http\Controllers\ToolsController::class, 'generateInterviewQuestions'])->name('tools.interview-questions');
-        Route::post('/herramientas/ats-scan', [\App\Http\Controllers\ToolsController::class, 'scanATS'])->name('tools.ats-scan');
-        Route::post('/herramientas/interview-interaction', [\App\Http\Controllers\ToolsController::class, 'interviewInteraction'])->name('tools.interview-interaction');
+        Route::get('/herramientas', [ToolsController::class, 'index'])->name('tools');
+        Route::post('/herramientas/analyze-skills', [ToolsController::class, 'analyzeSkillsMatch'])->name('tools.analyze-skills');
+        Route::post('/herramientas/interview-questions', [ToolsController::class, 'generateInterviewQuestions'])->name('tools.interview-questions');
+        Route::post('/herramientas/ats-scan', [ToolsController::class, 'scanATS'])->name('tools.ats-scan');
+        Route::post('/herramientas/interview-interaction', [ToolsController::class, 'interviewInteraction'])->name('tools.interview-interaction');
 
         // Incluir otras rutas del dashboard
         require __DIR__.'/template.php';
@@ -68,24 +86,17 @@ Route::get('/p/{slug}/edit', [TemplateController::class, 'editPublicBySlug'])
 Route::put('/p/{slug}', [TemplateController::class, 'updatePublicBySlug'])
     ->name('portfolio.public.update');
 
-// ==========================================
-// RUTAS PÚBLICAS DE ENLACES COMPARTIDOS
-// ==========================================
-use App\Http\Controllers\PortfolioSharingController;
+// RUTA PÚBLICA DE COMUNIDAD
+Route::get('/comunidad', [CommunityController::class, 'index'])
+    ->name('community.index');
 
-// Ver portafolio vía token compartido (acceso público o restringido según config)
+// RUTAS PÚBLICAS DE ENLACES COMPARTIDOS
 Route::get('/share/{token}', [PortfolioSharingController::class, 'viewShared'])
     ->name('portfolio.share.view');
 
-// Actualizar portafolio vía token (solo si tiene permiso view_edit)
 Route::put('/share/{token}', [PortfolioSharingController::class, 'updateShared'])
     ->name('portfolio.share.update-shared');
 
-// ==========================================
-// RUTA PÚBLICA DE COMUNIDAD
-// ==========================================
-Route::get('/comunidad', [\App\Http\Controllers\CommunityController::class, 'index'])
-    ->name('community.index');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/google_auth.php';

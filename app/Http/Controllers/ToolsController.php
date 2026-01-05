@@ -110,6 +110,7 @@ JSON Requerido:
 }";
 
         try {
+            /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.stack_ai.key'),
                 'Content-Type'  => 'application/json',
@@ -222,6 +223,7 @@ Genera preguntas variadas (técnicas, comportamentales, de situación). Proporci
 }";
 
         try {
+            /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.stack_ai.key'),
                 'Content-Type'  => 'application/json',
@@ -375,6 +377,7 @@ DATOS DEL CANDIDATO:
 
         // --- AI CALL ---
         try {
+            /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.stack_ai.key'),
                 'Content-Type'  => 'application/json',
@@ -479,6 +482,7 @@ ESTRUCTURA DE RESPUESTA REQUERIDA:
 }";
 
         try {
+            /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.stack_ai.key'),
                 'Content-Type'  => 'application/json',

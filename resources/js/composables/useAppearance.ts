@@ -62,16 +62,16 @@ export function initializeTheme() {
         return;
     }
 
-    // Cambiado: Por defecto usa 'light' en lugar de 'system'
+    // Default: dark mode
     const savedAppearance = getStoredAppearance();
-    updateTheme(savedAppearance || 'light');
+    updateTheme(savedAppearance || 'dark');
 
     // Set up system theme change listener...
     mediaQuery()?.addEventListener('change', handleSystemThemeChange);
 }
 
-// Cambiado: Valor por defecto ahora es 'light'
-const appearance = ref<Appearance>('light');
+// Default: dark mode
+const appearance = ref<Appearance>('dark');
 
 export function useAppearance() {
     onMounted(() => {
@@ -82,10 +82,10 @@ export function useAppearance() {
         if (savedAppearance) {
             appearance.value = savedAppearance;
         } else {
-            // Si no hay valor guardado, establecer 'light' como predeterminado
-            appearance.value = 'light';
-            localStorage.setItem('appearance', 'light');
-            setCookie('appearance', 'light');
+            // Si no hay valor guardado, establecer 'dark' como predeterminado
+            appearance.value = 'dark';
+            localStorage.setItem('appearance', 'dark');
+            setCookie('appearance', 'dark');
         }
     });
 

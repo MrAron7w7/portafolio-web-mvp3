@@ -37,6 +37,7 @@ class GeneralController extends Controller
                 'status' => $user->status ?? 'active',
                 'created_at' => $user->created_at->locale('es')->isoFormat('D MMMM, YYYY'),
                 'last_login_at' => $user->last_login_at ? $user->last_login_at->locale('es')->diffForHumans() : null,
+                'two_factor_enabled' => !is_null($user->two_factor_secret) && !is_null($user->two_factor_confirmed_at),
             ],
             'status' => session('status'),
         ]);

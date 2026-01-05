@@ -156,7 +156,7 @@ const showPassword = ref(false);
                                     class="text-sm text-indigo-600 dark:text-indigo-400 transition-colors duration-200 hover:text-indigo-700 dark:hover:text-indigo-300"
                                     :tabindex="5"
                                 >
-                                    <!-- ¿Olvidaste tu contraseña? -->
+                                    ¿Olvidaste tu contraseña?
                                 </TextLink>
                             </div>
                             <div class="relative">

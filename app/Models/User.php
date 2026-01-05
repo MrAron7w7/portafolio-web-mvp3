@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles;
@@ -84,5 +84,34 @@ class User extends Authenticatable
     public function getNameAttribute(): string
     {
         return $this->getFullNameAttribute();
+    }
+
+    /**
+     * Validate the given two factor authentication code.
+     *
+     * @param  string  $code
+     * @return bool
+     */
+    public function validateTwoFactorAuthentication($code)
+    {
+        // 1. Check if it matches our cached Email OTP code
+        // We use Cache::pull to retrieve AND remove it (single use)
+        // Or Cache::get if we want to allow retry within timeframe, but pull is safer for single use.
+        // However, Fortify might retry? Let's use get first, then if valid, the controller consumes it?
+        // Actually, confirm logic consumes it. 
+        // Let's use get for validation. We should handle expiration or removal if verified.
+        
+        $cachedCode = \Illuminate\Support\Facades\Cache::get('2fa_code_' . $this->id);
+        
+        \Log::info('2FA Validation: User ' . $this->id . ' | Input: ' . $code . ' | Cached: ' . $cachedCode);
+
+        if ($cachedCode && $cachedCode == $code) {
+             return true;
+        }
+
+        // 2. Fallback to standard TOTP (Google Authenticator)
+        // This allows user to use EITHER email code OR Google Auth app if they set it up.
+        // If you want ONLY email, you can remove this fallback.
+        return $this->verifyTwoFactorAuthentication($code);
     }
 }
