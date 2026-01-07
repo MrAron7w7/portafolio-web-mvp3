@@ -5,11 +5,17 @@ import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { logout } from '@/routes';
 import verification from '@/routes/verification';
-import { Form, Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 
 defineProps<{
     status?: string;
 }>();
+
+const form = useForm({});
+
+const submit = () => {
+    form.post(verification.send.url());
+};
 </script>
 
 <template>
@@ -27,13 +33,9 @@ defineProps<{
             provided during registration.
         </div>
 
-        <Form
-            v-bind="verification.send.form()"
-            class="space-y-6 text-center"
-            v-slot="{ processing }"
-        >
-            <Button :disabled="processing" variant="secondary">
-                <Spinner v-if="processing" />
+        <form @submit.prevent="submit" class="space-y-6 text-center">
+            <Button :disabled="form.processing" variant="secondary">
+                <Spinner v-if="form.processing" />
                 Resend verification email
             </Button>
 
@@ -44,6 +46,6 @@ defineProps<{
             >
                 Log out
             </TextLink>
-        </Form>
+        </form>
     </AuthLayout>
 </template>

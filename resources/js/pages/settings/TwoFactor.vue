@@ -74,7 +74,7 @@ onUnmounted(() => {
                         </Button>
                         <form
                             v-else
-                            @submit.prevent="enableForm.post(route('two-factor.enable'), { onSuccess: () => showSetupModal = true })"
+                            @submit.prevent="enableForm.post(route('settings.two-factor.enable'), { onSuccess: () => showSetupModal = true })"
                         >
                             <Button type="submit" :disabled="enableForm.processing">
                                 <ShieldCheck />Enable 2FA
@@ -99,7 +99,7 @@ onUnmounted(() => {
                     <TwoFactorRecoveryCodes />
 
                     <div class="relative inline">
-                        <form @submit.prevent="disableForm.delete(route('two-factor.disable'))">
+                        <form @submit.prevent="disableForm.delete(route('settings.two-factor.disable'))">
                             <Button
                                 variant="destructive"
                                 type="submit"

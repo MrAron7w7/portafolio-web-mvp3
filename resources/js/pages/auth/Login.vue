@@ -10,7 +10,7 @@ import { register } from '@/routes';
 import google from '@/routes/google';
 import login from '@/routes/login';
 import password from '@/routes/password';
-import { Form, Head, usePage } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 defineProps<{
@@ -45,6 +45,18 @@ interface PageProps {
 
 const page = usePage<PageProps>();
 const showPassword = ref(false);
+
+const form = useForm({
+    email: '',
+    password: '',
+    remember: false,
+});
+
+const submit = () => {
+    form.post(login.store.url(), {
+        onFinish: () => form.reset('password'),
+    });
+};
 </script>
 
 <template>
@@ -113,12 +125,7 @@ const showPassword = ref(false);
 
                 <!-- Formulario -->
                 <div class="mt-10">
-                    <Form
-                        v-bind="login.store.form()"
-                        :reset-on-success="['password']"
-                        v-slot="{ errors, processing }"
-                        class="space-y-6"
-                    >
+                    <form @submit.prevent="submit" class="space-y-6">
                         <!-- Email -->
                         <div class="space-y-2">
                             <Label
@@ -131,6 +138,7 @@ const showPassword = ref(false);
                                 id="email"
                                 type="email"
                                 name="email"
+                                v-model="form.email"
                                 required
                                 autofocus
                                 :tabindex="1"
@@ -138,7 +146,7 @@ const showPassword = ref(false);
                                 placeholder="tu@email.com"
                                 class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                             />
-                            <InputError :message="errors.email" />
+                            <InputError :message="form.errors.email" />
                         </div>
 
                         <!-- Password -->
@@ -164,6 +172,7 @@ const showPassword = ref(false);
                                     id="password"
                                     :type="showPassword ? 'text' : 'password'"
                                     name="password"
+                                    v-model="form.password"
                                     required
                                     :tabindex="2"
                                     autocomplete="current-password"
@@ -184,7 +193,7 @@ const showPassword = ref(false);
                                     </span>
                                 </button>
                             </div>
-                            <InputError :message="errors.password" />
+                            <InputError :message="form.errors.password" />
                         </div>
 
                         <!-- Remember Me -->
@@ -196,6 +205,7 @@ const showPassword = ref(false);
                                 <Checkbox
                                     id="remember"
                                     name="remember"
+                                    v-model:checked="form.remember"
                                     :tabindex="3"
                                     class="data-[state=checked]:border-indigo-600 dark:data-[state=checked]:border-indigo-500 data-[state=checked]:bg-indigo-600 dark:data-[state=checked]:bg-indigo-500 border-slate-300 dark:border-slate-600"
                                 />
@@ -212,13 +222,13 @@ const showPassword = ref(false);
                                 type="submit"
                                 class="focus:ring-offset-white dark:focus:ring-offset-slate-950 flex h-12 w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg px-5 text-base leading-normal font-bold tracking-[0.015em] text-white transition-colors duration-200 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:outline-none"
                                 :tabindex="4"
-                                :disabled="processing"
+                                :disabled="form.processing"
                                 data-test="login-button"
                             >
-                                <Spinner v-if="processing" class="mr-2" />
+                                <Spinner v-if="form.processing" class="mr-2" />
                                 <span class="truncate">
                                     {{
-                                        processing
+                                        form.processing
                                             ? 'Iniciando sesión...'
                                             : 'Iniciar sesión'
                                     }}
@@ -311,7 +321,7 @@ const showPassword = ref(false);
                                 Crear cuenta
                             </TextLink>
                         </div>
-                    </Form>
+                    </form>
                 </div>
             </div>
         </div>

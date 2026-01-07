@@ -126,7 +126,7 @@ class TemplateController extends Controller
         $portfolio = Portfolio::with('sections')->findOrFail($portfolioId);
 
         // Verificar que el usuario sea el propietario
-        if ($portfolio->user_id !== Auth::id()) {
+        if ($portfolio->user_id != Auth::id()) {
             abort(403);
         }
 
@@ -143,7 +143,7 @@ class TemplateController extends Controller
 public function viewPortfolio(Portfolio $portfolio)
 {
     // Verificar acceso: dueño o portafolio con acceso por enlace
-    $isOwner = Auth::check() && $portfolio->user_id === Auth::id();
+    $isOwner = Auth::check() && $portfolio->user_id == Auth::id();
     
     // Si es modo owner_only y no es el dueño, denegar acceso
     if ($portfolio->access_mode === 'owner_only' && !$isOwner) {
@@ -368,7 +368,7 @@ public function viewPortfolio(Portfolio $portfolio)
 
     public function updatePortfolio(Request $request, Portfolio $portfolio)
     {
-        if ($portfolio->user_id !== Auth::id()) {
+        if ($portfolio->user_id != Auth::id()) {
             abort(403);
         }
 
@@ -440,7 +440,7 @@ public function viewPortfolio(Portfolio $portfolio)
      */
     public function updateTitle(Request $request, Portfolio $portfolio)
     {
-        if ($portfolio->user_id !== Auth::id()) {
+        if ($portfolio->user_id != Auth::id()) {
             abort(403);
         }
 
@@ -600,7 +600,7 @@ public function viewPortfolio(Portfolio $portfolio)
      */
     public function deletePortfolio(Portfolio $portfolio)
     {
-        if ($portfolio->user_id !== Auth::id()) {
+        if ($portfolio->user_id != Auth::id()) {
             abort(403);
         }
 

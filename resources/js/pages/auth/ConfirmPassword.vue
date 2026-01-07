@@ -6,7 +6,27 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import confirm from '@/routes/password/confirm';
-import { Form, Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
+</script>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  setup() {
+    const form = useForm({
+      password: "",
+    });
+
+    const submit = () => {
+      form.post(confirm.store.url(), {
+        onFinish: () => form.reset(),
+      });
+    };
+
+    return { form, submit };
+  },
+});
 </script>
 
 <template>
@@ -16,11 +36,7 @@ import { Form, Head } from '@inertiajs/vue3';
     >
         <Head title="Confirm password" />
 
-        <Form
-            v-bind="confirm.store.form()"
-            reset-on-success
-            v-slot="{ errors, processing }"
-        >
+        <form @submit.prevent="submit">
             <div class="space-y-6">
                 <div class="grid gap-2">
                     <Label htmlFor="password" class="dark:text-slate-300">Password</Label>
@@ -28,26 +44,27 @@ import { Form, Head } from '@inertiajs/vue3';
                         id="password"
                         type="password"
                         name="password"
+                        v-model="form.password"
                         class="mt-1 block w-full dark:bg-slate-950 dark:border-slate-800"
                         required
                         autocomplete="current-password"
                         autofocus
                     />
 
-                    <InputError :message="errors.password" />
+                    <InputError :message="form.errors.password" />
                 </div>
 
                 <div class="flex items-center">
                     <Button
                         class="w-full bg-slate-900 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-                        :disabled="processing"
+                        :disabled="form.processing"
                         data-test="confirm-password-button"
                     >
-                        <Spinner v-if="processing" />
+                        <Spinner v-if="form.processing" />
                         Confirm Password
                     </Button>
                 </div>
             </div>
-        </Form>
+        </form>
     </AuthLayout>
 </template>

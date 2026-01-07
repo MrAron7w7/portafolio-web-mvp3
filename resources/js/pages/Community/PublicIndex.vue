@@ -121,10 +121,10 @@ onUnmounted(() => {
         </div>
 
         <!-- Hero Section (Standalone Context) -->
-        <section class="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#005aeb]/5 via-white to-[#7B2FF7]/5 pt-20 pb-10">
+        <section class="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-linear-to-br from-[#005aeb]/5 via-white to-[#7B2FF7]/5 pt-20 pb-10">
              <!-- Partículas orb con parallax -->
-             <div :style="parallaxStyle" class="pointer-events-none absolute top-20 left-10 h-96 w-96 animate-float rounded-full bg-gradient-to-br from-[#005aeb]/30 to-[#7B2FF7]/20 blur-3xl opacity-50"></div>
-             <div :style="parallaxStyle" class="pointer-events-none absolute bottom-20 right-10 h-96 w-96 animate-float-delayed rounded-full bg-gradient-to-br from-[#7B2FF7]/30 to-[#005aeb]/20 blur-3xl opacity-50"></div>
+             <div :style="parallaxStyle" class="pointer-events-none absolute top-20 left-10 h-96 w-96 animate-float rounded-full bg-linear-to-br from-[#005aeb]/30 to-[#7B2FF7]/20 blur-3xl opacity-50"></div>
+             <div :style="parallaxStyle" class="pointer-events-none absolute bottom-20 right-10 h-96 w-96 animate-float-delayed rounded-full bg-linear-to-br from-[#7B2FF7]/30 to-[#005aeb]/20 blur-3xl opacity-50"></div>
 
             <div class="container relative z-10 mx-auto px-4 text-center">
                 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-blue-100 shadow-sm mb-8 animate-fade-in-up">
@@ -134,7 +134,7 @@ onUnmounted(() => {
 
                 <h1 class="mb-6 text-5xl md:text-7xl font-extrabold leading-tight text-gray-900">
                     Voces de la <br />
-                    <span class="bg-gradient-to-r from-[#005aeb] via-[#7B2FF7] to-[#005aeb] bg-clip-text text-transparent animate-gradient-x">Comunidad</span>
+                    <span class="bg-linear-to-r from-[#005aeb] via-[#7B2FF7] to-[#005aeb] bg-clip-text text-transparent animate-gradient-x">Comunidad</span>
                 </h1>
                 
                 <p class="mx-auto mb-10 max-w-2xl text-xl leading-relaxed text-gray-600">
@@ -157,7 +157,7 @@ onUnmounted(() => {
 
         <!-- Posts Grid + Hilos -->
         <section class="py-20 bg-white relative">
-             <div class="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/20 to-transparent pointer-events-none"></div>
+             <div class="absolute inset-0 bg-linear-to-b from-transparent via-blue-50/20 to-transparent pointer-events-none"></div>
 
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="flex items-center justify-between mb-8">
@@ -210,7 +210,7 @@ onUnmounted(() => {
 
                         <div class="p-5 flex-1 flex flex-col space-y-3">
                             <div class="flex items-center gap-2 text-xs text-gray-500">
-                                <div class="h-6 w-6 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-[10px] font-bold">
+                                <div class="h-6 w-6 rounded-full bg-linear-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-[10px] font-bold">
                                     {{ post.user.first_name.charAt(0) }}
                                 </div>
                                 <span class="font-semibold text-gray-700">{{ post.user.first_name }}</span>

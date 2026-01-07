@@ -8,7 +8,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 import google from '@/routes/google';
 import register from '@/routes/register';
-import { Form, Head, usePage } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 
@@ -36,6 +36,20 @@ interface PageProps {
 const page = usePage<PageProps>();
 const showPassword = ref(false);
 const showPasswordConfirm = ref(false);
+
+const form = useForm({
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
+});
+
+const submit = () => {
+    form.post(register.store.url(), {
+        onFinish: () => form.reset('password', 'password_confirmation'),
+    });
+};
 </script>
 
 <template>
@@ -96,15 +110,7 @@ const showPasswordConfirm = ref(false);
 
                 <!-- Formulario -->
                 <div class="mt-10">
-                    <Form
-                        v-bind="register.store.form()"
-                        :reset-on-success="[
-                            'password',
-                            'password_confirmation',
-                        ]"
-                        v-slot="{ errors, processing }"
-                        class="space-y-6"
-                    >
+                    <form @submit.prevent="submit" class="space-y-6">
                         <!-- Name -->
                         <div class="space-y-2">
                             <Label
@@ -121,10 +127,11 @@ const showPasswordConfirm = ref(false);
                                 :tabindex="1"
                                 autocomplete="first_name"
                                 name="first_name"
+                                v-model="form.first_name"
                                 placeholder="Tus nombres"
                                 class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                             />
-                            <InputError :message="errors.name" />
+                            <InputError :message="form.errors.first_name" />
                         </div>
 
                         <!-- Apellidos -->
@@ -143,10 +150,11 @@ const showPasswordConfirm = ref(false);
                                 :tabindex="1"
                                 autocomplete="last_name"
                                 name="last_name"
+                                v-model="form.last_name"
                                 placeholder="Tus Apellidos"
                                 class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                             />
-                            <InputError :message="errors.name" />
+                            <InputError :message="form.errors.last_name" />
                         </div>
 
                         <!-- Email -->
@@ -164,10 +172,11 @@ const showPasswordConfirm = ref(false);
                                 :tabindex="2"
                                 autocomplete="email"
                                 name="email"
+                                v-model="form.email"
                                 placeholder="tu@email.com"
                                 class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border px-4 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0"
                             />
-                            <InputError :message="errors.email" />
+                            <InputError :message="form.errors.email" />
                         </div>
 
                         <!-- Password -->
@@ -186,6 +195,7 @@ const showPasswordConfirm = ref(false);
                                     :tabindex="3"
                                     autocomplete="new-password"
                                     name="password"
+                                    v-model="form.password"
                                     placeholder="Crea una contraseña segura"
                                     class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg px-4 pr-12 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0 transition-all"
                                 />
@@ -203,7 +213,7 @@ const showPasswordConfirm = ref(false);
                                     </span>
                                 </button>
                             </div>
-                            <InputError :message="errors.password" />
+                            <InputError :message="form.errors.password" />
                         </div>
 
                         <!-- Confirm Password -->
@@ -222,6 +232,7 @@ const showPasswordConfirm = ref(false);
                                     :tabindex="4"
                                     autocomplete="new-password"
                                     name="password_confirmation"
+                                    v-model="form.password_confirmation"
                                     placeholder="Repite tu contraseña"
                                     class="text-slate-900 dark:text-white border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-900 placeholder:text-slate-400 dark:placeholder:text-slate-500 flex h-12 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg px-4 pr-12 text-base leading-normal font-normal focus:ring-2 focus:ring-indigo-600/50 dark:focus:ring-indigo-500/50 focus:outline-0 transition-all"
                                 />
@@ -240,7 +251,7 @@ const showPasswordConfirm = ref(false);
                                 </button>
                             </div>
                             <InputError
-                                :message="errors.password_confirmation"
+                                :message="form.errors.password_confirmation"
                             />
                         </div>
 
@@ -250,13 +261,13 @@ const showPasswordConfirm = ref(false);
                                 type="submit"
                                 class="focus:ring-offset-white dark:focus:ring-offset-slate-950 flex h-12 w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg px-5 text-base leading-normal font-bold tracking-[0.015em] text-white transition-colors duration-200 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 focus:outline-none"
                                 tabindex="5"
-                                :disabled="processing"
+                                :disabled="form.processing"
                                 data-test="register-user-button"
                             >
-                                <Spinner v-if="processing" class="mr-2" />
+                                <Spinner v-if="form.processing" class="mr-2" />
                                 <span class="truncate">
                                     {{
-                                        processing
+                                        form.processing
                                             ? 'Creando cuenta...'
                                             : 'Crear cuenta'
                                     }}
@@ -348,7 +359,7 @@ const showPasswordConfirm = ref(false);
                                 Iniciar sesión
                             </TextLink>
                         </div>
-                    </Form>
+                    </form>
                 </div>
             </div>
         </div>

@@ -39,9 +39,9 @@ Route::middleware('auth')->group(function () {
     
     // Custom 2FA Enable/Disable (for email-based 2FA)
     Route::post('settings/two-factor/enable', [\App\Http\Controllers\Settings\TwoFactorSettingsController::class, 'enable'])
-        ->name('two-factor.enable');
+        ->name('settings.two-factor.enable');
     Route::delete('settings/two-factor/disable', [\App\Http\Controllers\Settings\TwoFactorSettingsController::class, 'disable'])
-        ->name('two-factor.disable');
+        ->name('settings.two-factor.disable');
 
     // Subscription
     Route::get('settings/subscription', function () {
